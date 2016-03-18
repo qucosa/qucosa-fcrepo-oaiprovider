@@ -16,7 +16,7 @@ public class TestDateRange {
 
     @Test
     public void testInclInclRange() {
-        DateRange range = null;
+        DateRange range;
 
         range = DateRange.getRangeInclIncl("2013", "2013-06-13T09:05Z");
         Assert.assertEquals("2012-12-31T23:59:59.999Z", range.getFrom());
@@ -200,20 +200,17 @@ public class TestDateRange {
 
     @Test(expected = DateRangeParseException.class)
     public void testJunk2() {
-        DateRange.getRangeExclIncl("junk",
-                "");
+        DateRange.getRangeExclIncl("junk", "");
     }
 
     @Test(expected = DateRangeParseException.class)
     public void testInvalid() {
-        DateRange.getRangeExclIncl("2013-06-13T09:05:00.000Z",
-                "2012-06-13T09:05:00.000Z");
+        DateRange.getRangeExclIncl("2013-06-13T09:05:00.000Z", "2012-06-13T09:05:00.000Z");
     }
 
     @Test
     public void testDifferentGranularities() {
-        DateRange.getRangeInclIncl("2002-02-05",
-                "2007-09-22T19:04:34Z");
+        DateRange.getRangeInclIncl("2002-02-05", "2007-09-22T19:04:34Z");
     }
 
 }
