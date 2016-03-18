@@ -14,9 +14,9 @@ import java.util.*;
 
 /**
  * An simple OAIDriver for testing/demonstration purposes.
- * <p/>
+ * <p>
  * The directory should contain the following files:
- * <p/>
+ * <p>
  * identity.xml
  * records/
  * item1-oai_dc-2005-01-01T08-50-44.xml
@@ -38,11 +38,10 @@ public class OAIDriverImpl implements OAIDriver {
     public static final String RECORDS_DIRNAME = "records";
     public static final String SETS_DIRNAME = "sets";
     public static final String FORMATS_DIRNAME = "formats";
-
+    private File m_formatsDir;
     private File m_identityFile;
     private File m_recordsDir;
     private File m_setsDir;
-    private File m_formatsDir;
 
     public OAIDriverImpl() {
     }
@@ -51,6 +50,23 @@ public class OAIDriverImpl implements OAIDriver {
         Properties props = new Properties();
         props.setProperty(BASE_DIR_PROPERTY, dir.getPath());
         init(props);
+    }
+
+    public static void writeFromFile(File file,
+                                     PrintWriter out) throws RepositoryException {
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(
+                            new FileInputStream(file), "UTF-8"));
+            String line = reader.readLine();
+            while (line != null) {
+                out.println(line);
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (Exception e) {
+            throw new RepositoryException("Error reading from file: " + file.getPath(), e);
+        }
     }
 
     public void init(Properties props) throws RepositoryException {
@@ -221,23 +237,6 @@ public class OAIDriverImpl implements OAIDriver {
             return list;
         } catch (Exception e) {
             throw new RepositoryException("Error getting metadata formats", e);
-        }
-    }
-
-    public static void writeFromFile(File file,
-                                     PrintWriter out) throws RepositoryException {
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(
-                            new FileInputStream(file), "UTF-8"));
-            String line = reader.readLine();
-            while (line != null) {
-                out.println(line);
-                line = reader.readLine();
-            }
-            reader.close();
-        } catch (Exception e) {
-            throw new RepositoryException("Error reading from file: " + file.getPath(), e);
         }
     }
 

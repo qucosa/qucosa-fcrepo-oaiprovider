@@ -21,22 +21,18 @@ public class ParsedRecord extends DefaultHandler implements Record {
 
     private static final Logger _LOG =
             Logger.getLogger(ParsedRecord.class.getName());
-
-    private String m_itemID;
-    private String m_prefix;
-    private String m_sourceInfo;
-
-    private File m_file;
+    private StringBuffer m_buf = null;
     private Date m_date;
-    private List<String> m_setSpecs;
-
+    private File m_file;
+    private boolean m_finishedParsing;
     private SimpleDateFormat m_formatter1;
     private SimpleDateFormat m_formatter2;
-
     private boolean m_inDatestamp;
     private boolean m_inSetSpec;
-    private boolean m_finishedParsing;
-    private StringBuffer m_buf = null;
+    private String m_itemID;
+    private String m_prefix;
+    private List<String> m_setSpecs;
+    private String m_sourceInfo;
 
     public ParsedRecord(String itemID,
                         String prefix,

@@ -20,8 +20,8 @@ public class SessionManager extends Thread {
     private int m_secondsBetweenRequests;
 
     private Map<String, Session> m_sessions;
-    private boolean m_threadNeedsToFinish;
     private boolean m_threadFinished;
+    private boolean m_threadNeedsToFinish;
 
     public SessionManager(Properties props) throws ServerException {
         String dir = props.getProperty(PROP_BASEDIR);
@@ -35,6 +35,10 @@ public class SessionManager extends Thread {
             throw new ServerException("Required property must an integer: " + PROP_SECONDSBETWEENREQUESTS);
         }
         init(new File(dir), secondsBetweenRequests);
+    }
+
+    public SessionManager(File baseDir, int secondsBetweenRequests) {
+        init(baseDir, secondsBetweenRequests);
     }
 
     private void init(File baseDir, int secondsBetweenRequests) throws ServerException {
@@ -63,10 +67,6 @@ public class SessionManager extends Thread {
         m_sessions = new HashMap<String, Session>();
         setName("Session-Reaper");
         start();
-    }
-
-    public SessionManager(File baseDir, int secondsBetweenRequests) {
-        init(baseDir, secondsBetweenRequests);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ public class SessionManager extends Thread {
 
     /**
      * Get response data from the appropriate session and return it.
-     * <p/>
+     * <p>
      * The resumption token encodes the session id and part number.
      * The first part is sessionid/0, the second part is sessionid/1, and so on.
      */

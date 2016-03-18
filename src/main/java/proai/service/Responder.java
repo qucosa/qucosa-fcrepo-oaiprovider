@@ -12,18 +12,18 @@ import java.util.Properties;
 
 /**
  * Provides transport-neutral responses to OAI-PMH requests.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * A single <code>Responder</code> instance handles multiple concurrent OAI-PMH
  * requests and provides responses without regard to the transport protocol.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * Responses are provided via <code>ResponseData</code> objects that can write
  * their XML to a given PrintWriter. The XML provided does not include an XML
  * declaration or an OAI-PMH response header -- this is the responsibility of
  * higher-level application code.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * At this level, errors are signaled by exceptions. Serializing them for
  * transport is the responsibility of higher-level application code.
  *
@@ -68,6 +68,43 @@ public class Responder {
                 nonNegativeValue(props, PROP_INCOMPLETESETLISTSIZE, true));
     }
 
+    public Responder(RecordCache cache, SessionManager sessionManager,
+                     int incompleteIdentifierListSize, int incompleteRecordListSize,
+                     int incompleteSetListSize) throws ServerException {
+        init(cache, sessionManager, incompleteIdentifierListSize,
+                incompleteRecordListSize, incompleteSetListSize);
+    }
+
+    private static String q(String s) {
+        if (s == null) {
+            return null;
+        } else {
+            return "\"" + s + "\"";
+        }
+    }
+
+    /**
+     * Throw a <code>BadArgumentException<code> if <code>identifier</code> is
+     * <code>null</code> or empty.
+     */
+    private static void checkIdentifier(String identifier)
+            throws BadArgumentException {
+        if (identifier == null || identifier.length() == 0) {
+            throw new BadArgumentException(ERR_MISSING_IDENTIFIER);
+        }
+    }
+
+    /**
+     * Throw a <code>BadArgumentException<code> if <code>metadataPrefix</code>
+     * is <code>null</code> or empty.
+     */
+    private static void checkMetadataPrefix(String metadataPrefix)
+            throws BadArgumentException {
+        if (metadataPrefix == null || metadataPrefix.length() == 0) {
+            throw new BadArgumentException(ERR_MISSING_PREFIX);
+        }
+    }
+
     private void init(RecordCache cache, SessionManager sessionManager,
                       int incompleteIdentifierListSize, int incompleteRecordListSize,
                       int incompleteSetListSize) {
@@ -97,13 +134,6 @@ public class Responder {
             throw new ServerException("Bad integer '" + v
                     + "' specified for property: " + name);
         }
-    }
-
-    public Responder(RecordCache cache, SessionManager sessionManager,
-                     int incompleteIdentifierListSize, int incompleteRecordListSize,
-                     int incompleteSetListSize) throws ServerException {
-        init(cache, sessionManager, incompleteIdentifierListSize,
-                incompleteRecordListSize, incompleteSetListSize);
     }
 
     /**
@@ -149,36 +179,6 @@ public class Responder {
                 logger.debug("Exiting getRecord(" + q(identifier) + ", "
                         + q(metadataPrefix) + ")");
             }
-        }
-    }
-
-    private static String q(String s) {
-        if (s == null) {
-            return null;
-        } else {
-            return "\"" + s + "\"";
-        }
-    }
-
-    /**
-     * Throw a <code>BadArgumentException<code> if <code>identifier</code> is
-     * <code>null</code> or empty.
-     */
-    private static void checkIdentifier(String identifier)
-            throws BadArgumentException {
-        if (identifier == null || identifier.length() == 0) {
-            throw new BadArgumentException(ERR_MISSING_IDENTIFIER);
-        }
-    }
-
-    /**
-     * Throw a <code>BadArgumentException<code> if <code>metadataPrefix</code>
-     * is <code>null</code> or empty.
-     */
-    private static void checkMetadataPrefix(String metadataPrefix)
-            throws BadArgumentException {
-        if (metadataPrefix == null || metadataPrefix.length() == 0) {
-            throw new BadArgumentException(ERR_MISSING_PREFIX);
         }
     }
 

@@ -48,6 +48,22 @@ public class RCDatabase {
         setPollingEnabled(conn, pollingEnabled);
     }
 
+    private static ResultSet executeQuery(Statement stmt,
+                                          String sql) throws SQLException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing query: " + sql);
+        }
+        return stmt.executeQuery(sql);
+    }
+
+    private static int executeUpdate(Statement stmt,
+                                     String sql) throws SQLException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing update: " + sql);
+        }
+        return stmt.executeUpdate(sql);
+    }
+
     private boolean tablesExist(Connection conn) throws ServerException {
         Statement stmt = null;
         ResultSet results = null;
@@ -189,22 +205,6 @@ public class RCDatabase {
         } else {
             return conn.createStatement();
         }
-    }
-
-    private static ResultSet executeQuery(Statement stmt,
-                                          String sql) throws SQLException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing query: " + sql);
-        }
-        return stmt.executeQuery(sql);
-    }
-
-    private static int executeUpdate(Statement stmt,
-                                     String sql) throws SQLException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing update: " + sql);
-        }
-        return stmt.executeUpdate(sql);
     }
 
     /**
@@ -673,9 +673,9 @@ public class RCDatabase {
 
     /**
      * Add or update a record.
-     * <p/>
+     * <p>
      * This will create an rcItem for it if it doesn't exist.
-     * <p/>
+     * <p>
      * NOTE: Records will initially be given a NULL date.  After a group of
      * records are updated, the date is set together with
      * setUncommittedRecordDates(..)
@@ -1026,7 +1026,7 @@ public class RCDatabase {
 
     /**
      * Copy all qualifying records from rcFailure to rcQueue.
-     * <p/>
+     * <p>
      * To avoid unintentional duplicates in the queue, it's important that
      * the caller ensures the queue is processed beforehand.
      */

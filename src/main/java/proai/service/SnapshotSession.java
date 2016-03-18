@@ -18,22 +18,18 @@ public class SnapshotSession<T> extends Thread
 
     private static final Logger logger =
             Logger.getLogger(SnapshotSession.class.getName());
-
-    private SessionManager m_manager;
     private File m_baseDir;
-    private int m_secondsBetweenRequests;
-    private ListProvider<T> m_provider;
-
-    private String m_sessionKey;
-
-    private int m_threadWorkingPart;
+    private ServerException m_exception;
+    private long m_expirationTime;
     private int m_lastGeneratedPart;
     private int m_lastSentPart;
-    private long m_expirationTime;
-    private ServerException m_exception;
-
+    private SessionManager m_manager;
+    private ListProvider<T> m_provider;
+    private int m_secondsBetweenRequests;
+    private String m_sessionKey;
     private boolean m_threadNeedsToFinish;
     private boolean m_threadWorking;
+    private int m_threadWorkingPart;
 
     public SnapshotSession(SessionManager manager,
                            File baseDir,
@@ -125,7 +121,7 @@ public class SnapshotSession<T> extends Thread
 
     /**
      * Has the session expired?
-     * <p/>
+     * <p>
      * If this is true, the session will be cleaned by the reaper thread
      * of the session manager.
      */
@@ -139,13 +135,13 @@ public class SnapshotSession<T> extends Thread
 
     /**
      * Do all possible cleanup for this session.
-     * <p/>
+     * <p>
      * This includes signaling to its thread to stop asap,
      * waiting for it to stop, and removing any files/directories that remain.
-     * <p/>
+     * <p>
      * The implementation should be fail-safe, as a session may be asked to
      * clean itself more than once.
-     * <p/>
+     * <p>
      * Clean must *not* be called from this session's thread.
      */
     public void clean() {

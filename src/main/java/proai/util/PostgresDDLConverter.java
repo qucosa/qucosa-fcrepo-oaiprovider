@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * This class is based on Hubert Stigler's contribution to the
  * fedora-users mailing list on April 4th, 2006.
- * <p/>
+ * <p>
  * It has been modified to create indexes.
  *
  * @author hubert.stigler@uni-graz.at

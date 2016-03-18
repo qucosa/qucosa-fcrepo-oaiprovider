@@ -12,16 +12,14 @@ import java.util.List;
 public class Worker extends Thread {
 
     private static Logger _LOG = Logger.getLogger(Worker.class.getName());
-
-    private Updater _updater;
-    private OAIDriver _driver;
-    private RCDisk _disk;
-    private Validator _validator;
-
     private int _attemptedCount;
+    private RCDisk _disk;
+    private OAIDriver _driver;
     private int _failedCount;
     private long _totalFetchTime;
     private long _totalValidationTime;
+    private Updater _updater;
+    private Validator _validator;
 
     public Worker(int num,
                   int of,

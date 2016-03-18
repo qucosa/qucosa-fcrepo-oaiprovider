@@ -66,13 +66,11 @@ public class RecordCache extends Thread {
     public static final String PROP_DB_PASSWORD = dbpfx + "password";
     private static final String dbconnpfx = dbpfx + "connection.";
     private static BasicDataSource s_pool;
-
-    private Updater m_updater;
-    private OAIDriver m_driver;
     private File m_baseDir;
-
-    private RCDatabase m_rcdb;
+    private OAIDriver m_driver;
     private RCDisk m_rcDisk;
+    private RCDatabase m_rcdb;
+    private Updater m_updater;
 
     public RecordCache(Properties props) throws ServerException {
 
@@ -162,6 +160,38 @@ public class RecordCache extends Thread {
                 schemaDir);
     }
 
+    public RecordCache(BasicDataSource pool,
+                       DDLConverter ddlc,
+                       boolean mySQLTrickling,
+                       boolean backslashIsEscape,
+                       boolean pollingEnabled,
+                       OAIDriver driver,
+                       int pollSeconds,
+                       File baseDir,
+                       int maxWorkers,
+                       int maxWorkBatchSize,
+                       int maxFailedRetries,
+                       int maxCommitQueueSize,
+                       int maxRecordsPerTransaction,
+                       boolean validateUpdates,
+                       File schemaDir) throws ServerException {
+        init(pool,
+                ddlc,
+                mySQLTrickling,
+                backslashIsEscape,
+                pollingEnabled,
+                driver,
+                pollSeconds,
+                baseDir,
+                maxWorkers,
+                maxWorkBatchSize,
+                maxFailedRetries,
+                maxCommitQueueSize,
+                maxRecordsPerTransaction,
+                validateUpdates,
+                schemaDir);
+    }
+
     private static String getRequiredParam(Properties props,
                                            String propName) throws ServerException {
         String val = props.getProperty(propName);
@@ -216,6 +246,58 @@ public class RecordCache extends Thread {
             }
         }
         return dbProps;
+    }
+
+    /**
+     * Get a connection from the pool.
+     */
+    protected static Connection getConnection() throws SQLException {
+        if (s_pool == null) {
+            throw new RuntimeException("RecordCache has not been constructed "
+                    + "so the db connection pool does not exist!");
+        }
+        long startTime = System.currentTimeMillis();
+        Connection conn = s_pool.getConnection(); // may block
+        if (logger.isDebugEnabled()) {
+            long delay = System.currentTimeMillis() - startTime;
+            logger.debug("Got db connection from pool after " + delay
+                    + "ms.  Now idle = " + s_pool.getNumIdle()
+                    + " and active = " + s_pool.getNumActive());
+        }
+        return conn;
+    }
+
+    protected static void releaseConnection(Connection conn) {
+        if (s_pool == null) {
+            logger.warn("RecordCache has not been constructed "
+                    + "so the db connesrc/test/resources/dbspec.xmlction pool does not exist!");
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Released db connection to pool.  Now idle = "
+                            + s_pool.getNumIdle() + " and active = "
+                            + s_pool.getNumActive());
+                }
+            } catch (Throwable th) {
+                logger.warn("Unable to release db connection to pool", th);
+            }
+        }
+    }
+
+    private static void addToCatalog(SchemaCatalog catalog, String url, String path) throws Exception {
+        if (!catalog.contains(url)) {
+            InputStream in;
+            if (
+                    (in = RecordCache.class.getClassLoader().getResourceAsStream(path)) != null ||
+                            (in = ClassLoader.getSystemResourceAsStream(path)) != null) {
+                catalog.put(url, in);
+            } else {
+                logger.error(
+                        String.format("Cannot obtain schema for '%s' from '%s'. Nothing added to catalog.", url, path));
+            }
+        }
     }
 
     private void init(BasicDataSource pool,
@@ -295,44 +377,6 @@ public class RecordCache extends Thread {
         m_updater.start();
     }
 
-    /**
-     * Get a connection from the pool.
-     */
-    protected static Connection getConnection() throws SQLException {
-        if (s_pool == null) {
-            throw new RuntimeException("RecordCache has not been constructed "
-                    + "so the db connection pool does not exist!");
-        }
-        long startTime = System.currentTimeMillis();
-        Connection conn = s_pool.getConnection(); // may block
-        if (logger.isDebugEnabled()) {
-            long delay = System.currentTimeMillis() - startTime;
-            logger.debug("Got db connection from pool after " + delay
-                    + "ms.  Now idle = " + s_pool.getNumIdle()
-                    + " and active = " + s_pool.getNumActive());
-        }
-        return conn;
-    }
-
-    protected static void releaseConnection(Connection conn) {
-        if (s_pool == null) {
-            logger.warn("RecordCache has not been constructed "
-                    + "so the db connesrc/test/resources/dbspec.xmlction pool does not exist!");
-        }
-        if (conn != null) {
-            try {
-                conn.close();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Released db connection to pool.  Now idle = "
-                            + s_pool.getNumIdle() + " and active = "
-                            + s_pool.getNumActive());
-                }
-            } catch (Throwable th) {
-                logger.warn("Unable to release db connection to pool", th);
-            }
-        }
-    }
-
     private SchemaLocator createLocator(File schemaDir) throws Exception {
 
         SchemaIndex index = new FileSchemaIndex(new File(schemaDir,
@@ -350,52 +394,6 @@ public class RecordCache extends Thread {
         return new CachingSchemaLocator(new MemorySchemaCatalog(),
                 cacheCatalog,
                 new URLSchemaLocator());
-    }
-
-    private static void addToCatalog(SchemaCatalog catalog, String url, String path) throws Exception {
-        if (!catalog.contains(url)) {
-            InputStream in;
-            if (
-                    (in = RecordCache.class.getClassLoader().getResourceAsStream(path)) != null ||
-                    (in = ClassLoader.getSystemResourceAsStream(path)) != null) {
-                catalog.put(url, in);
-            } else {
-                logger.error(
-                        String.format("Cannot obtain schema for '%s' from '%s'. Nothing added to catalog.", url, path));
-            }
-        }
-    }
-
-    public RecordCache(BasicDataSource pool,
-                       DDLConverter ddlc,
-                       boolean mySQLTrickling,
-                       boolean backslashIsEscape,
-                       boolean pollingEnabled,
-                       OAIDriver driver,
-                       int pollSeconds,
-                       File baseDir,
-                       int maxWorkers,
-                       int maxWorkBatchSize,
-                       int maxFailedRetries,
-                       int maxCommitQueueSize,
-                       int maxRecordsPerTransaction,
-                       boolean validateUpdates,
-                       File schemaDir) throws ServerException {
-        init(pool,
-                ddlc,
-                mySQLTrickling,
-                backslashIsEscape,
-                pollingEnabled,
-                driver,
-                pollSeconds,
-                baseDir,
-                maxWorkers,
-                maxWorkBatchSize,
-                maxFailedRetries,
-                maxCommitQueueSize,
-                maxRecordsPerTransaction,
-                validateUpdates,
-                schemaDir);
     }
 
     //////////////////////////////////////////////////////////////////////////

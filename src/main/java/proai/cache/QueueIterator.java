@@ -4,10 +4,9 @@ import java.io.*;
 
 public class QueueIterator {
 
-    private File _tempFile;
-    private BufferedReader _reader;
-
     private QueueItem _next;
+    private BufferedReader _reader;
+    private File _tempFile;
 
     public QueueIterator(File tempFile) throws IOException {
         _tempFile = tempFile;

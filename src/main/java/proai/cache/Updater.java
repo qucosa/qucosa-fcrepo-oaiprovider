@@ -20,27 +20,23 @@ import java.util.*;
 public class Updater extends Thread {
 
     private static Logger _LOG = Logger.getLogger(Updater.class.getName());
-
-    private int _pollSeconds;
-    private int _maxWorkers;
-    private int _maxWorkBatchSize;
-    private int _maxFailedRetries;
-    private int _maxCommitQueueSize;
-    private int _maxRecordsPerTransaction;
-
-    private OAIDriver _driver;
+    private Committer _committer;
     private RCDatabase _db;
     private RCDisk _disk;
-    private Validator _validator;
-
-    private boolean _shutdownRequested;
+    private OAIDriver _driver;
     private boolean _immediateShutdownRequested;
-
-    private QueueIterator _queueIterator;
-    private Worker[] _workers;
-    private Committer _committer;
+    private int _maxCommitQueueSize;
+    private int _maxFailedRetries;
+    private int _maxRecordsPerTransaction;
+    private int _maxWorkBatchSize;
+    private int _maxWorkers;
+    private int _pollSeconds;
     private boolean _processingAborted;
+    private QueueIterator _queueIterator;
+    private boolean _shutdownRequested;
     private String _status;
+    private Validator _validator;
+    private Worker[] _workers;
 
     public Updater(OAIDriver driver,
                    RecordCache cache,
@@ -66,6 +62,49 @@ public class Updater extends Thread {
         _validator = validator;
     }
 
+    /**
+     * For the given number of milliseconds, return a string like this:
+     * <p>
+     * <p><pre>[h hours, ][m minutes, ]sec.ms seconds</pre>
+     */
+    private static String getHMSString(long ms) {
+
+        StringBuffer out = new StringBuffer();
+
+        long hours = ms / (1000 * 60 * 60);
+        ms -= hours * 1000 * 60 * 60;
+        long minutes = ms / (1000 * 60);
+        ms -= minutes * 1000 * 60;
+        long seconds = ms / 1000;
+        ms -= seconds * 1000;
+
+        if (hours > 0) {
+            out.append(hours + " hours, ");
+        }
+        if (minutes > 0) {
+            out.append(minutes + " minutes, ");
+        }
+
+        String msString;
+        if (ms > 99) {
+            msString = "." + ms;
+        } else if (ms > 9) {
+            msString = ".0" + ms;
+        } else if (ms > 0) {
+            msString = ".00" + ms;
+        } else {
+            msString = ".000";
+        }
+
+        out.append(seconds + msString + " seconds");
+
+        return out.toString();
+    }
+
+    private static double round(double val) {
+        return (double) Math.round(val * 100.0) / 100.0;
+    }
+
     public void run() {
 
         _status = "Started";
@@ -80,8 +119,8 @@ public class Updater extends Thread {
 
                 // It's important to do this first because old items may have
                 // been left in the queue due to an immediate or improper
-                // shutdown.  This ensures that unintentional duplicates 
-                // (especially old failures) aren't entered into the queue 
+                // shutdown.  This ensures that unintentional duplicates
+                // (especially old failures) aren't entered into the queue
                 // during the polling+updating phase.
                 _status = "Processing any old items in queue";
                 checkImmediateShutdown();
@@ -413,7 +452,7 @@ public class Updater extends Thread {
 
     /**
      * Log stats for a round of processing.
-     * <p/>
+     * <p>
      * This assumes the array of workers and the committer have been
      * initialized.
      */
@@ -467,7 +506,7 @@ public class Updater extends Thread {
 
     /**
      * Update all formats and return the latest list of mdPrefixes.
-     * <p/>
+     * <p>
      * <p>This will add any new formats, modify any changed formats,
      * and delete any no-longer-existing formats (and associated records).
      */
@@ -512,7 +551,7 @@ public class Updater extends Thread {
 
     /**
      * Update all sets.
-     * <p/>
+     * <p>
      * <p>This will add any new sets, modify any changed sets, and delete any
      * no-longer-existing sets (and associated membership data).
      */
@@ -652,51 +691,8 @@ public class Updater extends Thread {
     }
 
     /**
-     * For the given number of milliseconds, return a string like this:
-     * <p/>
-     * <p><pre>[h hours, ][m minutes, ]sec.ms seconds</pre>
-     */
-    private static String getHMSString(long ms) {
-
-        StringBuffer out = new StringBuffer();
-
-        long hours = ms / (1000 * 60 * 60);
-        ms -= hours * 1000 * 60 * 60;
-        long minutes = ms / (1000 * 60);
-        ms -= minutes * 1000 * 60;
-        long seconds = ms / 1000;
-        ms -= seconds * 1000;
-
-        if (hours > 0) {
-            out.append(hours + " hours, ");
-        }
-        if (minutes > 0) {
-            out.append(minutes + " minutes, ");
-        }
-
-        String msString;
-        if (ms > 99) {
-            msString = "." + ms;
-        } else if (ms > 9) {
-            msString = ".0" + ms;
-        } else if (ms > 0) {
-            msString = ".00" + ms;
-        } else {
-            msString = ".000";
-        }
-
-        out.append(seconds + msString + " seconds");
-
-        return out.toString();
-    }
-
-    private static double round(double val) {
-        return (double) Math.round(val * 100.0) / 100.0;
-    }
-
-    /**
      * Signal that the thread should be shut down and wait for it to finish.
-     * <p/>
+     * <p>
      * If immediate is true, abort the update cycle if it's running.
      */
     public void shutdown(boolean immediate) {

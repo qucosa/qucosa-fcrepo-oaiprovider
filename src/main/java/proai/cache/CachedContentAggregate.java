@@ -9,16 +9,16 @@ import java.io.*;
 
 public class CachedContentAggregate implements Writable {
 
+    private RecordCache m_cache;
     private File m_listFile;
     private String m_verb;
-    private RecordCache m_cache;
 
     /**
      * Expects a file of the following form.
-     * <p/>
+     * <p>
      * line 0 - n : path [dateString if record or header]
      * line n+1   : "end" or "end resumptionToken cursor"
-     * <p/>
+     * <p>
      * Note that if dateString isn't given for a line in the file, it will
      * be written as-is.
      */

@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * A thread for committing a series of <code>QueueItem</code> updates to the
  * database.
- * <p/>
+ * <p>
  * <p>Items are added to a "commit queue" by <code>Worker</code> threads via the
  * synchronized handoff() method.  This can occur before the thread is actually
  * started.  Once the thread is started, the items are removed asynchronously,
@@ -26,35 +26,29 @@ import java.util.Map;
 public class Committer extends Thread {
 
     private static Logger _LOG = Logger.getLogger(Committer.class.getName());
-
-    private Updater _updater;
-    private RCDatabase _db;
-    private int _maxCommitQueueSize;
-    private int _maxRecordsPerTransaction;
-
-    private Map<String, Integer> _formatKeyMap;
-
     private List<QueueItem> _commitQueue;
+    private RCDatabase _db;
+    /**
+     * Only true if the thread has been started and has finished.
+     */
+    private boolean _finishedRunning;
+    private Map<String, Integer> _formatKeyMap;
     private int _lastCommitQueueSize;
-
     /**
      * This lock is used to ensure threadsafe access to the _lastCommitQueueSize
      * primitive.  By design, only two threads will ever be contending for it.
      */
     private Object _lastCommitQueueSizeLock = new Object();
-
-    /**
-     * Only true if the thread has been started and has finished.
-     */
-    private boolean _finishedRunning;
-
-    private int _transactionCount;
+    private int _maxCommitQueueSize;
+    private int _maxRecordsPerTransaction;
     private int _processedCount;
     private long _totalCommitTime;
+    private int _transactionCount;
+    private Updater _updater;
 
     /**
      * Construct a new committer with the given configuration.
-     * <p/>
+     * <p>
      * The caller is responsible for actually starting the thread.
      */
     public Committer(Updater updater,
@@ -86,7 +80,7 @@ public class Committer extends Thread {
     /**
      * Attempt to add the list of <code>QueueItems</code> to the commit queue
      * and return immediately.
-     * <p/>
+     * <p>
      * This method will block until adding the list would not cause the queue
      * to exceed its capacity or the thread is finished running.
      *
@@ -139,7 +133,7 @@ public class Committer extends Thread {
 
     /**
      * Run the thread.
-     * <p/>
+     * <p>
      * This works in two phases.  The first phase executes while workers are
      * running and the second phase commits all remaining items unless
      * processing is aborted.
@@ -180,7 +174,7 @@ public class Committer extends Thread {
     /**
      * If any items are currently on the commit queue, take up to
      * the maximum per-transaction off the queue and return them.
-     * <p/>
+     * <p>
      * Otherwise, return <code>null</code>.
      */
     private List<QueueItem> getNextTransactionItems() {

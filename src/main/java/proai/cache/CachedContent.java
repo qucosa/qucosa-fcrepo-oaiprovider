@@ -7,9 +7,8 @@ import java.io.*;
 
 public class CachedContent implements Writable {
 
-    private File m_file;
-
     private String m_dateStamp;
+    private File m_file;
     private boolean m_headerOnly;
 
     private String m_string;

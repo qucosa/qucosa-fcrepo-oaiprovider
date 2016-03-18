@@ -4,8 +4,8 @@ import proai.MetadataFormat;
 
 public class MetadataFormatImpl implements MetadataFormat {
 
-    private String m_prefix;
     private String m_namespaceURI;
+    private String m_prefix;
     private String m_schemaLocation;
 
     public MetadataFormatImpl(String prefix,

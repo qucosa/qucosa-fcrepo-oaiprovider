@@ -17,22 +17,18 @@ public class CacheSession<T> extends Thread
 
     private static final Logger _LOG =
             Logger.getLogger(CacheSession.class.getName());
-
-    private SessionManager _manager;
     private File _baseDir;
-    private int _secondsBetweenRequests;
-    private ListProvider<T> _provider;
-
-    private String _sessionKey;
-
-    private int _threadWorkingPart;
+    private ServerException _exception;
+    private long _expirationTime;
     private int _lastGeneratedPart;
     private int _lastSentPart;
-    private long _expirationTime;
-    private ServerException _exception;
-
+    private SessionManager _manager;
+    private ListProvider<T> _provider;
+    private int _secondsBetweenRequests;
+    private String _sessionKey;
     private boolean _threadNeedsToFinish;
     private boolean _threadWorking;
+    private int _threadWorkingPart;
 
     public CacheSession(SessionManager manager,
                         File baseDir,
@@ -132,7 +128,7 @@ public class CacheSession<T> extends Thread
 
     /**
      * Has the session expired?
-     * <p/>
+     * <p>
      * If this is true, the session will be cleaned by the reaper thread
      * of the session manager.
      */
@@ -150,13 +146,13 @@ public class CacheSession<T> extends Thread
 
     /**
      * Do all possible cleanup for this session.
-     * <p/>
+     * <p>
      * This includes signaling to its thread to stop asap,
      * waiting for it to stop, and removing any files/directories that remain.
-     * <p/>
+     * <p>
      * The implementation should be fail-safe, as a session may be asked to
      * clean itself more than once.
-     * <p/>
+     * <p>
      * Clean must *not* be called from this session's thread.
      */
     public void clean() {

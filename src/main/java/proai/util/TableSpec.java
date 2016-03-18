@@ -18,8 +18,8 @@ import java.util.List;
  */
 public class TableSpec {
 
-    private String m_name;
     private List<ColumnSpec> m_columnSpecs;
+    private String m_name;
     private String m_primaryColumnName;
     private String m_type;
 
@@ -40,7 +40,7 @@ public class TableSpec {
     /**
      * Constructs a TableSpec given a name, a set of ColumnSpecs, the
      * name of the primary key column, and a table type.
-     * <p/>
+     * <p>
      * Table type specification is not supported by all RDBMS software,
      * and is usually software-specific.  When a tableSpec is used to
      * create a table, if the type is understood it is used.  Otherwise

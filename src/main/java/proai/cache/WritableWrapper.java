@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 
 public class WritableWrapper implements Writable {
 
-    private String m_prependString;
     private String m_appendString;
+    private String m_prependString;
     private Writable m_writable;
 
     public WritableWrapper(String prependString,

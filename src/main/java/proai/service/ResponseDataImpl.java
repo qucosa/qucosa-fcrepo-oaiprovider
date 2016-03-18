@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 
 public class ResponseDataImpl implements ResponseData {
 
-    private Writable m_writable;
     private String m_resumptionToken;
+    private Writable m_writable;
 
     public ResponseDataImpl(Writable writable) {
         m_writable = writable;

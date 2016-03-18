@@ -34,14 +34,21 @@ public class ProviderServlet extends HttpServlet {
             + "         xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/\n"
             + "                             http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd\">\n"
             + "  <responseDate>";
-
-    private String xmlProcInst = _PROC_INST + _XMLSTART;
-    private String stylesheetLocation = null;
     private Responder m_responder;
+    private String stylesheetLocation = null;
+    private String xmlProcInst = _PROC_INST + _XMLSTART;
+
+    private static void appendAttribute(String name, String value, StringBuffer buf) {
+        if (value != null) {
+            buf.append(" " + name + "=\"");
+            buf.append(StreamUtil.xmlEncode(value));
+            buf.append("\"");
+        }
+    }
 
     /**
      * Close the Responder at shutdown-time.
-     * <p/>
+     * <p>
      * This makes a best-effort attempt to properly close any resources
      * (db connections, threads, etc) that are being held.
      */
@@ -51,7 +58,9 @@ public class ProviderServlet extends HttpServlet {
         } catch (Exception e) {
             logger.warn("Error trying to close Responder", e);
         }
-    }    /**
+    }
+
+    /**
      * Entry point for handling OAI requests.
      */
     @SuppressWarnings("unchecked")
@@ -153,14 +162,14 @@ public class ProviderServlet extends HttpServlet {
             }
         } catch (ProtocolException e) {
             sendProtocolException(getResponseStart(url,
-                            verb,
-                            identifier,
-                            from,
-                            until,
-                            metadataPrefix,
-                            set,
-                            resumptionToken,
-                            e),
+                    verb,
+                    identifier,
+                    from,
+                    until,
+                    metadataPrefix,
+                    set,
+                    resumptionToken,
+                    e),
                     e, response);
         } catch (ServerException e) {
             try {
@@ -201,7 +210,9 @@ public class ProviderServlet extends HttpServlet {
         m_responder = new Responder(props);
         //add Stylesheet Instruction to XML if configured
         setStylesheetProperty(props);
-    }    private String getResponseStart(String url,
+    }
+
+    private String getResponseStart(String url,
                                     String verb,
                                     String identifier,
                                     String from,
@@ -217,7 +228,7 @@ public class ProviderServlet extends HttpServlet {
                 || e instanceof BadArgumentException)) doParams = false;
 
         StringBuffer buf = new StringBuffer();
-        buf.append(appendProcessingInstruction()); // _XML_START replaced for stylesheet instruction 
+        buf.append(appendProcessingInstruction()); // _XML_START replaced for stylesheet instruction
         buf.append(StreamUtil.nowUTCString());
         buf.append("</responseDate>\n");
         buf.append("  <request");
@@ -247,16 +258,6 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
-    private static void appendAttribute(String name, String value, StringBuffer buf) {
-        if (value != null) {
-            buf.append(" " + name + "=\"");
-            buf.append(StreamUtil.xmlEncode(value));
-            buf.append("\"");
-        }
-    }
-
-
-
     private void sendProtocolException(String responseStart,
                                        ProtocolException e,
                                        HttpServletResponse response) {
@@ -275,7 +276,6 @@ public class ProviderServlet extends HttpServlet {
             logger.warn("Error while sending a protocol exception (" + e.getClass().getName() + ") response", th);
         }
     }
-
 
 
     public void doPost(HttpServletRequest request,

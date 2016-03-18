@@ -6,8 +6,8 @@ import java.io.PrintWriter;
 
 public class RCDiskWriter extends PrintWriter {
 
-    private String m_path;
     private File m_file;
+    private String m_path;
 
     public RCDiskWriter(File baseDir, String path) throws Exception {
         super(new FileOutputStream(new File(baseDir, path)));

@@ -14,13 +14,12 @@ import java.util.Date;
 public class RecordListProvider implements ListProvider<CachedContent> {
 
     private RecordCache m_cache;
-    private int m_incompleteListSize;
-    private boolean m_identifiers;
-
     private Date m_from;
-    private Date m_until;
+    private boolean m_identifiers;
+    private int m_incompleteListSize;
     private String m_prefix;
     private String m_set;
+    private Date m_until;
 
     public RecordListProvider(RecordCache cache,
                               int incompleteListSize,

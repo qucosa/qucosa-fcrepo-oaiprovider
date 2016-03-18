@@ -6,10 +6,9 @@ import proai.error.ServerException;
 public class CachedRecordContentIterator implements CloseableIterator<CachedContent> {
 
     private CloseableIterator<String[]> m_arrays;
-    private RCDisk m_rcDisk;
-    private boolean m_identifiers;
-
     private boolean m_closed;
+    private boolean m_identifiers;
+    private RCDisk m_rcDisk;
 
     public CachedRecordContentIterator(CloseableIterator<String[]> paths,
                                        RCDisk rcDisk,

@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public class RCDisk {
 
-	public static final String PATH_DATE_PATTERN = "yyyy/MM/dd/HH/mm/ss.SSS.'UUID'.'xml'";
+    public static final String PATH_DATE_PATTERN = "yyyy/MM/dd/HH/mm/ss.SSS.'UUID'.'xml'";
 
     private static final Logger logger =
             Logger.getLogger(RCDisk.class.getName());
@@ -47,17 +47,17 @@ public class RCDisk {
     /**
      * Get a new, unique path (relative to m_baseDir) for a file, based on
      * the current time.
-     * <p/>
+     * <p>
      * If the directory for the path does not yet exist, it will be created.
      */
-	private String getNewPath() {
-		DateFormat formatter = new SimpleDateFormat(PATH_DATE_PATTERN);
-		long now = System.currentTimeMillis();
-		String path = formatter.format(new Date(now)).replaceAll("UUID", UUID.randomUUID().toString());
-		File dir = new File(m_baseDir, path.substring(0, 16));
-		dir.mkdirs();
-		return path;
-	}
+    private String getNewPath() {
+        DateFormat formatter = new SimpleDateFormat(PATH_DATE_PATTERN);
+        long now = System.currentTimeMillis();
+        String path = formatter.format(new Date(now)).replaceAll("UUID", UUID.randomUUID().toString());
+        File dir = new File(m_baseDir, path.substring(0, 16));
+        dir.mkdirs();
+        return path;
+    }
 
     /**
      * Write the content of the given <code>Writable</code> to a new file and

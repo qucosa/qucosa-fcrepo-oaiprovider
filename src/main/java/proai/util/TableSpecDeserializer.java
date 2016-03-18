@@ -10,23 +10,22 @@ import java.util.List;
 public class TableSpecDeserializer
         extends DefaultHandler {
 
-    private ArrayList<TableSpec> m_tableSpecList;
-
     private ArrayList<ColumnSpec> m_columnSpecList;
+    private boolean m_column_autoIncrement;
+    private boolean m_column_binary;
+    private String m_column_default;
+    private String m_column_foreignKey_columnName;
+    private String m_column_foreignKey_foreignTableName;
+    private String m_column_foreignKey_onDeleteAction;
+    private String m_column_index;
+    private String m_column_name;
+    private boolean m_column_notNull;
+    private String m_column_type;
+    private boolean m_column_unique;
+    private ArrayList<TableSpec> m_tableSpecList;
     private String m_table_name;
     private String m_table_primaryKey;
     private String m_table_type;
-    private String m_column_name;
-    private String m_column_type;
-    private boolean m_column_binary;
-    private boolean m_column_autoIncrement;
-    private String m_column_index;
-    private boolean m_column_notNull;
-    private boolean m_column_unique;
-    private String m_column_default;
-    private String m_column_foreignKey_foreignTableName;
-    private String m_column_foreignKey_columnName;
-    private String m_column_foreignKey_onDeleteAction;
 
     protected TableSpecDeserializer() {
         m_tableSpecList = new ArrayList<TableSpec>();

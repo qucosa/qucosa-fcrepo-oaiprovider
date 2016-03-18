@@ -1,6 +1,5 @@
 package proai.service;
 
-import proai.error.BadResumptionTokenException;
 import proai.error.ServerException;
 
 public interface Session {

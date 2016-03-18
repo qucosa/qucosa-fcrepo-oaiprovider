@@ -5,8 +5,8 @@ import proai.MetadataFormat;
 public class CachedMetadataFormat implements MetadataFormat {
 
     private int m_key;
-    private String m_prefix;
     private String m_namespaceURI;
+    private String m_prefix;
     private String m_schemaLocation;
 
     public CachedMetadataFormat(int key,

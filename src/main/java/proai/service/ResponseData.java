@@ -5,7 +5,7 @@ import proai.error.ServerException;
 
 /**
  * The data part of an OAI response.
- * <p/>
+ * <p>
  * This may be complete in itself, as in the case of "Identify",
  * or it may be one part in a series of "incomplete list" responses.
  */
