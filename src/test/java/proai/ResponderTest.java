@@ -1,4 +1,4 @@
-package proai.test;
+package proai;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

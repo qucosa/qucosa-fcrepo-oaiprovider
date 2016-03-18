@@ -1,11 +1,8 @@
-package proai.test;
+package proai;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import proai.MetadataFormat;
-import proai.Record;
-import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.impl.OAIDriverImpl;
 

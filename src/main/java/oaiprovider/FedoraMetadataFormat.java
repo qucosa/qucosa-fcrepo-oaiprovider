@@ -1,4 +1,4 @@
-package fedora.services.oaiprovider;
+package oaiprovider;
 
 import proai.MetadataFormat;
 

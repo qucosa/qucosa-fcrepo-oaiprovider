@@ -1,5 +1,6 @@
-package fedora.services.oaiprovider;
+package oaiprovider.driver;
 
+import oaiprovider.*;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.log4j.Logger;

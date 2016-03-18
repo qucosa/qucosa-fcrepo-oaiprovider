@@ -1,5 +1,9 @@
-package fedora.services.oaiprovider;
+package oaiprovider.driver;
 
+import oaiprovider.FedoraMetadataFormat;
+import oaiprovider.FedoraRecord;
+import oaiprovider.InvocationSpec;
+import oaiprovider.QueryFactory;
 import org.apache.log4j.Logger;
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;

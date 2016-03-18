@@ -1,4 +1,4 @@
-package fedora.services.oaiprovider;
+package oaiprovider;
 
 import org.apache.log4j.Logger;
 import proai.Record;

@@ -1,4 +1,4 @@
-package fedora.services.oaiprovider;
+package oaiprovider;
 
 import org.nsdl.mptstore.query.QueryException;
 import org.nsdl.mptstore.query.SQLUnionQueryResults;

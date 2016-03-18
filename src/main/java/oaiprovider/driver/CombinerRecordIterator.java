@@ -1,5 +1,7 @@
-package fedora.services.oaiprovider;
+package oaiprovider.driver;
 
+import oaiprovider.FedoraRecord;
+import oaiprovider.ResultCombiner;
 import org.apache.log4j.Logger;
 import org.fcrepo.common.Constants;
 import proai.driver.RemoteIterator;

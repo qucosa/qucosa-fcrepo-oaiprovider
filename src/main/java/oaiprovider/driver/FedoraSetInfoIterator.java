@@ -1,5 +1,6 @@
-package fedora.services.oaiprovider;
+package oaiprovider.driver;
 
+import oaiprovider.FedoraSetInfo;
 import org.fcrepo.client.FedoraClient;
 import org.jrdf.graph.Literal;
 import org.jrdf.graph.Node;
