@@ -3,8 +3,6 @@ package proai;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import proai.cache.RecordCache;
 
 import java.io.File;
@@ -32,17 +30,6 @@ public class RecordCacheTest {
     @After
     public void tearDown() {
         m_cache.close();
-    }
-
-    @Test
-    @Ignore("Test is not doing anything")
-    public void testUpdate() throws Exception {
-        // TODO change test or remove it
-        //m_cache.update();
-        try {
-            Thread.sleep(2000);
-        } catch (Exception ignored) {
-        }
     }
 
 }
