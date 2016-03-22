@@ -37,10 +37,6 @@ public class RecordCache extends Thread {
     public static final String OAI_RECORD_SCHEMA_URL
             = "http://proai.sourceforge.net/schemas/OAI-PMH-record.xsd";
 
-    public static final String[] EXAMPLE_SCHEMAS
-            = new String[]{"sample.xsd", "test_format.xsd", "my-about.xsd",
-            "formatX.xsd", "formatY.xsd"};
-
     private static final Logger logger =
             Logger.getLogger(RecordCache.class.getName());
 
@@ -59,11 +55,8 @@ public class RecordCache extends Thread {
     public static final String PROP_SCHEMADIR = pfx + "schemaDir";
     public static final String PROP_VALIDATEUPDATES = pfx + "validateUpdates";
     private static final String dbpfx = pfx + "db.";
-    public static final String PROP_DB_URL = dbpfx + "url";
     public static final String PROP_DB_DRIVERCLASSNAME = dbpfx + "driverClassName";
     public static final String PROP_DB_MYSQL_TRICKLING = dbpfx + "mySQLResultTrickling";
-    public static final String PROP_DB_USERNAME = dbpfx + "username";
-    public static final String PROP_DB_PASSWORD = dbpfx + "password";
     private static final String dbconnpfx = dbpfx + "connection.";
     private static BasicDataSource s_pool;
     private RCDisk m_rcDisk;
@@ -382,11 +375,6 @@ public class RecordCache extends Thread {
 
         // if not already there, add predefined schemas to cache catalog
         addToCatalog(cacheCatalog, OAI_RECORD_SCHEMA_URL, "schemas/OAI-PMH-record.xsd");
-        for (String EXAMPLE_SCHEMA : EXAMPLE_SCHEMAS) {
-            addToCatalog(cacheCatalog,
-                    "http://example.org/" + EXAMPLE_SCHEMA,
-                    "schemas/" + EXAMPLE_SCHEMA);
-        }
 
         return new CachingSchemaLocator(new MemorySchemaCatalog(),
                 cacheCatalog,
