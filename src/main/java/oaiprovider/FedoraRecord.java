@@ -1,6 +1,7 @@
 package oaiprovider;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.Record;
 
 /**
@@ -10,8 +11,7 @@ import proai.Record;
 public class FedoraRecord
         implements Record {
 
-    private static final Logger logger =
-            Logger.getLogger(FedoraRecord.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(FedoraRecord.class);
 
     private final String m_itemID;
 

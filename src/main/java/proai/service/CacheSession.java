@@ -1,6 +1,7 @@
 package proai.service;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.CloseableIterator;
 import proai.cache.CachedContentAggregate;
 import proai.error.BadResumptionTokenException;
@@ -15,8 +16,8 @@ import java.util.Date;
 public class CacheSession<T> extends Thread
         implements Session {
 
-    private static final Logger _LOG =
-            Logger.getLogger(CacheSession.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(CacheSession.class);
+
     private final File _baseDir;
     private final SessionManager _manager;
     private final ListProvider<T> _provider;
@@ -61,7 +62,7 @@ public class CacheSession<T> extends Thread
     ///////////////////////////////////////////////////////////////////////////
 
     public void run() {
-        _LOG.info(_sessionKey + " retrieval thread started");
+        log.info(_sessionKey + " retrieval thread started");
         int incompleteListSize = _provider.getIncompleteListSize();
         CloseableIterator<String[]> iter = null;
         PrintWriter out = null;
@@ -101,7 +102,7 @@ public class CacheSession<T> extends Thread
                 }
                 out.close();
                 _lastGeneratedPart++;
-                _LOG.debug("Successfully created file " + listFile.getPath());
+                log.debug("Successfully created file " + listFile.getPath());
                 if (iter.hasNext()) {
                     _threadWorkingPart++;
                 }
@@ -120,7 +121,7 @@ public class CacheSession<T> extends Thread
             } catch (Exception ignored) {
             }
             _threadWorking = false;
-            _LOG.info(_sessionKey + " retrieval thread finished");
+            log.info(_sessionKey + " retrieval thread finished");
         }
     }
 
@@ -167,7 +168,7 @@ public class CacheSession<T> extends Thread
         if (sessionDir.exists()) {
             File[] files = sessionDir.listFiles();
             if (files != null) {
-                _LOG.debug("Deleting session " + _sessionKey + " directory and all "
+                log.debug("Deleting session " + _sessionKey + " directory and all "
                         + files.length + " files within");
                 for (File file : files) {
                     file.delete();
@@ -186,7 +187,7 @@ public class CacheSession<T> extends Thread
             throw _exception;
         }
 
-        _LOG.debug("Entered getResponseData(" + partNum + ")");
+        log.debug("Entered getResponseData(" + partNum + ")");
 
         // the current request should either be for the last sent part or plus one
         int nextPart = _lastSentPart + 1;
@@ -232,7 +233,7 @@ public class CacheSession<T> extends Thread
                     message.append(".  In fact, the session directory "
                             + "doesn't even exist.  Has it expired unexpectedly?");
                 }
-                _LOG.warn(message.toString());
+                log.warn(message.toString());
                 throw new BadResumptionTokenException("the indicated part does not exist");
             }
             String token = getResumptionToken(partNum + 1);
@@ -246,13 +247,13 @@ public class CacheSession<T> extends Thread
             if (partNum > 0) {
                 int previousPart = partNum - 1;
                 File toDelete = new File(_baseDir, _sessionKey + "/" + previousPart + ".txt");
-                _LOG.debug("Deleting previous part: " + toDelete.getPath());
+                log.debug("Deleting previous part: " + toDelete.getPath());
                 toDelete.delete();
             }
 
             _lastSentPart = partNum;
             _expirationTime = new Date().getTime() + (1000 * _secondsBetweenRequests);
-            _LOG.info(_sessionKey + " returning part " + partNum);
+            log.info(_sessionKey + " returning part " + partNum);
             return response;
         } else {
             throw new BadResumptionTokenException("the indicated part either doesn't exist yet or has expired");

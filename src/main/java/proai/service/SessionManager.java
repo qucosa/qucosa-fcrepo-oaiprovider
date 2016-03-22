@@ -1,6 +1,7 @@
 package proai.service;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.error.BadResumptionTokenException;
 import proai.error.ServerException;
 
@@ -9,13 +10,13 @@ import java.util.*;
 
 public class SessionManager extends Thread {
 
+    private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
+
     public static final String PROP_BASEDIR = "proai.sessionBaseDir";
     public static final String PROP_SECONDSBETWEENREQUESTS = "proai.secondsBetweenRequests";
     public static final String ERR_RESUMPTION_SYNTAX_SLASH = "bad syntax in resumption token: must contain exactly one slash";
     public static final String ERR_RESUMPTION_SYNTAX_INTEGER = "bad syntax in resumption token: expected an integer after the slash";
     public static final String ERR_RESUMPTION_SESSION = "bad session id or session expired";
-    private static final Logger logger =
-            Logger.getLogger(SessionManager.class.getName());
     private final Map<String, Session> m_sessions = new HashMap<>();
     private File m_baseDir;
     private int m_secondsBetweenRequests;
@@ -36,10 +37,6 @@ public class SessionManager extends Thread {
         init(new File(dir), secondsBetweenRequests);
     }
 
-    public SessionManager(File baseDir, int secondsBetweenRequests) {
-        init(baseDir, secondsBetweenRequests);
-    }
-
     private void init(File baseDir, int secondsBetweenRequests) throws ServerException {
         m_baseDir = baseDir;
         m_baseDir.mkdirs();
@@ -54,8 +51,8 @@ public class SessionManager extends Thread {
             for (File dir : dirs) {
                 if (dir.isDirectory()) {
                     File[] files = dir.listFiles();
-                    for (int j = 0; j < files.length; j++) {
-                        files[j].delete();
+                    for (File file : files) {
+                        file.delete();
                     }
                 }
                 dir.delete();

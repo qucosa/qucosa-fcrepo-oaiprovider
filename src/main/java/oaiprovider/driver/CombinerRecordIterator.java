@@ -2,8 +2,9 @@ package oaiprovider.driver;
 
 import oaiprovider.FedoraRecord;
 import oaiprovider.ResultCombiner;
-import org.apache.log4j.Logger;
 import org.fcrepo.common.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.driver.RemoteIterator;
 import proai.error.RepositoryException;
 
@@ -13,8 +14,8 @@ import proai.error.RepositoryException;
 public class CombinerRecordIterator
         implements RemoteIterator<FedoraRecord>, Constants {
 
-    private static final Logger logger =
-            Logger.getLogger(CombinerRecordIterator.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(CombinerRecordIterator.class);
+
     private final String m_aboutDissTypeURI;
     private final ResultCombiner m_combiner;
     private final String m_dissTypeURI;

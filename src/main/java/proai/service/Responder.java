@@ -1,6 +1,7 @@
 package proai.service;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.SetInfo;
 import proai.Writable;
 import proai.cache.CachedContent;
@@ -31,6 +32,8 @@ import java.util.Properties;
  */
 public class Responder {
 
+    private static final Logger logger = LoggerFactory.getLogger(Responder.class);
+
     public static final String ERR_MISSING_IDENTIFIER = "identifier must be specified";
     public static final String ERR_MISSING_PREFIX = "metadataPrefix must be specified";
     public static final String ERR_ITEM_DOESNT_EXIST = "the indicated item does not exist";
@@ -38,8 +41,6 @@ public class Responder {
     public static final String ERR_NO_FORMATS_FOR_ITEM = "the indicated item has no metadata formats";
     public static final String ERR_NO_SET_HIERARCHY = "there are no sets in the repository";
     public static final String ERR_RESUMPTION_EXCLUSIVE = "the resumptionToken argument may only be specified by itself";
-    public static final String ERR_DATE_FORMAT = "specified date is not syntactically valid";
-    public static final String ERR_FROM_UNTIL = "from date cannot be greater than until date";
     public static final String ERR_NO_SUCH_FORMAT = "the metadataPrefix is unrecognized";
     public static final String ERR_NO_RECORDS_MATCH = "no records match your selection criteria";
     private static final String _PFX = "proai.";
@@ -49,8 +50,6 @@ public class Responder {
             + "incompleteRecordListSize";
     public static final String PROP_INCOMPLETEIDENTIFIERLISTSIZE = _PFX
             + "incompleteRecordListSize";
-    private static final Logger logger = Logger.getLogger(Responder.class
-            .getName());
 
     private RecordCache m_cache;
 
@@ -275,7 +274,7 @@ public class Responder {
             } catch (DateRangeParseException e) {
                 throw new BadArgumentException(e.getLocalizedMessage(), e);
             } catch (Exception e) {
-                logger.debug(e);
+                logger.debug(e.getMessage());
             }
             // checkGranularity(from, until);
             // checkFromUntil(fromDate, untilDate);

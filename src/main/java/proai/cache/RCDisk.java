@@ -1,6 +1,7 @@
 package proai.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.Writable;
 import proai.error.ServerException;
 
@@ -20,8 +21,7 @@ public class RCDisk {
 
     public static final String PATH_DATE_PATTERN = "yyyy/MM/dd/HH/mm/ss.SSS.'UUID'.'xml'";
 
-    private static final Logger logger =
-            Logger.getLogger(RCDisk.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(RCDisk.class);
 
     private final File m_baseDir;
 

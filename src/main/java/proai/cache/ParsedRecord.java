@@ -1,6 +1,7 @@
 package proai.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -19,8 +20,8 @@ import java.util.List;
 
 public class ParsedRecord extends DefaultHandler implements Record {
 
-    private static final Logger _LOG =
-            Logger.getLogger(ParsedRecord.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(ParsedRecord.class);
+
     private final File m_file;
     private final SimpleDateFormat m_formatter1;
     private final SimpleDateFormat m_formatter2;
@@ -58,10 +59,10 @@ public class ParsedRecord extends DefaultHandler implements Record {
             SAXParser parser = spf.newSAXParser();
             parser.parse(new FileInputStream(file), this);
         } catch (Exception e) {
-            if (_LOG.isDebugEnabled() && file.exists()) {
+            if (log.isDebugEnabled() && file.exists()) {
                 try {
                     String xml = StreamUtil.getString(new FileInputStream(file), "UTF-8");
-                    _LOG.debug("Error parsing record xml: #BEGIN-XML#" + xml + "#END-XML#");
+                    log.debug("Error parsing record xml: #BEGIN-XML#" + xml + "#END-XML#");
                 } catch (Exception ignored) {
                 }
             }

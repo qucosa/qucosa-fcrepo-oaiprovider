@@ -10,7 +10,8 @@ import net.sf.bvalid.locator.SchemaLocator;
 import net.sf.bvalid.locator.URLSchemaLocator;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.CloseableIterator;
 import proai.MetadataFormat;
 import proai.SetInfo;
@@ -34,11 +35,10 @@ import java.util.*;
  */
 public class RecordCache extends Thread {
 
-    public static final String OAI_RECORD_SCHEMA_URL
-            = "http://proai.sourceforge.net/schemas/OAI-PMH-record.xsd";
+    private static final Logger logger = LoggerFactory.getLogger(RecordCache.class);
 
-    private static final Logger logger =
-            Logger.getLogger(RecordCache.class.getName());
+    public static final String OAI_RECORD_SCHEMA_URL
+            = "/schemas/OAI-PMH-record.xsd";
 
     private static final String propMissing = "Required property missing: ";
 
@@ -280,9 +280,8 @@ public class RecordCache extends Thread {
     private static void addToCatalog(SchemaCatalog catalog, String url, String path) throws Exception {
         if (!catalog.contains(url)) {
             InputStream in;
-            if (
-                    (in = RecordCache.class.getClassLoader().getResourceAsStream(path)) != null ||
-                            (in = ClassLoader.getSystemResourceAsStream(path)) != null) {
+            if ((in = RecordCache.class.getClassLoader().getResourceAsStream(path)) != null ||
+                    (in = ClassLoader.getSystemResourceAsStream(path)) != null) {
                 catalog.put(url, in);
             } else {
                 logger.error(

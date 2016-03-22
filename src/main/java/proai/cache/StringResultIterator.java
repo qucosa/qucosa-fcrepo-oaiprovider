@@ -1,6 +1,7 @@
 package proai.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.CloseableIterator;
 import proai.error.ServerException;
 
@@ -21,8 +22,8 @@ import java.text.SimpleDateFormat;
  */
 public class StringResultIterator implements CloseableIterator<String[]> {
 
-    private static final Logger logger =
-            Logger.getLogger(StringResultIterator.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(StringResultIterator.class);
+
     private final Connection m_conn;
     private boolean m_closed;
     private boolean m_exhausted;

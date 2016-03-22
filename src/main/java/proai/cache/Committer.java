@@ -1,6 +1,7 @@
 package proai.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.error.ServerException;
 import proai.util.StreamUtil;
 
@@ -25,7 +26,8 @@ import java.util.Map;
  */
 class Committer extends Thread {
 
-    private static final Logger _LOG = Logger.getLogger(Committer.class.getName());
+    private static final Logger _LOG = LoggerFactory.getLogger(Committer.class);
+
     private final List<QueueItem> _commitQueue;
     private final RCDatabase _db;
     /**

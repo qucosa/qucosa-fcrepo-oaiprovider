@@ -4,9 +4,10 @@ import oaiprovider.FedoraMetadataFormat;
 import oaiprovider.FedoraRecord;
 import oaiprovider.InvocationSpec;
 import oaiprovider.QueryFactory;
-import org.apache.log4j.Logger;
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
@@ -26,22 +27,14 @@ import java.util.*;
 public class FedoraOAIDriver
         implements OAIDriver {
 
+    private static final Logger logger = LoggerFactory.getLogger(FedoraOAIDriver.class);
+
     public static final String NS = "driver.fedora.";
-    public static final String PROP_QUERY_CONN_TIMEOUT =
-            NS + "queryConnectionTimeout";
-    public static final String PROP_QUERY_SOCK_TIMEOUT =
-            NS + "querySocketTimeout";
-    public static final String PROP_DISS_CONN_TIMEOUT =
-            NS + "disseminationConnectionTimeout";
-    public static final String PROP_DISS_SOCK_TIMEOUT =
-            NS + "disseminationSocketTimeout";
     public static final String PROP_ITEMID = NS + "itemID";
     public static final String PROP_SETSPEC = NS + "setSpec";
     public static final String PROP_SETSPEC_NAME = NS + "setSpec.name";
     public static final String PROP_DELETED = NS + "deleted";
-    public static final String PROP_FORMAT_ABOUT = ".about";
     public static final String PROP_ITEM_SETSPEC_PATH = NS + "itemSetSpecPath";
-    public static final String PROP_VOLATILE = NS + "volatile";
     private static final String PROP_BASEURL = NS + "baseURL";
     private static final String PROP_USER = NS + "user";
     private static final String PROP_PASS = NS + "pass";
@@ -61,8 +54,7 @@ public class FedoraOAIDriver
                     + "http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"";
     private static final String _XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String _XSI_DECLARATION = "xmlns:xsi=\"" + _XSI_URI + "\"";
-    private static final Logger logger =
-            Logger.getLogger(FedoraOAIDriver.class.getName());
+
     private FedoraClient m_fedora;
     private URL m_identify;
     private Map<String, FedoraMetadataFormat> m_metadataFormats;

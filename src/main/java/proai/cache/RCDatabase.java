@@ -1,6 +1,7 @@
 package proai.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.CloseableIterator;
 import proai.MetadataFormat;
 import proai.SetInfo;
@@ -25,9 +26,9 @@ import java.util.*;
  */
 public class RCDatabase {
 
+    private static final Logger logger = LoggerFactory.getLogger(RCDatabase.class);
+
     public static final String RCADMIN_TABLE_IS_EMPTY = "rcAdmin table is empty";
-    private static final Logger logger =
-            Logger.getLogger(RCDatabase.class.getName());
     private final boolean m_backslashIsEscape;
     private final boolean m_mySQLTrickling;
     private final RCDisk m_rcDisk;

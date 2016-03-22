@@ -1,7 +1,8 @@
 package proai.cache;
 
 import net.sf.bvalid.Validator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.MetadataFormat;
 import proai.Record;
 import proai.SetInfo;
@@ -19,7 +20,8 @@ import java.util.*;
 
 public class Updater extends Thread {
 
-    private static final Logger _LOG = Logger.getLogger(Updater.class.getName());
+    private static final Logger _LOG = LoggerFactory.getLogger(Updater.class);
+
     private final RCDatabase _db;
     private final RCDisk _disk;
     private final OAIDriver _driver;

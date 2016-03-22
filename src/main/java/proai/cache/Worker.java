@@ -1,7 +1,8 @@
 package proai.cache;
 
 import net.sf.bvalid.Validator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.driver.OAIDriver;
 import proai.util.StreamUtil;
 
@@ -11,7 +12,8 @@ import java.util.List;
 
 public class Worker extends Thread {
 
-    private static final Logger _LOG = Logger.getLogger(Worker.class.getName());
+    private static final Logger _LOG = LoggerFactory.getLogger(Worker.class);
+
     private final RCDisk _disk;
     private final OAIDriver _driver;
     private final Updater _updater;

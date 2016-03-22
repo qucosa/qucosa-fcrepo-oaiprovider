@@ -1,6 +1,7 @@
 package proai.service;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.error.BadArgumentException;
 import proai.error.BadVerbException;
 import proai.error.ProtocolException;
@@ -21,8 +22,7 @@ import java.util.Set;
 public class ProviderServlet extends HttpServlet {
     static final long serialVersionUID = 1;
 
-    private static final Logger logger =
-            Logger.getLogger(ProviderServlet.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(ProviderServlet.class);
 
     /**
      * Every response starts with this string.
