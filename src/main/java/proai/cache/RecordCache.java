@@ -35,11 +35,8 @@ import java.util.*;
  */
 public class RecordCache extends Thread {
 
+    public static final String OAI_SCHEMA_URL = "http://www.openarchives.org/OAI/2.0/";
     private static final Logger logger = LoggerFactory.getLogger(RecordCache.class);
-
-    public static final String OAI_RECORD_SCHEMA_URL
-            = "/schemas/OAI-PMH-record.xsd";
-
     private static final String propMissing = "Required property missing: ";
 
     private static final String pfx = "proai.";
@@ -373,7 +370,7 @@ public class RecordCache extends Thread {
         SchemaCatalog cacheCatalog = new DiskSchemaCatalog(index, schemaDir);
 
         // if not already there, add predefined schemas to cache catalog
-        addToCatalog(cacheCatalog, OAI_RECORD_SCHEMA_URL, "schemas/OAI-PMH-record.xsd");
+        addToCatalog(cacheCatalog, OAI_SCHEMA_URL, "schemas/OAI-PMH.xsd");
 
         return new CachingSchemaLocator(new MemorySchemaCatalog(),
                 cacheCatalog,
@@ -471,7 +468,7 @@ public class RecordCache extends Thread {
         try {
             conn = getConnection();
             List<String[]> list = m_rcdb.getSetInfoPaths(conn);
-            return new proai.driver.impl.RemoteIteratorImpl<String[]>(list.iterator());
+            return new proai.driver.impl.RemoteIteratorImpl<>(list.iterator());
         } catch (SQLException e) {
             throw new ServerException("Error getting a database connection", e);
         } finally {

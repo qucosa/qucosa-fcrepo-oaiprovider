@@ -26,9 +26,8 @@ import java.util.*;
  */
 public class RCDatabase {
 
-    private static final Logger logger = LoggerFactory.getLogger(RCDatabase.class);
-
     public static final String RCADMIN_TABLE_IS_EMPTY = "rcAdmin table is empty";
+    private static final Logger logger = LoggerFactory.getLogger(RCDatabase.class);
     private final boolean m_backslashIsEscape;
     private final boolean m_mySQLTrickling;
     private final RCDisk m_rcDisk;
@@ -1185,7 +1184,7 @@ public class RCDatabase {
                 writer.print(results.getString(5) + " ");
 
                 String sourceInfo = DBUtil.getLongString(results, 4);
-                if ((sourceInfo.contains("\n")) || (sourceInfo.contains("\r"))) {
+                if (sourceInfo != null && ((sourceInfo.contains("\n")) || (sourceInfo.contains("\r")))) {
                     throw new ServerException("rcQueue contains bad sourceInfo for "
                             + identifier + "/" + mdPrefix + " (contains "
                             + "newline(s)): '" + sourceInfo + "'");

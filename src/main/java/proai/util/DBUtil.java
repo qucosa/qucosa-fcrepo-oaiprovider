@@ -29,7 +29,7 @@ public abstract class DBUtil {
 
     public static String quotedString(String in,
                                       boolean backslashIsEscape) {
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
         out.append('\'');
         if (in == null) {
             out.append("null");
@@ -37,9 +37,9 @@ public abstract class DBUtil {
             for (int i = 0; i < in.length(); i++) {
                 char c = in.charAt(i);
                 if (c == '\'') {
-                    out.append("''");                           //  ' ==> ''
+                    out.append("''");
                 } else if (backslashIsEscape && c == '\\') {
-                    out.append("\\\\");                         //  \ ==> \\
+                    out.append("\\\\");
                 } else {
                     out.append(c);
                 }

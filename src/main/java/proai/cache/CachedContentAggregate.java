@@ -1,7 +1,5 @@
 package proai.cache;
 
-// FIXME: This probably goes in the proai.service package
-
 import proai.Writable;
 import proai.error.ServerException;
 

@@ -10,10 +10,6 @@ public class MySQLDDLConverter
     public MySQLDDLConverter() {
     }
 
-    public boolean supportsTableType() {
-        return true;
-    }
-
     public List<String> getDDL(TableSpec spec) {
         StringBuffer out = new StringBuffer();
         StringBuffer end = new StringBuffer();

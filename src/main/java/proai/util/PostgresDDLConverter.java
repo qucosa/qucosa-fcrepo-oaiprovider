@@ -18,10 +18,6 @@ public class PostgresDDLConverter
     public PostgresDDLConverter() {
     }
 
-    public boolean supportsTableType() {
-        return false;
-    }
-
     public List<String> getDDL(TableSpec spec) {
 
         ArrayList<String> l = new ArrayList<>();

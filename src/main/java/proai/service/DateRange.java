@@ -27,19 +27,6 @@ public class DateRange {
     }
 
     /**
-     * Creates a range where the given from constraint is inclusive and the
-     * given Until constraint is inclusive
-     *
-     * @param fromDate  a date in iso8601 format
-     * @param untilDate a date in iso8601 format
-     * @return a DateRange
-     */
-    public static DateRange getRangeInclIncl(Date fromDate, Date untilDate) {
-        return getRangeInclIncl(dateToIso8601(fromDate),
-                dateToIso8601(untilDate));
-    }
-
-    /**
      * Creates a range where the given constraints are inclusive
      *
      * @param fromDate  a date in iso8601 format
@@ -243,50 +230,6 @@ public class DateRange {
     }
 
     /**
-     * Creates a range where the given from constraint is inclusive and the
-     * given Until constraint is exclusive
-     *
-     * @param fromDate  a date in iso8601 format
-     * @param untilDate a date in iso8601 format
-     * @return a DateRange
-     */
-    public static DateRange getRangeInclExcl(Date fromDate, Date untilDate) {
-        return getRangeInclExcl(dateToIso8601(fromDate),
-                dateToIso8601(untilDate));
-    }
-
-    /**
-     * Creates a range where the given from constraint is inclusive and the
-     * given Until constraint is exclusive
-     *
-     * @param fromDate  a date in iso8601 format
-     * @param untilDate a date in iso8601 format
-     * @return a DateRange
-     */
-    private static DateRange getRangeInclExcl(String fromDate, String untilDate) {
-        if (fromDate == null || fromDate.isEmpty()) {
-            fromDate = null;
-        }
-        if (untilDate == null || untilDate.isEmpty()) {
-            untilDate = null;
-        }
-        if (!validate(fromDate))
-            throw new DateRangeParseException(fromDate
-                    + " is not a valid ISO8601 string.");
-        if (!validate(untilDate))
-            throw new DateRangeParseException(untilDate
-                    + " is not a valid ISO8601 string.");
-        if (fromIsAfterUntil(fromDate, untilDate))
-            throw new DateRangeParseException(untilDate
-                    + " (until) is before " + fromDate + "(from). Must result in empty response!");
-
-        fromDate = decrement(fromDate);
-        fromDate = unify(fromDate, untilDate);
-        untilDate = unify(untilDate, fromDate);
-        return new DateRange(fromDate, untilDate);
-    }
-
-    /**
      * Creates a range where the given from constraint is exclusive and the
      * given Until constraint is inclusive
      *
@@ -325,49 +268,6 @@ public class DateRange {
                     + " (until) is before " + fromDate + "(from). Must result in empty response!");
 
         untilDate = increment(untilDate);
-        fromDate = unify(fromDate, untilDate);
-        untilDate = unify(untilDate, fromDate);
-        return new DateRange(fromDate, untilDate);
-    }
-
-    /**
-     * Creates a range where the given from constraint is exclusive and the
-     * given Until constraint is exclusive
-     *
-     * @param fromDate  a date in iso8601 format
-     * @param untilDate a date in iso8601 format
-     * @return a DateRange
-     */
-    public static DateRange getRangeExclExcl(Date fromDate, Date untilDate) {
-        return getRangeExclExcl(dateToIso8601(fromDate),
-                dateToIso8601(untilDate));
-    }
-
-    /**
-     * Creates a range where the given from constraint is exclusive and the
-     * given Until constraint is exclusive
-     *
-     * @param fromDate  a date in iso8601 format
-     * @param untilDate a date in iso8601 format
-     * @return a DateRange
-     */
-    private static DateRange getRangeExclExcl(String fromDate, String untilDate) {
-        if (fromDate == null || fromDate.isEmpty()) {
-            fromDate = null;
-        }
-        if (untilDate == null || untilDate.isEmpty()) {
-            untilDate = null;
-        }
-        if (!validate(fromDate))
-            throw new DateRangeParseException(fromDate
-                    + " is not a valid ISO8601 string.");
-        if (!validate(untilDate))
-            throw new DateRangeParseException(untilDate
-                    + " is not a valid ISO8601 string.");
-        if (fromIsAfterUntil(fromDate, untilDate))
-            throw new DateRangeParseException(untilDate
-                    + " (until) is before " + fromDate + "(from). Must result in empty response!");
-
         fromDate = unify(fromDate, untilDate);
         untilDate = unify(untilDate, fromDate);
         return new DateRange(fromDate, untilDate);

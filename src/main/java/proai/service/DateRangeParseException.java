@@ -11,8 +11,4 @@ public class DateRangeParseException extends RuntimeException {
         super(cause);
     }
 
-    public DateRangeParseException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
 }

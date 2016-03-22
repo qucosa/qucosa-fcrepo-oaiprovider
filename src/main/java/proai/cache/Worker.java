@@ -84,7 +84,7 @@ public class Worker extends Thread {
             if (_validator != null) {
 
                 _validator.validate(getRecordStreamForValidation(diskWriter.getFile()),
-                        RecordCache.OAI_RECORD_SCHEMA_URL);
+                        RecordCache.OAI_SCHEMA_URL);
                 validationDelay = System.currentTimeMillis() - endFetchTime;
             }
 

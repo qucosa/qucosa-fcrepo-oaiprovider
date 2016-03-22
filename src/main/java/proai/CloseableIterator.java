@@ -13,8 +13,5 @@ public interface CloseableIterator<T> extends Iterator<T> {
     void remove() throws UnsupportedOperationException;
 
     void close() throws ServerException;
-    //{
-    //    throw new UnsupportedOperationException("CloseableIterator does not support remove().");
-    //}
 
 }

@@ -27,14 +27,13 @@ import java.util.*;
 public class FedoraOAIDriver
         implements OAIDriver {
 
-    private static final Logger logger = LoggerFactory.getLogger(FedoraOAIDriver.class);
-
     public static final String NS = "driver.fedora.";
     public static final String PROP_ITEMID = NS + "itemID";
     public static final String PROP_SETSPEC = NS + "setSpec";
     public static final String PROP_SETSPEC_NAME = NS + "setSpec.name";
     public static final String PROP_DELETED = NS + "deleted";
     public static final String PROP_ITEM_SETSPEC_PATH = NS + "itemSetSpecPath";
+    private static final Logger logger = LoggerFactory.getLogger(FedoraOAIDriver.class);
     private static final String PROP_BASEURL = NS + "baseURL";
     private static final String PROP_USER = NS + "user";
     private static final String PROP_PASS = NS + "pass";

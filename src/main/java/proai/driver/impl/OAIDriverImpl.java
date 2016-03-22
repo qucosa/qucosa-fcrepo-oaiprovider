@@ -114,7 +114,7 @@ public class OAIDriverImpl implements OAIDriver {
             String[] temp = name.replaceFirst("-", " ")
                     .replaceFirst("-", " ")
                     .split(" ");
-            if (temp.length == 3 && temp[2].indexOf(".") != -1) {
+            if (temp.length == 3 && temp[2].contains(".")) {
                 try {
                     long recDate = df.parse(temp[2].substring(0, temp[2].indexOf("."))).getTime();
                     if (recDate > latest) latest = recDate;
@@ -165,7 +165,7 @@ public class OAIDriverImpl implements OAIDriver {
             String[] temp = name.replaceFirst("-", " ")
                     .replaceFirst("-", " ")
                     .split(" ");
-            if (temp.length == 3 && temp[2].indexOf(".") != -1) {
+            if (temp.length == 3 && temp[2].contains(".")) {
                 String[] parts = name.split("-");
                 if (parts[1].equals(mdPrefix)) {
                     try {

@@ -11,8 +11,6 @@ import java.util.List;
  */
 public interface DDLConverter {
 
-    boolean supportsTableType();
-
     List<String> getDDL(TableSpec tableSpec);
 
     String getDropDDL(String command);

@@ -10,13 +10,12 @@ import java.util.*;
 
 public class SessionManager extends Thread {
 
-    private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
-
     public static final String PROP_BASEDIR = "proai.sessionBaseDir";
     public static final String PROP_SECONDSBETWEENREQUESTS = "proai.secondsBetweenRequests";
     public static final String ERR_RESUMPTION_SYNTAX_SLASH = "bad syntax in resumption token: must contain exactly one slash";
     public static final String ERR_RESUMPTION_SYNTAX_INTEGER = "bad syntax in resumption token: expected an integer after the slash";
     public static final String ERR_RESUMPTION_SESSION = "bad session id or session expired";
+    private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
     private final Map<String, Session> m_sessions = new HashMap<>();
     private File m_baseDir;
     private int m_secondsBetweenRequests;
@@ -140,7 +139,6 @@ public class SessionManager extends Thread {
     //////////////////////////////////////////////////////////////////////////
 
     public <T> ResponseData list(ListProvider<T> provider) throws ServerException {
-        // Session session = new SnapshotSession(this, m_baseDir, m_secondsBetweenRequests, provider);
         Session session = new CacheSession<>(this, m_baseDir, m_secondsBetweenRequests, provider);
         return session.getResponseData(0);
     }
@@ -176,7 +174,8 @@ public class SessionManager extends Thread {
 
     /////////////////////////////////////////////////////////////////////////
 
-    public void finalize() {
+    public void finalize() throws Throwable {
+        super.finalize();
         close();
     }
 

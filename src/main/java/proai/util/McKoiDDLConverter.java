@@ -10,10 +10,6 @@ public class McKoiDDLConverter
     public McKoiDDLConverter() {
     }
 
-    public boolean supportsTableType() {
-        return true;
-    }
-
     public List<String> getDDL(TableSpec spec) {
         StringBuffer out = new StringBuffer();
         StringBuffer end = new StringBuffer();

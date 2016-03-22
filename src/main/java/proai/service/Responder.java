@@ -32,8 +32,6 @@ import java.util.Properties;
  */
 public class Responder {
 
-    private static final Logger logger = LoggerFactory.getLogger(Responder.class);
-
     public static final String ERR_MISSING_IDENTIFIER = "identifier must be specified";
     public static final String ERR_MISSING_PREFIX = "metadataPrefix must be specified";
     public static final String ERR_ITEM_DOESNT_EXIST = "the indicated item does not exist";
@@ -43,6 +41,7 @@ public class Responder {
     public static final String ERR_RESUMPTION_EXCLUSIVE = "the resumptionToken argument may only be specified by itself";
     public static final String ERR_NO_SUCH_FORMAT = "the metadataPrefix is unrecognized";
     public static final String ERR_NO_RECORDS_MATCH = "no records match your selection criteria";
+    private static final Logger logger = LoggerFactory.getLogger(Responder.class);
     private static final String _PFX = "proai.";
     public static final String PROP_INCOMPLETESETLISTSIZE = _PFX
             + "incompleteSetListSize";
@@ -65,13 +64,6 @@ public class Responder {
                 nonNegativeValue(props, PROP_INCOMPLETEIDENTIFIERLISTSIZE, true),
                 nonNegativeValue(props, PROP_INCOMPLETERECORDLISTSIZE, true),
                 nonNegativeValue(props, PROP_INCOMPLETESETLISTSIZE, true));
-    }
-
-    public Responder(RecordCache cache, SessionManager sessionManager,
-                     int incompleteIdentifierListSize, int incompleteRecordListSize,
-                     int incompleteSetListSize) throws ServerException {
-        init(cache, sessionManager, incompleteIdentifierListSize,
-                incompleteRecordListSize, incompleteSetListSize);
     }
 
     private static String q(String s) {

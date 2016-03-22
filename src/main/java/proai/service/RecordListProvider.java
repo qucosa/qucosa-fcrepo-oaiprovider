@@ -49,7 +49,12 @@ public class RecordListProvider implements ListProvider<CachedContent> {
         if (!m_cache.formatExists(m_prefix)) {
             throw new CannotDisseminateFormatException(Responder.ERR_NO_SUCH_FORMAT);
         }
-        if (m_set != null) {
+        closeSetinfoIfNotNull(m_set);
+        throw new NoRecordsMatchException(Responder.ERR_NO_RECORDS_MATCH);
+    }
+
+    private void closeSetinfoIfNotNull(String mSet) {
+        if (mSet != null) {
             CloseableIterator<SetInfo> sic = m_cache.getSetInfoContent();
             boolean supportsSets = sic.hasNext();
             try {
@@ -60,7 +65,6 @@ public class RecordListProvider implements ListProvider<CachedContent> {
                 throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
             }
         }
-        throw new NoRecordsMatchException(Responder.ERR_NO_RECORDS_MATCH);
     }
 
     public CloseableIterator<String[]> getPathList() throws
@@ -74,17 +78,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
         if (!m_cache.formatExists(m_prefix)) {
             throw new CannotDisseminateFormatException(Responder.ERR_NO_SUCH_FORMAT);
         }
-        if (m_set != null) {
-            CloseableIterator<SetInfo> sic = m_cache.getSetInfoContent();
-            boolean supportsSets = sic.hasNext();
-            try {
-                sic.close();
-            } catch (Exception ignored) {
-            }
-            if (!supportsSets) {
-                throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
-            }
-        }
+        closeSetinfoIfNotNull(m_set);
         throw new NoRecordsMatchException(Responder.ERR_NO_RECORDS_MATCH);
     }
 
