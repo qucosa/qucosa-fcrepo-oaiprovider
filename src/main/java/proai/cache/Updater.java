@@ -19,27 +19,26 @@ import java.util.*;
 
 public class Updater extends Thread {
 
-    private static Logger _LOG = Logger.getLogger(Updater.class.getName());
+    private static final Logger _LOG = Logger.getLogger(Updater.class.getName());
+    private final RCDatabase _db;
+    private final RCDisk _disk;
+    private final OAIDriver _driver;
+    private final int _maxCommitQueueSize;
+    private final int _maxFailedRetries;
+    private final int _maxRecordsPerTransaction;
+    private final int _maxWorkBatchSize;
+    private final int _maxWorkers;
+    private final int _pollSeconds;
+    private final Validator _validator;
     private Committer _committer;
-    private RCDatabase _db;
-    private RCDisk _disk;
-    private OAIDriver _driver;
     private boolean _immediateShutdownRequested;
-    private int _maxCommitQueueSize;
-    private int _maxFailedRetries;
-    private int _maxRecordsPerTransaction;
-    private int _maxWorkBatchSize;
-    private int _maxWorkers;
-    private int _pollSeconds;
     private boolean _processingAborted;
     private QueueIterator _queueIterator;
     private boolean _shutdownRequested;
     private String _status;
-    private Validator _validator;
     private Worker[] _workers;
 
     public Updater(OAIDriver driver,
-                   RecordCache cache,
                    RCDatabase db,
                    RCDisk disk,
                    int pollSeconds,
@@ -64,7 +63,7 @@ public class Updater extends Thread {
 
     /**
      * For the given number of milliseconds, return a string like this:
-     * <p>
+     * <p/>
      * <p><pre>[h hours, ][m minutes, ]sec.ms seconds</pre>
      */
     private static String getHMSString(long ms) {
@@ -153,7 +152,7 @@ public class Updater extends Thread {
             while (!_shutdownRequested && waitedSeconds < _pollSeconds) {
                 try {
                     Thread.sleep(1000);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 waitedSeconds++;
             }
@@ -223,7 +222,7 @@ public class Updater extends Thread {
                     while (_committer.isAlive()) {
                         try {
                             Thread.sleep(1000);
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
 
@@ -388,12 +387,12 @@ public class Updater extends Thread {
             if (resultWriter != null) {
                 try {
                     resultWriter.close();
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 if (resultReader != null) {
                     try {
                         resultReader.close();
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
@@ -439,7 +438,7 @@ public class Updater extends Thread {
             if (queueWriter != null) {
                 try {
                     queueWriter.close();
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
             if (queueFile != null) {
@@ -452,7 +451,7 @@ public class Updater extends Thread {
 
     /**
      * Log stats for a round of processing.
-     * <p>
+     * <p/>
      * This assumes the array of workers and the committer have been
      * initialized.
      */
@@ -473,10 +472,10 @@ public class Updater extends Thread {
         int failedCount = 0;
         int attemptedCount = 0;
         long totalFetchTime = 0;
-        for (int i = 0; i < _workers.length; i++) {
-            failedCount += _workers[i].getFailedCount();
-            attemptedCount += _workers[i].getAttemptedCount();
-            totalFetchTime += _workers[i].getTotalFetchTime();
+        for (Worker _worker : _workers) {
+            failedCount += _worker.getFailedCount();
+            attemptedCount += _worker.getAttemptedCount();
+            totalFetchTime += _worker.getTotalFetchTime();
         }
         stats.append("    Failed record loads      : " + failedCount + " of " + attemptedCount + " attempted\n");
         long msPerAttempt = totalFetchTime / attemptedCount;
@@ -497,7 +496,7 @@ public class Updater extends Thread {
 
     }
 
-    private void updateIdentify(Connection conn) throws Exception {
+    private void updateIdentify(Connection conn) {
 
         _LOG.info("Getting 'Identify' xml from remote source...");
 
@@ -506,17 +505,17 @@ public class Updater extends Thread {
 
     /**
      * Update all formats and return the latest list of mdPrefixes.
-     * <p>
+     * <p/>
      * <p>This will add any new formats, modify any changed formats,
      * and delete any no-longer-existing formats (and associated records).
      */
-    private List<String> updateFormats(Connection conn) throws Exception {
+    private List<String> updateFormats(Connection conn) {
 
         _LOG.info("Updating metadata formats...");
 
         // apply new / updated
         RemoteIterator<? extends MetadataFormat> riter = _driver.listMetadataFormats();
-        List<String> newPrefixes = new ArrayList<String>();
+        List<String> newPrefixes = new ArrayList<>();
         try {
             while (riter.hasNext()) {
 
@@ -534,10 +533,8 @@ public class Updater extends Thread {
         }
 
         // apply deleted
-        Iterator<CachedMetadataFormat> iter = _db.getFormats(conn).iterator();
-        while (iter.hasNext()) {
+        for (CachedMetadataFormat format : _db.getFormats(conn)) {
 
-            CachedMetadataFormat format = iter.next();
             String oldPrefix = format.getPrefix();
             if (!newPrefixes.contains(oldPrefix)) {
 
@@ -551,18 +548,18 @@ public class Updater extends Thread {
 
     /**
      * Update all sets.
-     * <p>
+     * <p/>
      * <p>This will add any new sets, modify any changed sets, and delete any
      * no-longer-existing sets (and associated membership data).
      */
-    private void updateSets(Connection conn) throws Exception {
+    private void updateSets(Connection conn) {
 
         _LOG.info("Updating sets...");
 
         // apply new / updated
         RemoteIterator<? extends SetInfo> riter = _driver.listSetInfo();
-        Set<String> newSpecs = new HashSet<String>();
-        Set<String> missingSpecs = new HashSet<String>();
+        Set<String> newSpecs = new HashSet<>();
+        Set<String> missingSpecs = new HashSet<>();
 
         try {
             while (riter.hasNext()) {
@@ -614,10 +611,9 @@ public class Updater extends Thread {
         }
 
         // apply deleted
-        Iterator<SetInfo> iter = _db.getSetInfo(conn).iterator();
-        while (iter.hasNext()) {
+        for (SetInfo setInfo : _db.getSetInfo(conn)) {
 
-            String oldSpec = iter.next().getSetSpec();
+            String oldSpec = setInfo.getSetSpec();
             if (!newSpecs.contains(oldSpec)) {
 
                 checkImmediateShutdown();
@@ -628,7 +624,7 @@ public class Updater extends Thread {
 
     private void queueUpdatedRecords(Connection conn,
                                      List<String> allPrefixes,
-                                     long latestRemoteDate) throws Exception {
+                                     long latestRemoteDate) {
 
         _LOG.info("Querying and queueing updated records...");
 
@@ -692,7 +688,7 @@ public class Updater extends Thread {
 
     /**
      * Signal that the thread should be shut down and wait for it to finish.
-     * <p>
+     * <p/>
      * If immediate is true, abort the update cycle if it's running.
      */
     public void shutdown(boolean immediate) {
@@ -706,7 +702,7 @@ public class Updater extends Thread {
                 _LOG.info("Waiting for updater to finish.  Current status: " + _status);
                 try {
                     Thread.sleep(250);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
 
@@ -737,7 +733,7 @@ public class Updater extends Thread {
             try {
                 synchronized (_queueIterator) {
                     if (_queueIterator.hasNext()) {
-                        nextBatch = new ArrayList<QueueItem>();
+                        nextBatch = new ArrayList<>();
                         while (_queueIterator.hasNext() &&
                                 nextBatch.size() < _maxWorkBatchSize) {
                             nextBatch.add(_queueIterator.next());
@@ -765,8 +761,8 @@ public class Updater extends Thread {
         if (_workers == null) {
             return false;
         } else {
-            for (int i = 0; i < _workers.length; i++) {
-                if (_workers[i].isAlive()) return true;
+            for (Worker _worker : _workers) {
+                if (_worker.isAlive()) return true;
             }
             return false;
         }

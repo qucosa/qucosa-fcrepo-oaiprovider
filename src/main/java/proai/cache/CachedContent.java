@@ -45,7 +45,7 @@ public class CachedContent implements Writable {
                 } finally {
                     if (reader != null) try {
                         reader.close();
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                 }
             } else {
@@ -69,7 +69,7 @@ public class CachedContent implements Writable {
             boolean sawHeaderEnd = false;
             while (line != null && !sawHeaderEnd) {
                 upToHeaderEnd.append(line + "\n");
-                if (line.indexOf("</h") != -1) {
+                if (line.contains("</h")) {
                     sawHeaderEnd = true;
                 }
                 line = reader.readLine();
@@ -98,7 +98,7 @@ public class CachedContent implements Writable {
         } finally {
             if (reader != null) try {
                 reader.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 

@@ -91,7 +91,7 @@ public class ITQLQueryFactory
      * millisecond. The shift is necessary because the provided dates are
      * inclusive, whereas ITQL date operators are exclusive.
      */
-    protected String getExclusiveDateString(Date date, boolean isUntilDate) {
+    private String getExclusiveDateString(Date date, boolean isUntilDate) {
         if (date == null) {
             return null;
         } else {
@@ -214,13 +214,13 @@ public class ITQLQueryFactory
         out.append("where  $item           <" + m_oaiItemID + "> $itemID\n");
     }
 
-    protected String getListRecordsPrimaryQuery(String afterUTC,
-                                                String beforeUTC,
-                                                InvocationSpec mdSpec) {
+    private String getListRecordsPrimaryQuery(String afterUTC,
+                                              String beforeUTC,
+                                              InvocationSpec mdSpec) {
         StringBuilder out = new StringBuilder();
 
-        String selectString = "";
-        String contentDissString = "";
+        String selectString;
+        String contentDissString;
 
         selectString = "select $item $itemID $date $state\n";
 
@@ -242,9 +242,9 @@ public class ITQLQueryFactory
         return out.toString();
     }
 
-    protected String getListRecordsSetMembershipQuery(String afterUTC,
-                                                      String beforeUTC,
-                                                      InvocationSpec mdSpec) {
+    private String getListRecordsSetMembershipQuery(String afterUTC,
+                                                    String beforeUTC,
+                                                    InvocationSpec mdSpec) {
         StringBuilder out = new StringBuilder();
 
         out.append("select $itemID $setSpec\n");
@@ -262,9 +262,9 @@ public class ITQLQueryFactory
         return out.toString();
     }
 
-    protected String getListRecordsAboutQuery(String afterUTC,
-                                              String beforeUTC,
-                                              FedoraMetadataFormat format) {
+    private String getListRecordsAboutQuery(String afterUTC,
+                                            String beforeUTC,
+                                            FedoraMetadataFormat format) {
         StringBuilder out = new StringBuilder();
 
         InvocationSpec mdSpec = format.getMetadataSpec();
@@ -298,12 +298,12 @@ public class ITQLQueryFactory
 
         logger.debug("getCSVResults() called with query:\n" + queryText);
 
-        Map<String, String> parameters = new HashMap<String, String>();
+        Map<String, String> parameters = new HashMap<>();
         parameters.put("lang", QUERY_LANGUAGE);
         parameters.put("query", queryText);
 
-        File tempFile = null;
-        OutputStream out = null;
+        File tempFile;
+        OutputStream out;
         try {
             tempFile =
                     File.createTempFile("oaiprovider-listrec-tuples", ".csv");
@@ -327,7 +327,7 @@ public class ITQLQueryFactory
         } finally {
             try {
                 out.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -354,16 +354,15 @@ public class ITQLQueryFactory
     private String getDatastreamDissType(InvocationSpec spec,
                                          String objectVar,
                                          String suffix) {
-        StringBuilder s = new StringBuilder();
         String dissemination = "$diss" + suffix;
-        s.append(objectVar + " <" + VIEW.DISSEMINATES + "> " + dissemination
-                + "\n");
-        s.append("and " + dissemination + " <" + VIEW.DISSEMINATION_TYPE
-                + "> <" + spec.getDisseminationType() + ">\n");
-        return s.toString();
+        String s = (objectVar + " <" + VIEW.DISSEMINATES + "> " + dissemination
+                + "\n") +
+                "and " + dissemination + " <" + VIEW.DISSEMINATION_TYPE
+                + "> <" + spec.getDisseminationType() + ">\n";
+        return s;
     }
 
-    protected String getListSetInfoQuery(InvocationSpec setInfoSpec) {
+    private String getListSetInfoQuery(InvocationSpec setInfoSpec) {
         StringBuffer query = new StringBuffer();
 
         String setInfoDissQuery =
@@ -398,7 +397,7 @@ public class ITQLQueryFactory
 
     private TupleIterator getTuples(String query) throws RepositoryException {
         logger.debug("getTuples() called with query:\n" + query);
-        Map<String, String> parameters = new HashMap<String, String>();
+        Map<String, String> parameters = new HashMap<>();
         parameters.put("lang", QUERY_LANGUAGE);
         parameters.put("query", query);
         parameters.put("stream", "true"); // stream immediately from server
@@ -416,14 +415,14 @@ public class ITQLQueryFactory
      * @return the setSpec, in the form "$item <$predicate> $setSpec"
      * @throws RepositoryException
      */
-    protected String parseItemSetSpecPath(String itemSetSpecPath)
+    private String parseItemSetSpecPath(String itemSetSpecPath)
             throws RepositoryException {
         String msg = "Required property, itemSetSpecPath, ";
         String[] path = itemSetSpecPath.split("\\s+");
-        if (itemSetSpecPath.indexOf("$item") == -1) {
+        if (!itemSetSpecPath.contains("$item")) {
             throw new RepositoryException(msg + "must include \"$item\"");
         }
-        if (itemSetSpecPath.indexOf("$setSpec") == -1) {
+        if (!itemSetSpecPath.contains("$setSpec")) {
             throw new RepositoryException(msg + "must include \"$setSpec\"");
         }
         if (!itemSetSpecPath.matches("(\\$\\w+\\s+<\\S+>\\s+\\$\\w+\\s*)+")) {

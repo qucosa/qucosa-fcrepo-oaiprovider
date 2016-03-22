@@ -84,7 +84,7 @@ public class McKoiDDLConverter
         }
         out.append("\n");
         out.append(")");
-        ArrayList<String> l = new ArrayList<String>();
+        ArrayList<String> l = new ArrayList<>();
         l.add(out.toString());
         return l;
     }

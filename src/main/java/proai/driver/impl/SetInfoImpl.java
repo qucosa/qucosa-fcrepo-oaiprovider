@@ -8,8 +8,8 @@ import java.io.PrintWriter;
 
 public class SetInfoImpl implements SetInfo {
 
-    private File m_file;
-    private String m_setSpec;
+    private final File m_file;
+    private final String m_setSpec;
 
     public SetInfoImpl(String setSpec, File file) {
         m_setSpec = setSpec;

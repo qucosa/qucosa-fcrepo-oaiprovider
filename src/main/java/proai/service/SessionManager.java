@@ -16,10 +16,9 @@ public class SessionManager extends Thread {
     public static final String ERR_RESUMPTION_SESSION = "bad session id or session expired";
     private static final Logger logger =
             Logger.getLogger(SessionManager.class.getName());
+    private final Map<String, Session> m_sessions = new HashMap<>();
     private File m_baseDir;
     private int m_secondsBetweenRequests;
-
-    private Map<String, Session> m_sessions;
     private boolean m_threadFinished;
     private boolean m_threadNeedsToFinish;
 
@@ -50,21 +49,20 @@ public class SessionManager extends Thread {
             logger.info("Cleaning up " + dirs.length + " sessions from last run...");
             try {
                 Thread.sleep(4000);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
-            for (int i = 0; i < dirs.length; i++) {
-                if (dirs[i].isDirectory()) {
-                    File[] files = dirs[i].listFiles();
+            for (File dir : dirs) {
+                if (dir.isDirectory()) {
+                    File[] files = dir.listFiles();
                     for (int j = 0; j < files.length; j++) {
                         files[j].delete();
                     }
                 }
-                dirs[i].delete();
+                dir.delete();
             }
         }
 
         m_secondsBetweenRequests = secondsBetweenRequests;
-        m_sessions = new HashMap<String, Session>();
         setName("Session-Reaper");
         start();
     }
@@ -87,7 +85,7 @@ public class SessionManager extends Thread {
                 c++;
                 try {
                     Thread.sleep(250);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
 
@@ -100,12 +98,10 @@ public class SessionManager extends Thread {
      * If force is true, clean up all sessions.
      */
     private void cleanupSessions(boolean force) {
-        List<String> toCleanKeys = new ArrayList<String>();
-        List<Session> toCleanSessions = new ArrayList<Session>();
+        List<String> toCleanKeys = new ArrayList<>();
+        List<Session> toCleanSessions = new ArrayList<>();
         synchronized (m_sessions) {
-            Iterator<String> iter = m_sessions.keySet().iterator();
-            while (iter.hasNext()) {
-                String key = iter.next();
+            for (String key : m_sessions.keySet()) {
                 Session sess = m_sessions.get(key);
                 if (force || sess.hasExpired()) {
                     toCleanKeys.add(key);
@@ -148,13 +144,13 @@ public class SessionManager extends Thread {
 
     public <T> ResponseData list(ListProvider<T> provider) throws ServerException {
         // Session session = new SnapshotSession(this, m_baseDir, m_secondsBetweenRequests, provider);
-        Session session = new CacheSession<T>(this, m_baseDir, m_secondsBetweenRequests, provider);
+        Session session = new CacheSession<>(this, m_baseDir, m_secondsBetweenRequests, provider);
         return session.getResponseData(0);
     }
 
     /**
      * Get response data from the appropriate session and return it.
-     * <p>
+     * <p/>
      * The resumption token encodes the session id and part number.
      * The first part is sessionid/0, the second part is sessionid/1, and so on.
      */
@@ -192,7 +188,7 @@ public class SessionManager extends Thread {
         while (!m_threadFinished) {
             try {
                 Thread.sleep(250);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         cleanupSessions(true);

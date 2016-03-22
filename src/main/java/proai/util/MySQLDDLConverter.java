@@ -107,7 +107,7 @@ public class MySQLDDLConverter
         if (spec.getType() != null) {
             out.append(" ENGINE=" + spec.getType());
         }
-        ArrayList<String> l = new ArrayList<String>();
+        ArrayList<String> l = new ArrayList<>();
         l.add(out.toString());
         return l;
     }

@@ -10,7 +10,6 @@ import proai.driver.RemoteIterator;
 import proai.error.RepositoryException;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.List;
 
 public class MPTSetInfoIterator
@@ -62,11 +61,7 @@ public class MPTSetInfoIterator
     }
 
     public void close() throws RepositoryException {
-        try {
-            results.close();
-        } catch (SQLException e) {
-            throw new RepositoryException("Could not close result set", e);
-        }
+        results.close();
     }
 
     public boolean hasNext() throws RepositoryException {
@@ -74,51 +69,47 @@ public class MPTSetInfoIterator
     }
 
     public SetInfo next() throws RepositoryException {
-        try {
-            if (results.hasNext()) {
-                List<Node> result = results.next();
+        if (results.hasNext()) {
+            List<Node> result = results.next();
 
-                Node setObjectResult = result.get(setObjectIndex);
-                PID setObject = PID.getInstance(setObjectResult.getValue());
+            Node setObjectResult = result.get(setObjectIndex);
+            PID setObject = PID.getInstance(setObjectResult.getValue());
 
-                String setSpec = null;
-                Node setSpecResult = result.get(setSpecIndex);
-                if (setSpecResult != null) {
-                    setSpec = setSpecResult.getValue();
-                }
-
-                String setName = null;
-                Node setNameResult = ((Node) result.get(setNameIndex));
-
-                if (setNameResult != null) {
-                    setName = setNameResult.getValue();
-                }
-
-                String setDiss = null;
-                String setDissType = null;
-
-                if (dissTargetIndex != -1) {
-                    Node dissTargetResult = result.get(dissTargetIndex);
-                    if (dissTargetResult != null) {
-                        setDiss = dissTargetResult.getValue();
-                    }
-                }
-
-                if (m_setInfoSpec != null) {
-                    setDissType = m_setInfoSpec.getDisseminationType();
-                }
-
-                return new FedoraSetInfo(client,
-                        setObject.toString(),
-                        setSpec,
-                        setName,
-                        setDissType,
-                        setDiss);
-            } else {
-                throw new RepositoryException("No more results available\n");
+            String setSpec = null;
+            Node setSpecResult = result.get(setSpecIndex);
+            if (setSpecResult != null) {
+                setSpec = setSpecResult.getValue();
             }
-        } catch (SQLException e) {
-            throw new RepositoryException("Could not read record result", e);
+
+            String setName = null;
+            Node setNameResult = ((Node) result.get(setNameIndex));
+
+            if (setNameResult != null) {
+                setName = setNameResult.getValue();
+            }
+
+            String setDiss = null;
+            String setDissType = null;
+
+            if (dissTargetIndex != -1) {
+                Node dissTargetResult = result.get(dissTargetIndex);
+                if (dissTargetResult != null) {
+                    setDiss = dissTargetResult.getValue();
+                }
+            }
+
+            if (m_setInfoSpec != null) {
+                setDissType = m_setInfoSpec.getDisseminationType();
+            }
+
+            return new FedoraSetInfo(client,
+                    setObject.toString(),
+                    setSpec,
+                    setName,
+                    setDissType,
+                    setDiss);
+        } else {
+            throw new RepositoryException("No more results available\n");
         }
     }
 

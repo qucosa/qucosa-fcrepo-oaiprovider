@@ -14,9 +14,9 @@ import java.util.*;
 
 /**
  * An simple OAIDriver for testing/demonstration purposes.
- * <p>
+ * <p/>
  * The directory should contain the following files:
- * <p>
+ * <p/>
  * identity.xml
  * records/
  * item1-oai_dc-2005-01-01T08-50-44.xml
@@ -32,12 +32,12 @@ import java.util.*;
  */
 public class OAIDriverImpl implements OAIDriver {
 
-    public static final String BASE_DIR_PROPERTY = "proai.driver.simple.baseDir";
+    private static final String BASE_DIR_PROPERTY = "proai.driver.simple.baseDir";
 
-    public static final String IDENTITY_FILENAME = "identity.xml";
-    public static final String RECORDS_DIRNAME = "records";
-    public static final String SETS_DIRNAME = "sets";
-    public static final String FORMATS_DIRNAME = "formats";
+    private static final String IDENTITY_FILENAME = "identity.xml";
+    private static final String RECORDS_DIRNAME = "records";
+    private static final String SETS_DIRNAME = "sets";
+    private static final String FORMATS_DIRNAME = "formats";
     private File m_formatsDir;
     private File m_identityFile;
     private File m_recordsDir;
@@ -110,8 +110,8 @@ public class OAIDriverImpl implements OAIDriver {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
         long latest = 0;
         String[] names = m_recordsDir.list();
-        for (int i = 0; i < names.length; i++) {
-            String[] temp = names[i].replaceFirst("-", " ")
+        for (String name : names) {
+            String[] temp = name.replaceFirst("-", " ")
                     .replaceFirst("-", " ")
                     .split(" ");
             if (temp.length == 3 && temp[2].indexOf(".") != -1) {
@@ -120,7 +120,7 @@ public class OAIDriverImpl implements OAIDriver {
                     if (recDate > latest) latest = recDate;
                 } catch (Exception e) {
                     System.out.println("WARNING: Ignoring unparsable filename: "
-                            + names[i]);
+                            + name);
                 }
             }
         }
@@ -128,19 +128,19 @@ public class OAIDriverImpl implements OAIDriver {
     }
 
     public RemoteIterator<MetadataFormat> listMetadataFormats() {
-        return new RemoteIteratorImpl<MetadataFormat>(
+        return new RemoteIteratorImpl<>(
                 getMetadataFormatCollection().iterator());
     }
 
     public RemoteIterator<SetInfo> listSetInfo() {
-        return new RemoteIteratorImpl<SetInfo>(
+        return new RemoteIteratorImpl<>(
                 getSetInfoCollection().iterator());
     }
 
     public RemoteIterator<Record> listRecords(Date from,
                                               Date until,
                                               String mdPrefix) {
-        return new RemoteIteratorImpl<Record>(getRecordCollection(from,
+        return new RemoteIteratorImpl<>(getRecordCollection(from,
                 until,
                 mdPrefix).iterator());
     }
@@ -155,22 +155,18 @@ public class OAIDriverImpl implements OAIDriver {
         writeFromFile(file, writer);
     }
 
-    public void close() {
-        // do nothing (this impl doesn't tie up any resources)
-    }
-
     private Collection<Record> getRecordCollection(Date from,
                                                    Date until,
                                                    String mdPrefix) {
-        List<Record> list = new ArrayList<Record>();
+        List<Record> list = new ArrayList<>();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
         String[] names = m_recordsDir.list();
-        for (int i = 0; i < names.length; i++) {
-            String[] temp = names[i].replaceFirst("-", " ")
+        for (String name : names) {
+            String[] temp = name.replaceFirst("-", " ")
                     .replaceFirst("-", " ")
                     .split(" ");
             if (temp.length == 3 && temp[2].indexOf(".") != -1) {
-                String[] parts = names[i].split("-");
+                String[] parts = name.split("-");
                 if (parts[1].equals(mdPrefix)) {
                     try {
                         long recDate = df.parse(temp[2].substring(0, temp[2].indexOf("."))).getTime();
@@ -180,11 +176,11 @@ public class OAIDriverImpl implements OAIDriver {
                             list.add(new RecordImpl(itemID,
                                     mdPrefix,
                                     new File(m_recordsDir,
-                                            names[i])));
+                                            name)));
                         }
                     } catch (Exception e) {
                         System.out.println("WARNING: Ignoring unparsable filename: "
-                                + names[i]);
+                                + name);
                     }
                 }
             }
@@ -194,13 +190,13 @@ public class OAIDriverImpl implements OAIDriver {
 
     private Collection<SetInfo> getSetInfoCollection() {
         try {
-            List<SetInfo> list = new ArrayList<SetInfo>();
+            List<SetInfo> list = new ArrayList<>();
             String[] names = m_setsDir.list();
-            for (int i = 0; i < names.length; i++) {
-                if (names[i].endsWith(".xml")) {
-                    String spec = names[i].split("\\.")[0].replaceAll("-", ":");
+            for (String name : names) {
+                if (name.endsWith(".xml")) {
+                    String spec = name.split("\\.")[0].replaceAll("-", ":");
                     list.add(new SetInfoImpl(spec, new File(m_setsDir,
-                            names[i])));
+                            name)));
                 }
             }
             return list;
@@ -211,25 +207,25 @@ public class OAIDriverImpl implements OAIDriver {
 
     private Collection<MetadataFormat> getMetadataFormatCollection() {
         try {
-            List<MetadataFormat> list = new ArrayList<MetadataFormat>();
+            List<MetadataFormat> list = new ArrayList<>();
             String[] names = m_formatsDir.list();
-            for (int i = 0; i < names.length; i++) {
-                if (names[i].endsWith(".txt")) {
-                    String prefix = names[i].split("\\.")[0];
+            for (String name : names) {
+                if (name.endsWith(".txt")) {
+                    String prefix = name.split("\\.")[0];
                     BufferedReader reader =
                             new BufferedReader(
                                     new InputStreamReader(
-                                            new FileInputStream(new File(m_formatsDir, names[i])),
+                                            new FileInputStream(new File(m_formatsDir, name)),
                                             "UTF-8"));
                     String uri = reader.readLine();
                     if (uri == null) {
                         throw new RepositoryException("Error reading first "
-                                + "line of format file: " + names[i]);
+                                + "line of format file: " + name);
                     }
                     String loc = reader.readLine();
                     if (loc == null) {
                         throw new RepositoryException("Error reading second "
-                                + "line of format file: " + names[i]);
+                                + "line of format file: " + name);
                     }
                     list.add(new MetadataFormatImpl(prefix, uri, loc));
                 }

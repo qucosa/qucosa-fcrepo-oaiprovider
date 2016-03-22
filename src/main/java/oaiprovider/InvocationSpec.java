@@ -48,8 +48,8 @@ public class InvocationSpec {
         String[] specParts = spec.split("/");
 
         PID service = null;
-        String method = null;
-        Map<String, String> params = new HashMap<String, String>();
+        String method;
+        Map<String, String> params = new HashMap<>();
         boolean datastream = false;
 
         if (specParts.length == 2) {
@@ -82,7 +82,7 @@ public class InvocationSpec {
     }
 
     private static Map<String, String> parseParams(String paramSpec) {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
 
         for (String pair : paramSpec.split("&")) {
             String[] parts = pair.split("=");
@@ -141,7 +141,7 @@ public class InvocationSpec {
 
     private String getParamString() {
         StringBuilder paramString = new StringBuilder("?");
-        List<String> params = new ArrayList<String>(m_params.keySet());
+        List<String> params = new ArrayList<>(m_params.keySet());
 
         int paramSize = params.size();
 

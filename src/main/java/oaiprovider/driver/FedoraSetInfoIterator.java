@@ -31,7 +31,7 @@ public class FedoraSetInfoIterator
 
     /**
      * Initialize with tuples. The tuples should look like:
-     * <p>
+     * <p/>
      * <pre>
      * "setSpec"    ,"setName"         ,"setDiss"
      * prime        ,Prime             ,null
@@ -47,7 +47,7 @@ public class FedoraSetInfoIterator
             throws RepositoryException {
         m_fedora = fedora;
         m_tuples = tuples;
-        m_nextGroup = new ArrayList<String[]>();
+        m_nextGroup = new ArrayList<>();
         m_next = getNext();
     }
 
@@ -55,7 +55,7 @@ public class FedoraSetInfoIterator
         try {
             List<String[]> group = getNextGroup();
             if (group.size() == 0) return null;
-            String[] values = (String[]) group.get(group.size() - 1);
+            String[] values = group.get(group.size() - 1);
             return new FedoraSetInfo(m_fedora,
                     values[0],
                     values[1],
@@ -74,10 +74,10 @@ public class FedoraSetInfoIterator
     private List<String[]> getNextGroup() throws RepositoryException,
             TrippiException {
         List<String[]> group = m_nextGroup;
-        m_nextGroup = new ArrayList<String[]>();
+        m_nextGroup = new ArrayList<>();
         String commonValue = null;
         if (group.size() > 0) {
-            commonValue = ((String[]) group.get(0))[0];
+            commonValue = group.get(0)[0];
         }
         while (m_tuples.hasNext() && m_nextGroup.size() == 0) {
             String[] values = getValues(m_tuples.next());
@@ -134,7 +134,7 @@ public class FedoraSetInfoIterator
         try {
             return m_next;
         } finally {
-            if (m_next != null) m_next = getNext();
+            m_next = getNext();
         }
     }
 

@@ -15,10 +15,10 @@ public class CombinerRecordIterator
 
     private static final Logger logger =
             Logger.getLogger(CombinerRecordIterator.class.getName());
-    private String m_aboutDissTypeURI;
-    private ResultCombiner m_combiner;
-    private String m_dissTypeURI;
-    private String m_mdPrefix;
+    private final String m_aboutDissTypeURI;
+    private final ResultCombiner m_combiner;
+    private final String m_dissTypeURI;
+    private final String m_mdPrefix;
     private String m_nextLine;
 
     /**
@@ -75,11 +75,11 @@ public class CombinerRecordIterator
 
         String[] parts = line.split(",");
 
-        String itemID = null;
-        String recordDissURI = null;
-        String utcString = null;
+        String itemID;
+        String recordDissURI;
+        String utcString;
         boolean isDeleted;
-        String[] setSpecs = null;
+        String[] setSpecs;
         String aboutDissURI = null;
 
         // parse the line into values for constructing a FedoraRecord
@@ -106,9 +106,7 @@ public class CombinerRecordIterator
             }
 
             setSpecs = new String[parts.length - 5];
-            for (int i = 5; i < parts.length; i++) {
-                setSpecs[i - 5] = parts[i];
-            }
+            System.arraycopy(parts, 5, setSpecs, 0, parts.length - 5);
 
         } catch (Exception e) {
             throw new RepositoryException("Error parsing combined query "
@@ -128,14 +126,9 @@ public class CombinerRecordIterator
 
     private String getDissURI(String pid, String dissType) throws Exception {
         try {
-            StringBuffer uri = new StringBuffer();
-            uri.append("info:fedora/");
-            uri.append(pid);
-            uri.append(dissType.substring(13)); // starts at the first / after *
-            return uri.toString();
+            return "info:fedora/" + pid + dissType.substring(13);
         } catch (Throwable th) {
-            throw new Exception("Dissemination type string (" + dissType
-                    + ") is too short.");
+            throw new Exception("Dissemination type string (" + dissType + ") is too short.");
         }
     }
 

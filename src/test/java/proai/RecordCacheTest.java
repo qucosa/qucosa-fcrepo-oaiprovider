@@ -41,7 +41,7 @@ public class RecordCacheTest {
         //m_cache.update();
         try {
             Thread.sleep(2000);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

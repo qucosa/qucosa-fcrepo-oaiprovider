@@ -10,14 +10,14 @@ import proai.Record;
 public class FedoraRecord
         implements Record {
 
-    public static Logger logger =
+    private static final Logger logger =
             Logger.getLogger(FedoraRecord.class.getName());
 
-    private String m_itemID;
+    private final String m_itemID;
 
-    private String m_mdPrefix;
+    private final String m_mdPrefix;
 
-    private String m_sourceInfo;
+    private final String m_sourceInfo;
 
     public FedoraRecord(String itemID,
                         String mdPrefix,
@@ -35,8 +35,8 @@ public class FedoraRecord
         buf.append(" " + aboutDiss);
         buf.append(" " + deleted);
         buf.append(" " + date);
-        for (int i = 0; i < setSpecs.length; i++) {
-            String setSpec = setSpecs[i].replace(' ', '_');
+        for (String setSpec1 : setSpecs) {
+            String setSpec = setSpec1.replace(' ', '_');
             buf.append(" " + setSpec);
         }
         m_sourceInfo = buf.toString();

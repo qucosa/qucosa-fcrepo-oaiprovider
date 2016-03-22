@@ -8,7 +8,7 @@ import java.io.*;
  * <h2>Input</h2>
  * The input is provided to the constructor using Files or BufferedReaders in
  * CSV format.
- * <p>
+ * <p/>
  * <pre>
  * File 1:
  * "item","itemID","date","state"
@@ -31,13 +31,13 @@ import java.io.*;
  * oai:nsdl.org:nsdl:10059:nsdl:2051858
  * oai:nsdl.org:nsdl:10059:nsdl:2052376
  * </pre>
- * <p>
+ * <p/>
  * <h2>Output</h2>
  * The output is given one line at a time in the format below. The header is not
  * actually provided, but is shown here for clarity. Each item has exactly one
  * line with at least five comma-separated values. An additional value is
  * provided for each set the item is a member of.
- * <p>
+ * <p/>
  * <pre>
  * "item","itemID","date","state","hasAbout"[,"setSpec1"[,"setSpec2"[,...]]]
  * info:fedora/nsdl:10013,oai:nsdl.org:nsdl:10011:nsdl:10013,2005-09-20T12:49:14.77,info:fedora/fedora-system:def/model#Active,true
@@ -172,7 +172,7 @@ public class ResultCombiner {
     // tell whether this item has an about dissemination
     private boolean hasAbout(String itemID) {
         if (m_r3 == null) return false;
-        if (m_l3 == _START) {
+        if (_START.equals(m_l3)) {
             m_l3 = nextLine(m_r3);
         }
         if (m_l3 == null) {
@@ -190,7 +190,7 @@ public class ResultCombiner {
     // get comma-separated setSpecs for this item, or the empty string if none
     private String setSpecs(String itemID) {
         if (m_r2 == null) return "";
-        if (m_l2 == _START) {
+        if (_START.equals(m_l2)) {
             m_l2 = nextLine(m_r2);
         }
         if (m_l2 == null) {
@@ -212,15 +212,15 @@ public class ResultCombiner {
     public void close() {
         try {
             m_r1.close();
-        } catch (Throwable th) {
+        } catch (Throwable ignored) {
         }
         try {
             m_r2.close();
-        } catch (Throwable th) {
+        } catch (Throwable ignored) {
         }
         try {
             m_r3.close();
-        } catch (Throwable th) {
+        } catch (Throwable ignored) {
         }
         if (m_deleteOnClose) {
             m_f1.delete();

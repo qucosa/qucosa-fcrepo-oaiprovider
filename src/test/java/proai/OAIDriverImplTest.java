@@ -1,6 +1,5 @@
 package proai;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import proai.driver.OAIDriver;
@@ -48,11 +47,6 @@ public class OAIDriverImplTest {
         properties.setProperty("proai.driver.simple.baseDir", baseDir.getAbsolutePath());
 
         m_impl.init(properties);
-    }
-
-    @After
-    public void tearDown() {
-        m_impl.close();
     }
 
     @Test
@@ -138,7 +132,7 @@ public class OAIDriverImplTest {
         checkRecords(iter, new int[]{});
     }
 
-    private void checkRecords(Iterator<? extends Record> iter, int[] expecting) throws Exception {
+    private void checkRecords(Iterator<? extends Record> iter, int[] expecting) {
         boolean[] saw = new boolean[expecting.length];
         while (iter.hasNext()) {
             Record rec = iter.next();
@@ -154,8 +148,8 @@ public class OAIDriverImplTest {
             }
             assertTrue(wasExpected);
         }
-        for (int i = 0; i < saw.length; i++) {
-            assertTrue(saw[i]);
+        for (boolean aSaw : saw) {
+            assertTrue(aSaw);
         }
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * This class is based on Hubert Stigler's contribution to the
  * fedora-users mailing list on April 4th, 2006.
- * <p>
+ * <p/>
  * It has been modified to create indexes.
  *
  * @author hubert.stigler@uni-graz.at
@@ -24,7 +24,7 @@ public class PostgresDDLConverter
 
     public List<String> getDDL(TableSpec spec) {
 
-        ArrayList<String> l = new ArrayList<String>();
+        ArrayList<String> l = new ArrayList<>();
 
         StringBuffer out = new StringBuffer();
         StringBuffer end = new StringBuffer();
@@ -57,10 +57,10 @@ public class PostgresDDLConverter
 
                 if (cs.getDefaultValue() != null) {
                     out.append(" DEFAULT ");
-                    if (cs.getType().toLowerCase().indexOf("char(") > -1 || cs.getType().toLowerCase().indexOf("text") > -1)
+                    if (cs.getType().toLowerCase().contains("char(") || cs.getType().toLowerCase().contains("text"))
                         out.append("'");
                     out.append(cs.getDefaultValue());
-                    if (cs.getType().toLowerCase().indexOf("char(") > -1 || cs.getType().toLowerCase().indexOf("text") > -1)
+                    if (cs.getType().toLowerCase().contains("char(") || cs.getType().toLowerCase().contains("text"))
                         out.append("'");
                 }
             }

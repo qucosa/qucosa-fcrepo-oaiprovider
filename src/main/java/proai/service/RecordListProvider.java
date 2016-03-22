@@ -13,13 +13,13 @@ import java.util.Date;
 
 public class RecordListProvider implements ListProvider<CachedContent> {
 
-    private RecordCache m_cache;
-    private Date m_from;
-    private boolean m_identifiers;
-    private int m_incompleteListSize;
-    private String m_prefix;
-    private String m_set;
-    private Date m_until;
+    private final RecordCache m_cache;
+    private final Date m_from;
+    private final boolean m_identifiers;
+    private final int m_incompleteListSize;
+    private final String m_prefix;
+    private final String m_set;
+    private final Date m_until;
 
     public RecordListProvider(RecordCache cache,
                               int incompleteListSize,
@@ -54,7 +54,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
             boolean supportsSets = sic.hasNext();
             try {
                 sic.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (!supportsSets) {
                 throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
@@ -79,7 +79,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
             boolean supportsSets = sic.hasNext();
             try {
                 sic.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (!supportsSets) {
                 throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);

@@ -10,6 +10,7 @@ import java.util.List;
 public class TableSpecDeserializer
         extends DefaultHandler {
 
+    private final ArrayList<TableSpec> m_tableSpecList;
     private ArrayList<ColumnSpec> m_columnSpecList;
     private boolean m_column_autoIncrement;
     private boolean m_column_binary;
@@ -22,14 +23,13 @@ public class TableSpecDeserializer
     private boolean m_column_notNull;
     private String m_column_type;
     private boolean m_column_unique;
-    private ArrayList<TableSpec> m_tableSpecList;
     private String m_table_name;
     private String m_table_primaryKey;
     private String m_table_type;
 
     protected TableSpecDeserializer() {
-        m_tableSpecList = new ArrayList<TableSpec>();
-        m_columnSpecList = new ArrayList<ColumnSpec>();
+        m_tableSpecList = new ArrayList<>();
+        m_columnSpecList = new ArrayList<>();
     }
 
     public List<TableSpec> getTableSpecs() {
@@ -98,7 +98,7 @@ public class TableSpecDeserializer
             m_table_name = null;
             m_table_primaryKey = null;
             m_table_type = null;
-            m_columnSpecList = new ArrayList<ColumnSpec>();
+            m_columnSpecList = new ArrayList<>();
         } else if (localName.equals("column")) {
             m_columnSpecList.add(new ColumnSpec(m_column_name, m_column_type, m_column_binary,
                     m_column_default, m_column_autoIncrement, m_column_index,

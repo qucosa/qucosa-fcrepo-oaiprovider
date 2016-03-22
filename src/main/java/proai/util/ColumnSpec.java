@@ -1,18 +1,18 @@
 package proai.util;
 
-public class ColumnSpec {
+class ColumnSpec {
 
-    private boolean m_binary;
-    private String m_defaultValue;
-    private String m_foreignColumnName;
-    private String m_foreignTableName;
-    private String m_indexName;
-    private boolean m_isAutoIncremented;
-    private boolean m_isNotNull;
-    private boolean m_isUnique;
-    private String m_name;
-    private String m_onDeleteAction;
-    private String m_type;
+    private final boolean m_binary;
+    private final String m_defaultValue;
+    private final String m_foreignColumnName;
+    private final String m_foreignTableName;
+    private final String m_indexName;
+    private final boolean m_isAutoIncremented;
+    private final boolean m_isNotNull;
+    private final boolean m_isUnique;
+    private final String m_name;
+    private final String m_onDeleteAction;
+    private final String m_type;
 
     public ColumnSpec(String name, String type, boolean binary, String defaultValue,
                       boolean isAutoIncremented, String indexName, boolean isUnique,

@@ -28,9 +28,9 @@ public class RCDatabase {
     public static final String RCADMIN_TABLE_IS_EMPTY = "rcAdmin table is empty";
     private static final Logger logger =
             Logger.getLogger(RCDatabase.class.getName());
-    private boolean m_backslashIsEscape;
-    private boolean m_mySQLTrickling;
-    private RCDisk m_rcDisk;
+    private final boolean m_backslashIsEscape;
+    private final boolean m_mySQLTrickling;
+    private final RCDisk m_rcDisk;
 
     public RCDatabase(Connection conn,
                       DDLConverter ddlc,
@@ -76,11 +76,11 @@ public class RCDatabase {
         } finally {
             if (results != null) try {
                 results.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -95,7 +95,7 @@ public class RCDatabase {
         } catch (Exception e) {
             throw new ServerException("Unable to initialize tablespecs", e);
         }
-        List<String> createdCommands = new ArrayList<String>();
+        List<String> createdCommands = new ArrayList<>();
         Iterator<TableSpec> iter = specs.iterator();
         Statement stmt = null;
         String tableName = null;
@@ -107,8 +107,8 @@ public class RCDatabase {
                 tableName = spec.getName();
                 logger.info("Creating " + tableName + " table");
                 List<String> commands = ddlc.getDDL(spec);
-                for (int i = 0; i < commands.size(); i++) {
-                    command = commands.get(i);
+                for (String command1 : commands) {
+                    command = command1;
                     executeUpdate(stmt, command);
                     createdCommands.add(command);
                 }
@@ -122,8 +122,7 @@ public class RCDatabase {
                 Statement dstmt = null;
                 try {
                     dstmt = getStatement(conn, false);
-                    for (int i = 0; i < createdCommands.size(); i++) {
-                        String createdCommand = createdCommands.get(i);
+                    for (String createdCommand : createdCommands) {
                         dropCmd = ddlc.getDropDDL(createdCommand);
                         executeUpdate(stmt, dropCmd);
                     }
@@ -140,7 +139,7 @@ public class RCDatabase {
                 } finally {
                     if (dstmt != null) try {
                         dstmt.close();
-                    } catch (Exception ex) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
@@ -148,7 +147,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -167,7 +166,7 @@ public class RCDatabase {
                 } finally {
                     if (stmt != null) try {
                         stmt.close();
-                    } catch (Exception ex) {
+                    } catch (Exception ignored) {
                     }
                 }
             } else {
@@ -189,7 +188,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -227,11 +226,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -256,7 +255,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -285,11 +284,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -335,11 +334,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -383,11 +382,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -417,13 +416,9 @@ public class RCDatabase {
         } catch (SQLException e) {
             throw new ServerException("Error setting last poll date", e);
         } finally {
-            if (rs != null) try {
-                rs.close();
-            } catch (Exception e) {
-            }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -434,11 +429,9 @@ public class RCDatabase {
      */
     public Map<String, Integer> getFormatKeyMap(Connection conn) throws ServerException {
 
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        Iterator<CachedMetadataFormat> iter = getFormats(conn).iterator();
-        while (iter.hasNext()) {
-            CachedMetadataFormat format = iter.next();
-            map.put(format.getPrefix(), new Integer(format.getKey()));
+        Map<String, Integer> map = new HashMap<>();
+        for (CachedMetadataFormat format : getFormats(conn)) {
+            map.put(format.getPrefix(), format.getKey());
         }
         return map;
     }
@@ -449,7 +442,7 @@ public class RCDatabase {
 
     public List<CachedMetadataFormat> getFormats(Connection conn, String identifier)
             throws ServerException {
-        List<CachedMetadataFormat> list = new ArrayList<CachedMetadataFormat>();
+        List<CachedMetadataFormat> list = new ArrayList<>();
         Statement stmt = null;
         ResultSet rs = null;
         try {
@@ -475,11 +468,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -516,11 +509,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -554,17 +547,17 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
 
     public List<SetInfo> getSetInfo(Connection conn) throws ServerException {
-        List<SetInfo> list = new ArrayList<SetInfo>();
+        List<SetInfo> list = new ArrayList<>();
         Statement stmt = null;
         ResultSet rs = null;
         try {
@@ -579,18 +572,18 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
 
     // return a closeableiterator of string[] (path)
     public List<String[]> getSetInfoPaths(Connection conn) throws ServerException {
-        List<String[]> list = new ArrayList<String[]>();
+        List<String[]> list = new ArrayList<>();
         Statement stmt = null;
         ResultSet rs = null;
         try {
@@ -607,11 +600,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -646,11 +639,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -666,16 +659,16 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
 
     /**
      * Add or update a record.
-     * <p>
+     * <p/>
      * This will create an rcItem for it if it doesn't exist.
-     * <p>
+     * <p/>
      * NOTE: Records will initially be given a NULL date.  After a group of
      * records are updated, the date is set together with
      * setUncommittedRecordDates(..)
@@ -708,7 +701,7 @@ public class RCDatabase {
             if (fKey == null) {
                 throw new ServerException("Error in parsed record; no such format in cache: " + rec.getPrefix());
             }
-            int formatKey = fKey.intValue();
+            int formatKey = fKey;
             stmt = getStatement(conn, false);
             int[] setKeys = getSetKeys(stmt, rec.getSetSpecs());
             rs = executeQuery(stmt, "SELECT recordKey, xmlPath "
@@ -732,32 +725,30 @@ public class RCDatabase {
                 // Modified rcRecord. Now list the ids of the sets it WAS in,
                 // and rectify that with the ones it's NOW in
 
-                List<Integer> priorSetKeys = new ArrayList<Integer>();
+                List<Integer> priorSetKeys = new ArrayList<>();
                 rs = executeQuery(stmt, "SELECT setKey from rcMembership WHERE recordKey = " + recordKey);
                 while (rs.next()) {
-                    priorSetKeys.add(new Integer(rs.getInt(1)));
+                    priorSetKeys.add(rs.getInt(1));
                 }
                 rs.close();
                 rs = null;
 
                 // which sets is the record a new member of?
-                for (int i = 0; i < setKeys.length; i++) {
-                    Integer newSetKey = new Integer(setKeys[i]);
+                for (int setKey1 : setKeys) {
+                    Integer newSetKey = setKey1;
                     if (!priorSetKeys.contains(newSetKey)) {
-                        int nsk = newSetKey.intValue();
+                        int nsk = newSetKey;
                         executeUpdate(stmt, "INSERT INTO rcMembership (setKey, recordKey) "
                                 + "VALUES (" + nsk + ", " + recordKey + ")");
                     }
                 }
 
                 // which sets is the record no longer a member of?
-                Iterator<Integer> liter = priorSetKeys.iterator();
-                while (liter.hasNext()) {
-                    Integer priorSetKey = liter.next();
-                    int psk = priorSetKey.intValue();
+                for (Integer priorSetKey : priorSetKeys) {
+                    int psk = priorSetKey;
                     boolean noLongerInSet = true;
-                    for (int i = 0; i < setKeys.length; i++) {
-                        if (setKeys[i] == psk) noLongerInSet = false;
+                    for (int setKey : setKeys) {
+                        if (setKey == psk) noLongerInSet = false;
                     }
                     if (noLongerInSet) {
                         // FIXME: Could make this more efficient with
@@ -781,9 +772,9 @@ public class RCDatabase {
                     rs.close();
                     // Added to rcRecord, now all we have to do is add it to
                     // the appropriate sets
-                    for (int i = 0; i < setKeys.length; i++) {
+                    for (int setKey : setKeys) {
                         executeUpdate(stmt, "INSERT INTO rcMembership (setKey, recordKey) "
-                                + "VALUES (" + setKeys[i] + ", " + recordKey + ")");
+                                + "VALUES (" + setKey + ", " + recordKey + ")");
                     }
                 } else {
                     throw new ServerException("Insert into rcRecord didn't work "
@@ -795,11 +786,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -828,11 +819,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -857,7 +848,7 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -874,11 +865,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -914,11 +905,11 @@ public class RCDatabase {
         } finally {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -952,13 +943,13 @@ public class RCDatabase {
                 // no such format -- return an empty iterator
                 try {
                     rs.close();
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 try {
                     stmt.close();
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
-                return new RemoteIteratorImpl<String[]>(new ArrayList<String[]>().iterator());
+                return new RemoteIteratorImpl<>(new ArrayList<String[]>().iterator());
             }
             int formatKey = rs.getInt(1);
             rs.close();
@@ -971,13 +962,13 @@ public class RCDatabase {
                     // no such set -- return an empty iterator
                     try {
                         rs.close();
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                     try {
                         stmt.close();
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
-                    return new RemoteIteratorImpl<String[]>(new ArrayList<String[]>().iterator());
+                    return new RemoteIteratorImpl<>(new ArrayList<String[]>().iterator());
                 }
                 setKey = rs.getInt(1);
                 rs.close();
@@ -993,9 +984,7 @@ public class RCDatabase {
                         + "AND rcRecord.formatKey = " + formatKey);
             }
             if (from == null) {
-                if (until == null) {
-                    // (no conditions to add to query)
-                } else {
+                if (until != null) {
                     query.append(" AND rcRecord.modDate <= " + until.getTime());
                 }
             } else if (until == null) {
@@ -1010,11 +999,11 @@ public class RCDatabase {
         } catch (SQLException se) {
             if (rs != null) try {
                 rs.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             throw new ServerException("Error finding record paths", se);
         } finally {
@@ -1026,7 +1015,7 @@ public class RCDatabase {
 
     /**
      * Copy all qualifying records from rcFailure to rcQueue.
-     * <p>
+     * <p/>
      * To avoid unintentional duplicates in the queue, it's important that
      * the caller ensures the queue is processed beforehand.
      */
@@ -1072,15 +1061,15 @@ public class RCDatabase {
             } finally {
                 if (results != null) try {
                     results.close();
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
                 if (stmt != null) try {
                     stmt.close();
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
                 if (queueConn != null) try {
                     queueConn.close();
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -1098,14 +1087,14 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
 
     private String getQueueInsertSQL(String identifier, String mdPrefix,
                                      String sourceInfo, char queueSource) {
-        if ((sourceInfo.indexOf("\n") != -1) || (sourceInfo.indexOf("\r") != -1)) {
+        if ((sourceInfo.contains("\n")) || (sourceInfo.contains("\r"))) {
             throw new ServerException("INSERT aborted: bad sourceInfo for "
                     + identifier + "/" + mdPrefix + " (contains "
                     + "newline(s))");
@@ -1125,9 +1114,7 @@ public class RCDatabase {
                                   String mdPrefix,
                                   String sourceInfo) throws ServerException {
         Statement stmt = null;
-        ResultSet results = null;
         try {
-
             stmt = conn.createStatement();
             executeUpdate(stmt, getQueueInsertSQL(identifier, mdPrefix,
                     sourceInfo, 'R'));
@@ -1135,13 +1122,9 @@ public class RCDatabase {
             throw new ServerException("Failed while attempting to enqueue "
                     + "remote record", e);
         } finally {
-            if (results != null) try {
-                results.close();
-            } catch (Exception ex) {
-            }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1162,11 +1145,11 @@ public class RCDatabase {
         } finally {
             if (results != null) try {
                 results.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1201,7 +1184,7 @@ public class RCDatabase {
                 writer.print(results.getString(5) + " ");
 
                 String sourceInfo = DBUtil.getLongString(results, 4);
-                if ((sourceInfo.indexOf("\n") != -1) || (sourceInfo.indexOf("\r") != -1)) {
+                if ((sourceInfo.contains("\n")) || (sourceInfo.contains("\r"))) {
                     throw new ServerException("rcQueue contains bad sourceInfo for "
                             + identifier + "/" + mdPrefix + " (contains "
                             + "newline(s)): '" + sourceInfo + "'");
@@ -1213,18 +1196,16 @@ public class RCDatabase {
         } finally {
             if (results != null) try {
                 results.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
 
             if (resultCount > 0) {
                 // JDBC driver may be using a lot of heap space at this point,
                 // so try to convince the VM to clean up after it
-                results = null;
-                stmt = null;
                 System.gc();
             }
         }
@@ -1241,7 +1222,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1261,7 +1242,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1290,11 +1271,11 @@ public class RCDatabase {
         } finally {
             if (results != null) try {
                 results.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1328,7 +1309,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1355,7 +1336,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1376,11 +1357,11 @@ public class RCDatabase {
         } finally {
             if (results != null) try {
                 results.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1408,7 +1389,7 @@ public class RCDatabase {
         } finally {
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -1438,18 +1419,16 @@ public class RCDatabase {
         } finally {
             if (results != null) try {
                 results.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
             if (stmt != null) try {
                 stmt.close();
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
 
             if (resultCount > 0) {
                 // JDBC driver may be using a lot of heap space at this point,
                 // so try to convince the VM to clean up after it
-                results = null;
-                stmt = null;
                 System.gc();
             }
         }

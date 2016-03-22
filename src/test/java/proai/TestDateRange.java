@@ -89,7 +89,7 @@ public class TestDateRange {
 
     @Test
     public void testExclInclRange() {
-        DateRange range = null;
+        DateRange range;
 
         range = DateRange.getRangeExclIncl("2013", "2013-06-13T09:05Z");
         Assert.assertEquals("2013-01-01T00:00:00.000Z", range.getFrom());

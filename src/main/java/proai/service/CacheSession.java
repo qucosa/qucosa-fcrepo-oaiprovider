@@ -17,15 +17,15 @@ public class CacheSession<T> extends Thread
 
     private static final Logger _LOG =
             Logger.getLogger(CacheSession.class.getName());
-    private File _baseDir;
+    private final File _baseDir;
+    private final SessionManager _manager;
+    private final ListProvider<T> _provider;
+    private final int _secondsBetweenRequests;
+    private final String _sessionKey;
     private ServerException _exception;
     private long _expirationTime;
     private int _lastGeneratedPart;
     private int _lastSentPart;
-    private SessionManager _manager;
-    private ListProvider<T> _provider;
-    private int _secondsBetweenRequests;
-    private String _sessionKey;
     private boolean _threadNeedsToFinish;
     private boolean _threadWorking;
     private int _threadWorkingPart;
@@ -113,11 +113,11 @@ public class CacheSession<T> extends Thread
         } finally {
             if (iter != null) try {
                 iter.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (out != null) try {
                 out.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             _threadWorking = false;
             _LOG.info(_sessionKey + " retrieval thread finished");
@@ -128,7 +128,7 @@ public class CacheSession<T> extends Thread
 
     /**
      * Has the session expired?
-     * <p>
+     * <p/>
      * If this is true, the session will be cleaned by the reaper thread
      * of the session manager.
      */
@@ -146,13 +146,13 @@ public class CacheSession<T> extends Thread
 
     /**
      * Do all possible cleanup for this session.
-     * <p>
+     * <p/>
      * This includes signaling to its thread to stop asap,
      * waiting for it to stop, and removing any files/directories that remain.
-     * <p>
+     * <p/>
      * The implementation should be fail-safe, as a session may be asked to
      * clean itself more than once.
-     * <p>
+     * <p/>
      * Clean must *not* be called from this session's thread.
      */
     public void clean() {
@@ -160,18 +160,20 @@ public class CacheSession<T> extends Thread
         while (_threadWorking) {
             try {
                 Thread.sleep(250);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         File sessionDir = new File(_baseDir, _sessionKey);
         if (sessionDir.exists()) {
             File[] files = sessionDir.listFiles();
-            _LOG.debug("Deleting session " + _sessionKey + " directory and all "
-                    + files.length + " files within");
-            for (int i = 0; i < files.length; i++) {
-                files[i].delete();
+            if (files != null) {
+                _LOG.debug("Deleting session " + _sessionKey + " directory and all "
+                        + files.length + " files within");
+                for (File file : files) {
+                    file.delete();
+                }
+                sessionDir.delete();
             }
-            sessionDir.delete();
         }
     }
 
@@ -197,7 +199,7 @@ public class CacheSession<T> extends Thread
             while (_threadWorking && _lastGeneratedPart < partNum) {
                 try {
                     Thread.sleep(100);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
             if (_exception != null) {

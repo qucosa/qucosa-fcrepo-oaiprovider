@@ -4,7 +4,7 @@ import proai.CloseableIterator;
 import proai.cache.RecordCache;
 import proai.error.ServerException;
 
-public interface ListProvider<T> {
+interface ListProvider<T> {
 
     CloseableIterator<T> getList() throws ServerException;
 

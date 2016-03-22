@@ -10,11 +10,11 @@ import java.text.SimpleDateFormat;
 /**
  * An iterator around a database <code>ResultSet</code> that provides
  * a <code>String[]</code> for each row.
- * <p>
+ * <p/>
  * Rows in the result set contain two values.  The first value is a
  * <code>String</code> representing a relative filesystem path.  The second
  * value is a <code>long</code> representing a date.
- * <p>
+ * <p/>
  * The returned <code>String[]</code> for each row will have two parts:
  * The first is the relative filesystem path and the second is an
  * ISO8601-formatted date (second precision).
@@ -23,8 +23,8 @@ public class StringResultIterator implements CloseableIterator<String[]> {
 
     private static final Logger logger =
             Logger.getLogger(StringResultIterator.class.getName());
+    private final Connection m_conn;
     private boolean m_closed;
-    private Connection m_conn;
     private boolean m_exhausted;
     private String[] m_nextStringArray;
     private ResultSet m_rs;
@@ -84,12 +84,12 @@ public class StringResultIterator implements CloseableIterator<String[]> {
             if (m_rs != null) try {
                 m_rs.close();
                 m_rs = null;
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (m_stmt != null) try {
                 m_stmt.close();
                 m_stmt = null;
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             RecordCache.releaseConnection(m_conn);
 

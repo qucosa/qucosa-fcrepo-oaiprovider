@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 public class RemoteIteratorImpl<T> implements RemoteIterator<T> {
 
-    private Iterator<T> m_iter;
+    private final Iterator<T> m_iter;
 
     public RemoteIteratorImpl(Iterator<T> iter) {
         m_iter = iter;

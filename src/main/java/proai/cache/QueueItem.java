@@ -2,14 +2,14 @@ package proai.cache;
 
 public class QueueItem {
 
+    private final String _identifier;
+    private final String _mdPrefix;
+    private final int _queueKey;
+    private final char _queueSource;
+    private final String _sourceInfo;
     private String _failDate;
     private String _failReason;
-    private String _identifier;
-    private String _mdPrefix;
-    private int _queueKey;
-    private char _queueSource;
     private ParsedRecord _rec;
-    private String _sourceInfo;
     private boolean _succeeded;
 
     public QueueItem(int queueKey,

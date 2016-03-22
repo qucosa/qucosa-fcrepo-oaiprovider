@@ -12,18 +12,18 @@ import java.util.Properties;
 
 /**
  * Provides transport-neutral responses to OAI-PMH requests.
- * <p>
- * <p>
+ * <p/>
+ * <p/>
  * A single <code>Responder</code> instance handles multiple concurrent OAI-PMH
  * requests and provides responses without regard to the transport protocol.
- * <p>
- * <p>
+ * <p/>
+ * <p/>
  * Responses are provided via <code>ResponseData</code> objects that can write
  * their XML to a given PrintWriter. The XML provided does not include an XML
  * declaration or an OAI-PMH response header -- this is the responsibility of
  * higher-level application code.
- * <p>
- * <p>
+ * <p/>
+ * <p/>
  * At this level, errors are signaled by exceptions. Serializing them for
  * transport is the responsibility of higher-level application code.
  *
@@ -171,8 +171,7 @@ public class Responder {
                 throw new CannotDisseminateFormatException(
                         ERR_BAD_FORMAT_FOR_ITEM);
             } else {
-                ResponseDataImpl data = new ResponseDataImpl(content);
-                return data;
+                return new ResponseDataImpl(content);
             }
         } finally {
             if (logger.isDebugEnabled()) {
@@ -203,9 +202,8 @@ public class Responder {
         logger.debug("Entered identify()");
 
         try {
-            ResponseData data = new ResponseDataImpl(
+            return new ResponseDataImpl(
                     m_cache.getIdentifyContent());
-            return data;
         } finally {
             logger.debug("Exiting identify()");
         }
@@ -304,8 +302,6 @@ public class Responder {
      *                   includes all metadata formats supported by this repository.
      * @throws IdDoesNotExistException if the value of the identifier argument is unknown or illegal
      *                                 in this repository.
-     * @throws NoMetadataFormats       there are no metadata formats available for the specified
-     *                                 item.
      * @throws ServerException         if a low-level (non-protocol) error occurred.
      */
     public ResponseData listMetadataFormats(String identifier)
@@ -317,14 +313,13 @@ public class Responder {
         }
 
         try {
-            Writable content = null;
+            Writable content;
             content = m_cache.getMetadataFormatsContent(identifier);
             if (content == null && identifier != null) {
                 checkItemExists(identifier);
                 throw new NoMetadataFormatsException(ERR_NO_FORMATS_FOR_ITEM);
             }
-            ResponseData data = new ResponseDataImpl(content);
-            return data;
+            return new ResponseDataImpl(content);
         } finally {
             if (logger.isDebugEnabled()) {
                 logger.debug("Exiting listMetadataFormats(" + q(identifier)

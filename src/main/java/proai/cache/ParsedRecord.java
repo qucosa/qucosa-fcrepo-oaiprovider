@@ -21,18 +21,18 @@ public class ParsedRecord extends DefaultHandler implements Record {
 
     private static final Logger _LOG =
             Logger.getLogger(ParsedRecord.class.getName());
+    private final File m_file;
+    private final SimpleDateFormat m_formatter1;
+    private final SimpleDateFormat m_formatter2;
+    private final String m_itemID;
+    private final String m_prefix;
+    private final List<String> m_setSpecs;
+    private final String m_sourceInfo;
     private StringBuffer m_buf = null;
     private Date m_date;
-    private File m_file;
     private boolean m_finishedParsing;
-    private SimpleDateFormat m_formatter1;
-    private SimpleDateFormat m_formatter2;
     private boolean m_inDatestamp;
     private boolean m_inSetSpec;
-    private String m_itemID;
-    private String m_prefix;
-    private List<String> m_setSpecs;
-    private String m_sourceInfo;
 
     public ParsedRecord(String itemID,
                         String prefix,
@@ -43,7 +43,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
         m_sourceInfo = sourceInfo;
         m_file = file;
         m_date = new Date(0);
-        m_setSpecs = new ArrayList<String>();
+        m_setSpecs = new ArrayList<>();
 
         m_formatter1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         m_formatter2 = new SimpleDateFormat("yyyy-MM-dd");
@@ -62,7 +62,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
                 try {
                     String xml = StreamUtil.getString(new FileInputStream(file), "UTF-8");
                     _LOG.debug("Error parsing record xml: #BEGIN-XML#" + xml + "#END-XML#");
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
             }
             throw new ServerException("Error parsing record xml", e);
@@ -86,34 +86,40 @@ public class ParsedRecord extends DefaultHandler implements Record {
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (!m_finishedParsing) {
-            if (qName.equals("header")) {
-                m_finishedParsing = true;
-            } else if (qName.equals("datestamp")) {
-                String s = m_buf.toString().trim();
-                try {
+            switch (qName) {
+                case "header":
+                    m_finishedParsing = true;
+                    break;
+                case "datestamp": {
+                    String s = m_buf.toString().trim();
                     try {
-                        m_date = m_formatter1.parse(s);
+                        try {
+                            m_date = m_formatter1.parse(s);
+                        } catch (Exception e) {
+                            m_date = m_formatter2.parse(s);
+                        }
                     } catch (Exception e) {
-                        m_date = m_formatter2.parse(s);
+                        throw new SAXException("Record datestamp is unparsable: " + s);
                     }
-                } catch (Exception e) {
-                    throw new SAXException("Record datestamp is unparsable: " + s);
+                    m_inDatestamp = false;
+                    break;
                 }
-                m_inDatestamp = false;
-            } else if (qName.equals("setSpec")) {
-                String s = m_buf.toString().trim();
-                // Infer memberships based on setSpec:syntax:stuff
-                String[] h = s.split(":");
-                if (h.length > 1) {
-                    StringBuffer b4 = new StringBuffer();
-                    for (int i = 0; i < h.length; i++) {
-                        m_setSpecs.add(b4.toString() + h[i]);
-                        b4.append(h[i] + ":");
+                case "setSpec": {
+                    String s = m_buf.toString().trim();
+                    // Infer memberships based on setSpec:syntax:stuff
+                    String[] h = s.split(":");
+                    if (h.length > 1) {
+                        StringBuffer b4 = new StringBuffer();
+                        for (String aH : h) {
+                            m_setSpecs.add(b4.toString() + aH);
+                            b4.append(aH + ":");
+                        }
+                    } else {
+                        m_setSpecs.add(m_buf.toString().trim());
                     }
-                } else {
-                    m_setSpecs.add(m_buf.toString().trim());
+                    m_inSetSpec = false;
+                    break;
                 }
-                m_inSetSpec = false;
             }
         }
     }

@@ -4,9 +4,9 @@ import java.io.*;
 
 public class QueueIterator {
 
+    private final File _tempFile;
     private QueueItem _next;
     private BufferedReader _reader;
-    private File _tempFile;
 
     public QueueIterator(File tempFile) throws IOException {
         _tempFile = tempFile;
@@ -69,7 +69,7 @@ public class QueueIterator {
         if (_reader != null) {
             try {
                 _reader.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             _tempFile.delete();
             _reader = null;

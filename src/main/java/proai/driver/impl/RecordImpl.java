@@ -6,9 +6,9 @@ import java.io.File;
 
 public class RecordImpl implements Record {
 
-    private File m_file;
-    private String m_itemID;
-    private String m_prefix;
+    private final File m_file;
+    private final String m_itemID;
+    private final String m_prefix;
 
     public RecordImpl(String itemID, String prefix, File file) {
         m_itemID = itemID;

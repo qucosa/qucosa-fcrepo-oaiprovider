@@ -12,7 +12,7 @@ import java.util.Properties;
 
 /**
  * An interface to a repository.
- * <p>
+ * <p/>
  * Note that an OAIDriver *must* implement a public no-arg constructor,
  * and will be initialized via a call to init(Properties).
  *
@@ -31,13 +31,13 @@ public interface OAIDriver extends Writable {
 
     /**
      * Write information about the repository to the given PrintWriter.
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * This will be a well-formed XML chunk beginning with an
      * <code>Identify</code> element, as described in
      * <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html#Identify">section
      * 4.2 of the OAI-PMH 2.0 specification</a>.
-     * <p>
+     * <p/>
      *
      * @throws RepositoryException if there is a problem reading from the repository.
      */
@@ -65,13 +65,13 @@ public interface OAIDriver extends Writable {
     /**
      * Get an iterator over a list of SetInfo objects representing all
      * OAI sets currently supported by the repository.
-     * <p>
-     * <p>
+     * <p/>
+     * <p/>
      * The content will be a well-formed XML chunk beginning with a
      * <code>set</code> element, as described in
      * <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html#ListSets">section
      * 4.6 of the OAI-PMH 2.0 specification</a>.
-     * <p>
+     * <p/>
      *
      * @see proai.SetInfo
      */
@@ -81,7 +81,7 @@ public interface OAIDriver extends Writable {
      * Get an iterator of <code>Record</code> objects representing all records
      * in the format indicated by mdPrefix, which have changed in the given date
      * range.
-     * <p>
+     * <p/>
      * <p><strong>Regarding dates:</strong>
      * <em>If from is not null, the date is greater than (non-inclusive)
      * Until must be specified, and it is less than or equal to (inclusive).</em>
@@ -94,13 +94,13 @@ public interface OAIDriver extends Writable {
 
     /**
      * Write the XML of the record whose source info is given.
-     * <p>
+     * <p/>
      * SourceInfo MUST NOT contain newlines. Otherwise, the format is up to the
      * implementation.
-     * <p>
+     * <p/>
      * The Record implementation produces these strings, and the OAIDriver
      * implementation should know how to use them to produce the XML.
-     * <p>
+     * <p/>
      * The record must be a well-formed XML chunk beginning with a
      * <code>record</code> element, as described in
      * <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html#GetRecord">section
@@ -110,10 +110,5 @@ public interface OAIDriver extends Writable {
                         String mdPrefix,
                         String sourceInfo,
                         PrintWriter writer) throws RepositoryException;
-
-    /**
-     * Release any resources held by the driver.
-     */
-    void close() throws RepositoryException;
 
 }

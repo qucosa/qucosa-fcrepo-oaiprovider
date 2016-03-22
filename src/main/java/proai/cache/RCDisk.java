@@ -23,7 +23,7 @@ public class RCDisk {
     private static final Logger logger =
             Logger.getLogger(RCDisk.class.getName());
 
-    private File m_baseDir;
+    private final File m_baseDir;
 
     public RCDisk(File baseDir) {
         m_baseDir = baseDir;
@@ -47,7 +47,7 @@ public class RCDisk {
     /**
      * Get a new, unique path (relative to m_baseDir) for a file, based on
      * the current time.
-     * <p>
+     * <p/>
      * If the directory for the path does not yet exist, it will be created.
      */
     private String getNewPath() {
@@ -121,10 +121,10 @@ public class RCDisk {
         }
         File[] yearDirs = m_baseDir.listFiles();
         if (yearDirs != null) {
-            for (int yearIndex = 0; yearIndex < yearDirs.length; yearIndex++) {
+            for (File yearDir : yearDirs) {
                 try {
-                    if (Integer.parseInt(yearDirs[yearIndex].getName()) >= year) {
-                        File[] monthDirs = yearDirs[yearIndex].listFiles();
+                    if (Integer.parseInt(yearDir.getName()) >= year) {
+                        File[] monthDirs = yearDir.listFiles();
                         if (monthDirs != null) {
                             for (int monthIndex = 0; monthIndex < monthDirs.length; monthIndex++) {
                                 try {
@@ -181,7 +181,7 @@ public class RCDisk {
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
-                deleteIfEmpty(yearDirs[yearIndex]);
+                deleteIfEmpty(yearDir);
             }
         }
     }
@@ -189,8 +189,7 @@ public class RCDisk {
     private void deleteIfNeeded(File dir, double second) {
         File[] files = dir.listFiles();
         if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
+            for (File file : files) {
                 try {
                     double fileSecond = Double.parseDouble(file.getName().substring(0, 6));
                     if (fileSecond >= second) {
@@ -225,8 +224,8 @@ public class RCDisk {
     public void pruneEmptyDirs() {
         File[] yearDirs = m_baseDir.listFiles();
         if (yearDirs != null) {
-            for (int yearIndex = 0; yearIndex < yearDirs.length; yearIndex++) {
-                File[] monthDirs = yearDirs[yearIndex].listFiles();
+            for (File yearDir : yearDirs) {
+                File[] monthDirs = yearDir.listFiles();
                 if (monthDirs != null) {
                     for (int monthIndex = 0; monthIndex < monthDirs.length; monthIndex++) {
                         File[] dayDirs = monthDirs[monthIndex].listFiles();
@@ -250,7 +249,7 @@ public class RCDisk {
                         deleteIfEmpty(monthDirs[monthIndex]);
                     }
                 }
-                deleteIfEmpty(yearDirs[yearIndex]);
+                deleteIfEmpty(yearDir);
             }
         }
     }
@@ -258,8 +257,8 @@ public class RCDisk {
     public void writeAllPaths(PrintWriter writer) {
         File[] yearDirs = m_baseDir.listFiles();
         if (yearDirs != null) {
-            for (int yearIndex = 0; yearIndex < yearDirs.length; yearIndex++) {
-                File[] monthDirs = yearDirs[yearIndex].listFiles();
+            for (File yearDir : yearDirs) {
+                File[] monthDirs = yearDir.listFiles();
                 if (monthDirs != null) {
                     for (int monthIndex = 0; monthIndex < monthDirs.length; monthIndex++) {
                         File[] dayDirs = monthDirs[monthIndex].listFiles();
@@ -273,7 +272,7 @@ public class RCDisk {
                                             for (int minuteIndex = 0; minuteIndex < minuteDirs.length; minuteIndex++) {
                                                 String[] files = minuteDirs[minuteIndex].list();
                                                 for (int i = 0; i < files.length; i++) {
-                                                    String path = yearDirs[yearIndex].getName()
+                                                    String path = yearDir.getName()
                                                             + "/" + monthDirs[monthIndex].getName()
                                                             + "/" + dayDirs[dayIndex].getName()
                                                             + "/" + hourDirs[hourIndex].getName()

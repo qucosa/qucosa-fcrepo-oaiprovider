@@ -28,7 +28,7 @@ public abstract class SetSpec {
     }
 
     public static Set<String> allSetsFor(String spec) {
-        Set<String> ancestors = new HashSet<String>();
+        Set<String> ancestors = new HashSet<>();
 
         ancestors.add(spec);
         if (hasParents(spec)) {

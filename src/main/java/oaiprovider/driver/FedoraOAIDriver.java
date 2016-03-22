@@ -27,9 +27,6 @@ public class FedoraOAIDriver
         implements OAIDriver {
 
     public static final String NS = "driver.fedora.";
-    public static final String PROP_BASEURL = NS + "baseURL";
-    public static final String PROP_USER = NS + "user";
-    public static final String PROP_PASS = NS + "pass";
     public static final String PROP_QUERY_CONN_TIMEOUT =
             NS + "queryConnectionTimeout";
     public static final String PROP_QUERY_SOCK_TIMEOUT =
@@ -38,24 +35,27 @@ public class FedoraOAIDriver
             NS + "disseminationConnectionTimeout";
     public static final String PROP_DISS_SOCK_TIMEOUT =
             NS + "disseminationSocketTimeout";
-    public static final String PROP_IDENTIFY = NS + "identify";
     public static final String PROP_ITEMID = NS + "itemID";
     public static final String PROP_SETSPEC = NS + "setSpec";
     public static final String PROP_SETSPEC_NAME = NS + "setSpec.name";
-    public static final String PROP_SETSPEC_DESC_DISSTYPE =
-            NS + "setSpec.desc.dissType";
-    public static final String PROP_QUERY_FACTORY = NS + "queryFactory";
-    public static final String PROP_FORMATS = NS + "md.formats";
-    public static final String PROP_FORMAT_START = NS + "md.format.";
     public static final String PROP_DELETED = NS + "deleted";
-    public static final String PROP_FORMAT_PFX_END = ".mdPrefix";
-    public static final String PROP_FORMAT_LOC_END = ".loc";
-    public static final String PROP_FORMAT_URI_END = ".uri";
-    public static final String PROP_FORMAT_DISSTYPE_END = ".dissType";
-    public static final String PROP_FORMAT_ABOUT_END = ".about.dissType";
     public static final String PROP_FORMAT_ABOUT = ".about";
     public static final String PROP_ITEM_SETSPEC_PATH = NS + "itemSetSpecPath";
     public static final String PROP_VOLATILE = NS + "volatile";
+    private static final String PROP_BASEURL = NS + "baseURL";
+    private static final String PROP_USER = NS + "user";
+    private static final String PROP_PASS = NS + "pass";
+    private static final String PROP_IDENTIFY = NS + "identify";
+    private static final String PROP_SETSPEC_DESC_DISSTYPE =
+            NS + "setSpec.desc.dissType";
+    private static final String PROP_QUERY_FACTORY = NS + "queryFactory";
+    private static final String PROP_FORMATS = NS + "md.formats";
+    private static final String PROP_FORMAT_START = NS + "md.format.";
+    private static final String PROP_FORMAT_PFX_END = ".mdPrefix";
+    private static final String PROP_FORMAT_LOC_END = ".loc";
+    private static final String PROP_FORMAT_URI_END = ".uri";
+    private static final String PROP_FORMAT_DISSTYPE_END = ".dissType";
+    private static final String PROP_FORMAT_ABOUT_END = ".about.dissType";
     private static final String _DC_SCHEMALOCATION =
             "xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ "
                     + "http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"";
@@ -64,9 +64,6 @@ public class FedoraOAIDriver
     private static final Logger logger =
             Logger.getLogger(FedoraOAIDriver.class.getName());
     private FedoraClient m_fedora;
-    private String m_fedoraBaseURL;
-    private String m_fedoraPass;
-    private String m_fedoraUser;
     private URL m_identify;
     private Map<String, FedoraMetadataFormat> m_metadataFormats;
     private QueryFactory m_queryFactory;
@@ -91,14 +88,14 @@ public class FedoraOAIDriver
         }
         out.println("    <identifier>" + itemID + "</identifier>");
         out.println("    <datestamp>" + date + "</datestamp>");
-        for (int i = 0; i < setSpecs.size(); i++) {
-            out.println("    <setSpec>" + (String) setSpecs.get(i)
+        for (String setSpec : setSpecs) {
+            out.println("    <setSpec>" + (String) setSpec
                     + "</setSpec>");
         }
         out.println("  </header>");
     }
 
-    protected static String getRequired(Properties props, String key)
+    static String getRequired(Properties props, String key)
             throws RepositoryException {
         String val = props.getProperty(key);
         if (val == null) {
@@ -125,7 +122,7 @@ public class FedoraOAIDriver
      * @param key
      * @return the value associated with key or the empty String ("")
      */
-    protected static String getOptional(Properties props, String key) {
+    static String getOptional(Properties props, String key) {
         String val = props.getProperty(key);
         logger.debug(key + " = " + val);
         if (val == null) {
@@ -136,10 +133,10 @@ public class FedoraOAIDriver
 
     public void init(Properties props) throws RepositoryException {
 
-        m_fedoraBaseURL = getRequired(props, PROP_BASEURL);
+        String m_fedoraBaseURL = getRequired(props, PROP_BASEURL);
         if (!m_fedoraBaseURL.endsWith("/")) m_fedoraBaseURL += "/";
-        m_fedoraUser = getRequired(props, PROP_USER);
-        m_fedoraPass = getRequired(props, PROP_PASS);
+        String m_fedoraUser = getRequired(props, PROP_USER);
+        String m_fedoraPass = getRequired(props, PROP_PASS);
         m_metadataFormats = getMetadataFormats(props);
 
         try {
@@ -201,7 +198,7 @@ public class FedoraOAIDriver
         } finally {
             if (in != null) try {
                 in.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -214,7 +211,7 @@ public class FedoraOAIDriver
 
     public RemoteIterator<FedoraMetadataFormat> listMetadataFormats()
             throws RepositoryException {
-        return new RemoteIteratorImpl<FedoraMetadataFormat>(m_metadataFormats
+        return new RemoteIteratorImpl<>(m_metadataFormats
                 .values().iterator());
     }
 
@@ -250,10 +247,8 @@ public class FedoraOAIDriver
         String aboutDissURI = parts[1];
         boolean deleted = parts[2].equalsIgnoreCase("true");
         String date = parts[3];
-        List<String> setSpecs = new ArrayList<String>();
-        for (int i = 4; i < parts.length; i++) {
-            setSpecs.add(parts[i]);
-        }
+        List<String> setSpecs = new ArrayList<>();
+        setSpecs.addAll(Arrays.asList(parts).subList(4, parts.length));
 
         out.println("<record>");
         writeRecordHeader(itemID, deleted, date, setSpecs, out);
@@ -293,7 +288,7 @@ public class FedoraOAIDriver
             if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
                 // If it's a DC datastream dissemination, inject the
                 // xsi:schemaLocation attribute if needed
-                if (xml.indexOf(_XSI_URI) == -1) {
+                if (!xml.contains(_XSI_URI)) {
                     xml = xml.replaceAll("<oai_dc:dc ", "<oai_dc:dc "
                             + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
                 }
@@ -306,7 +301,7 @@ public class FedoraOAIDriver
         } finally {
             if (in != null) try {
                 in.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -345,14 +340,9 @@ public class FedoraOAIDriver
         } finally {
             if (in != null) try {
                 in.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
-    }
-
-    public void close() throws RepositoryException {
-        // TODO Auto-generated method stub
-
     }
 
     /**
@@ -363,12 +353,12 @@ public class FedoraOAIDriver
         String formats[], prefix, namespaceURI, schemaLocation;
         FedoraMetadataFormat mf;
         Map<String, FedoraMetadataFormat> map =
-                new HashMap<String, FedoraMetadataFormat>();
+                new HashMap<>();
 
         // step through formats, getting appropriate properties for each
         formats = getRequired(props, PROP_FORMATS).split(" ");
-        for (int i = 0; i < formats.length; i++) {
-            prefix = formats[i];
+        for (String format : formats) {
+            prefix = format;
             namespaceURI =
                     getRequired(props, PROP_FORMAT_START + prefix
                             + PROP_FORMAT_URI_END);
@@ -416,7 +406,7 @@ public class FedoraOAIDriver
         } finally {
             if (reader != null) try {
                 reader.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }

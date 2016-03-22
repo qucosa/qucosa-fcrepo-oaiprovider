@@ -14,7 +14,6 @@ import proai.driver.RemoteIterator;
 import proai.error.RepositoryException;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -97,11 +96,7 @@ public class MPTItemIterator
     }
 
     public void close() throws RepositoryException {
-        try {
-            results.close();
-        } catch (SQLException e) {
-            throw new RepositoryException("Could not close result set", e);
-        }
+        results.close();
     }
 
     public boolean hasNext() throws RepositoryException {
@@ -109,76 +104,71 @@ public class MPTItemIterator
     }
 
     public FedoraRecord next() throws RepositoryException {
-        try {
-            if (results.hasNext()) {
-                List<Node> result = results.next();
+        if (results.hasNext()) {
+            List<Node> result = results.next();
 
-                PID pid = PID.getInstance(result.get(itemIndex).getValue());
-                String itemID = (result.get(itemIDIndex)).getValue();
+            PID pid = PID.getInstance(result.get(itemIndex).getValue());
+            String itemID = (result.get(itemIDIndex)).getValue();
 
-                String date = formatDate((result.get(dateIndex)).toString());
-                boolean deleted =
-                        !((result.get(stateIndex))).getValue()
-                                .equals(MODEL.ACTIVE.uri);
+            String date = formatDate((result.get(dateIndex)).toString());
+            boolean deleted =
+                    !((result.get(stateIndex))).getValue()
+                            .equals(MODEL.ACTIVE.uri);
 
-                InvocationSpec mdSpec = format.getMetadataSpec();
-                InvocationSpec aboutSpec = format.getAboutSpec();
+            InvocationSpec mdSpec = format.getMetadataSpec();
+            InvocationSpec aboutSpec = format.getAboutSpec();
 
-                String recordDiss = "";
+            String recordDiss;
 
-                recordDiss = mdSpec.getDisseminationType(pid);
+            recordDiss = mdSpec.getDisseminationType(pid);
 
-                String aboutDiss = null;
+            String aboutDiss = null;
 
-                if (aboutSpec != null && aboutDissIndex != -1) {
-                    if (result.get(aboutDissIndex) != null) {
-                        aboutDiss = aboutSpec.getDisseminationType(pid);
-                    }
+            if (aboutSpec != null && aboutDissIndex != -1) {
+                if (result.get(aboutDissIndex) != null) {
+                    aboutDiss = aboutSpec.getDisseminationType(pid);
                 }
+            }
 
-                /*
-                 * Build a set of setSpecs. This assumes that the results are
-                 * grouped by itemID
-                 */
-                Set<String> setSpecs = new HashSet<String>();
-                if (setSpecIndex != -1) {
-                    Node setSpecResult = ((Node) result.get(setSpecIndex));
-                    if (setSpecResult != null) {
-                        setSpecs.add(setSpecResult.getValue());
-                    }
-                    if (results.peek() != null) {
-                        while (results.peek().get(itemIDIndex).getValue()
-                                .equals(itemID)) {
-                            List<Node> nextEntry = results.next();
-                            setSpecResult = nextEntry.get(setSpecIndex);
+            /*
+             * Build a set of setSpecs. This assumes that the results are
+             * grouped by itemID
+             */
+            Set<String> setSpecs = new HashSet<>();
+            if (setSpecIndex != -1) {
+                Node setSpecResult = ((Node) result.get(setSpecIndex));
+                if (setSpecResult != null) {
+                    setSpecs.add(setSpecResult.getValue());
+                }
+                if (results.peek() != null) {
+                    while (results.peek().get(itemIDIndex).getValue()
+                            .equals(itemID)) {
+                        List<Node> nextEntry = results.next();
+                        setSpecResult = nextEntry.get(setSpecIndex);
 
-                            if (setSpecResult != null) {
-                                setSpecs.add(setSpecResult.getValue());
-                            }
-                            if (results.peek() == null) {
-                                break;
-                            }
+                        if (setSpecResult != null) {
+                            setSpecs.add(setSpecResult.getValue());
+                        }
+                        if (results.peek() == null) {
+                            break;
                         }
                     }
                 }
-
-                String[] specs =
-                        new ArrayList<String>(setSpecs)
-                                .toArray(new String[setSpecs.size()]);
-
-                return new FedoraRecord(itemID,
-                        format.getPrefix(),
-                        recordDiss,
-                        date,
-                        deleted,
-                        specs,
-                        aboutDiss);
-            } else {
-                throw new RepositoryException("No more results available\n");
             }
-        } catch (SQLException e) {
-            logger.error("Could not read recors result", e);
-            throw new RepositoryException("Could not read record result", e);
+
+            String[] specs =
+                    new ArrayList<>(setSpecs)
+                            .toArray(new String[setSpecs.size()]);
+
+            return new FedoraRecord(itemID,
+                    format.getPrefix(),
+                    recordDiss,
+                    date,
+                    deleted,
+                    specs,
+                    aboutDiss);
+        } else {
+            throw new RepositoryException("No more results available\n");
         }
     }
 

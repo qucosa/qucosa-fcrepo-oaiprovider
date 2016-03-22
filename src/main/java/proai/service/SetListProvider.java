@@ -8,8 +8,8 @@ import proai.error.ServerException;
 
 public class SetListProvider implements ListProvider<SetInfo> {
 
-    private RecordCache m_cache;
-    private int m_incompleteListSize;
+    private final RecordCache m_cache;
+    private final int m_incompleteListSize;
 
     public SetListProvider(RecordCache cache,
                            int incompleteListSize) {
@@ -22,7 +22,7 @@ public class SetListProvider implements ListProvider<SetInfo> {
         if (iter.hasNext()) return iter;
         try {
             iter.close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
     }
@@ -32,7 +32,7 @@ public class SetListProvider implements ListProvider<SetInfo> {
         if (iter.hasNext()) return iter;
         try {
             iter.close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
     }

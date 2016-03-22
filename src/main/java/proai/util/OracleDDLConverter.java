@@ -15,7 +15,7 @@ public class OracleDDLConverter
     }
 
     public List<String> getDDL(TableSpec spec) {
-        ArrayList<String> l = new ArrayList<String>();
+        ArrayList<String> l = new ArrayList<>();
         StringBuffer out = new StringBuffer();
         StringBuffer end = new StringBuffer();
         out.append("CREATE TABLE " + spec.getName() + " (\n");
@@ -52,35 +52,33 @@ public class OracleDDLConverter
                 // creating a sequence, then creating a trigger that
                 // inserts the sequence's next value for that column
                 // upon insert.
-                StringBuffer createSeq = new StringBuffer();
-                createSeq.append("CREATE SEQUENCE ");
-                createSeq.append(spec.getName());
-                createSeq.append("_S");
-                createSeq.append(csNum);
-                createSeq.append("\n");
-                createSeq.append("  START WITH 1\n");
-                createSeq.append("  INCREMENT BY 1\n");
-                createSeq.append("  NOMAXVALUE");
-                l.add(createSeq.toString());
-                StringBuffer createTrig = new StringBuffer();
-                createTrig.append("CREATE TRIGGER ");
-                createTrig.append(spec.getName());
-                createTrig.append("_T");
-                createTrig.append(csNum);
-                createTrig.append("\n");
-                createTrig.append("  BEFORE INSERT ON ");
-                createTrig.append(spec.getName());
-                createTrig.append("\n  FOR EACH ROW");
-                createTrig.append("\n  BEGIN");
-                createTrig.append("\n    SELECT ");
-                createTrig.append(spec.getName());
-                createTrig.append("_S");
-                createTrig.append(csNum);
-                createTrig.append(".NEXTVAL INTO :NEW.");
-                createTrig.append(cs.getName());
-                createTrig.append(" FROM DUAL;");
-                createTrig.append("\n  END;");
-                l.add(createTrig.toString());
+                String createSeq = "CREATE SEQUENCE " +
+                        spec.getName() +
+                        "_S" +
+                        csNum +
+                        "\n" +
+                        "  START WITH 1\n" +
+                        "  INCREMENT BY 1\n" +
+                        "  NOMAXVALUE";
+                l.add(createSeq);
+                String createTrig = "CREATE TRIGGER " +
+                        spec.getName() +
+                        "_T" +
+                        csNum +
+                        "\n" +
+                        "  BEFORE INSERT ON " +
+                        spec.getName() +
+                        "\n  FOR EACH ROW" +
+                        "\n  BEGIN" +
+                        "\n    SELECT " +
+                        spec.getName() +
+                        "_S" +
+                        csNum +
+                        ".NEXTVAL INTO :NEW." +
+                        cs.getName() +
+                        " FROM DUAL;" +
+                        "\n  END;";
+                l.add(createTrig);
             }
             if (cs.getDefaultValue() != null) {
                 out.append(" DEFAULT '");

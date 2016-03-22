@@ -33,11 +33,11 @@ public class MPTResultSetsManager {
         }
     }
 
-    public List<Node> peek() throws SQLException {
+    public List<Node> peek() {
         return this.nextResult;
     }
 
-    public List<Node> next() throws SQLException {
+    public List<Node> next() {
 
         List<Node> currentResult = this.nextResult;
         if (results.hasNext()) {
@@ -52,7 +52,7 @@ public class MPTResultSetsManager {
         return this.nextResult != null;
     }
 
-    public void close() throws SQLException {
+    public void close() {
         results.close();
     }
 }

@@ -16,9 +16,9 @@ import java.util.Properties;
  */
 public interface QueryFactory {
 
-    public void init(FedoraClient client,
-                     FedoraClient queryClient,
-                     Properties props);
+    void init(FedoraClient client,
+              FedoraClient queryClient,
+              Properties props);
 
     /**
      * Queries the Fedora Resource Index for the latest last-modified date of
@@ -27,22 +27,20 @@ public interface QueryFactory {
      * @param fedoraMetadataFormats the list of all FedoraMetadataFormats
      * @return date of the latest record
      */
-    public Date latestRecordDate(Iterator<? extends MetadataFormat> fedoraMetadataFormats);
+    Date latestRecordDate(Iterator<? extends MetadataFormat> fedoraMetadataFormats);
 
     /**
      * @return a RemoteIterator of proai.SetInfo objects
      */
-    public RemoteIterator<SetInfo> listSetInfo(InvocationSpec setInfoSpec);
+    RemoteIterator<SetInfo> listSetInfo(InvocationSpec setInfoSpec);
 
     /**
-     * @param from                  the date (inclusive) of the earliest record to return. Null
-     *                              indicates no lower bound.
-     * @param until                 the date (inclusive). Null indicates no upper bound.
-     * @param mdPrefixDissType      the dissemination type for a given metadata prefix.
-     * @param mdPrefixAboutDissType
+     * @param from  the date (inclusive) of the earliest record to return. Null
+     *              indicates no lower bound.
+     * @param until the date (inclusive). Null indicates no upper bound.
      * @return a RemoteIterator of proai.Record objects
      */
-    public RemoteIterator<FedoraRecord> listRecords(Date from,
-                                                    Date until,
-                                                    FedoraMetadataFormat format);
+    RemoteIterator<FedoraRecord> listRecords(Date from,
+                                             Date until,
+                                             FedoraMetadataFormat format);
 }

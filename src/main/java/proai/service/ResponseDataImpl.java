@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 
 public class ResponseDataImpl implements ResponseData {
 
-    private String m_resumptionToken;
-    private Writable m_writable;
+    private final String m_resumptionToken;
+    private final Writable m_writable;
 
     public ResponseDataImpl(Writable writable) {
         m_writable = writable;
@@ -26,9 +26,6 @@ public class ResponseDataImpl implements ResponseData {
 
     public String getResumptionToken() {
         return m_resumptionToken;
-    }
-
-    public void release() {
     }
 
 }

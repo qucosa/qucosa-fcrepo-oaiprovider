@@ -18,15 +18,15 @@ public class SnapshotSession<T> extends Thread
 
     private static final Logger logger =
             Logger.getLogger(SnapshotSession.class.getName());
-    private File m_baseDir;
+    private final File m_baseDir;
+    private final SessionManager m_manager;
+    private final ListProvider<T> m_provider;
+    private final int m_secondsBetweenRequests;
+    private final String m_sessionKey;
     private ServerException m_exception;
     private long m_expirationTime;
     private int m_lastGeneratedPart;
     private int m_lastSentPart;
-    private SessionManager m_manager;
-    private ListProvider<T> m_provider;
-    private int m_secondsBetweenRequests;
-    private String m_sessionKey;
     private boolean m_threadNeedsToFinish;
     private boolean m_threadWorking;
     private int m_threadWorkingPart;
@@ -106,11 +106,11 @@ public class SnapshotSession<T> extends Thread
         } finally {
             if (iter != null) try {
                 iter.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             if (out != null) try {
                 out.close();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             m_threadWorking = false;
             logger.info(m_sessionKey + " retrieval thread finished");
@@ -121,7 +121,7 @@ public class SnapshotSession<T> extends Thread
 
     /**
      * Has the session expired?
-     * <p>
+     * <p/>
      * If this is true, the session will be cleaned by the reaper thread
      * of the session manager.
      */
@@ -135,13 +135,13 @@ public class SnapshotSession<T> extends Thread
 
     /**
      * Do all possible cleanup for this session.
-     * <p>
+     * <p/>
      * This includes signaling to its thread to stop asap,
      * waiting for it to stop, and removing any files/directories that remain.
-     * <p>
+     * <p/>
      * The implementation should be fail-safe, as a session may be asked to
      * clean itself more than once.
-     * <p>
+     * <p/>
      * Clean must *not* be called from this session's thread.
      */
     public void clean() {
@@ -149,13 +149,13 @@ public class SnapshotSession<T> extends Thread
         while (m_threadWorking) {
             try {
                 Thread.sleep(250);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         File sessionDir = new File(m_baseDir, m_sessionKey);
         File[] files = sessionDir.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            files[i].delete();
+        for (File file : files) {
+            file.delete();
         }
         sessionDir.delete();
     }
@@ -180,7 +180,7 @@ public class SnapshotSession<T> extends Thread
             while (m_threadWorking && m_lastGeneratedPart < partNum) {
                 try {
                     Thread.sleep(100);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
             if (m_exception != null) {

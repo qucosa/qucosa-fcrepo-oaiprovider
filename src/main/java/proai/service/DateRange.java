@@ -76,7 +76,7 @@ public class DateRange {
      * @param date converts a Date object to a iso8601 string
      * @return a iso8601 string
      */
-    public static String dateToIso8601(Date date) {
+    private static String dateToIso8601(Date date) {
         if (date == null)
             return null;
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'")
@@ -87,7 +87,7 @@ public class DateRange {
      * @param date a is08601 date
      * @return true if this class can handle the string, false if not.
      */
-    public static boolean validate(String date) {
+    private static boolean validate(String date) {
         if (date == null) return true;
         String pattern = "^(-?(?:[1-9][0-9]*)?[0-9]{4})(-(1[0-2]|0[1-9]))?(-(3[0-1]|0[1-9]|[1-2][0-9]))?(T(2[0-3]|[0-1][0-9])(:([0-5][0-9])(:([0-5][0-9]))?((\\.[0-9]+))?)?Z)?";
         return date.matches(pattern);
@@ -109,7 +109,7 @@ public class DateRange {
      * @param date a date object as a iso8601 String
      * @return a iso8601 String decremented by 1 unit.
      */
-    public static String decrement(final String date) {
+    private static String decrement(final String date) {
         if (date == null) return null;
         try {
             DateTime decDate = new DateTime(iso8601ToDate(date));
@@ -126,7 +126,7 @@ public class DateRange {
      * @param date a date object as a iso8601 String
      * @return a iso8601 String incremented by 1 unit.
      */
-    public static String increment(final String date) {
+    private static String increment(final String date) {
 
         if (date == null) return null;
         try {
@@ -162,7 +162,7 @@ public class DateRange {
      * @return a version of the passed unifyMe String that is on the same
      * granularity as the likeExpected string.
      */
-    public static String unify(final String unifyMe, final String likeExpected) {
+    private static String unify(final String unifyMe, final String likeExpected) {
 
         if (unifyMe == null) return null;
         if (likeExpected == null) return unifyMe;
@@ -263,7 +263,7 @@ public class DateRange {
      * @param untilDate a date in iso8601 format
      * @return a DateRange
      */
-    public static DateRange getRangeInclExcl(String fromDate, String untilDate) {
+    private static DateRange getRangeInclExcl(String fromDate, String untilDate) {
         if (fromDate == null || fromDate.isEmpty()) {
             fromDate = null;
         }
@@ -351,7 +351,7 @@ public class DateRange {
      * @param untilDate a date in iso8601 format
      * @return a DateRange
      */
-    public static DateRange getRangeExclExcl(String fromDate, String untilDate) {
+    private static DateRange getRangeExclExcl(String fromDate, String untilDate) {
         if (fromDate == null || fromDate.isEmpty()) {
             fromDate = null;
         }

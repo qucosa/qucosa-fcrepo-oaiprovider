@@ -15,11 +15,11 @@ import java.io.*;
 public class FedoraSetInfo
         implements SetInfo {
 
+    private final FedoraClient m_fedora;
     private final InvocationSpec m_setDiss;
     private final String m_setName;
     private final PID m_setPID;
     private final String m_setSpec;
-    private FedoraClient m_fedora;
 
     // if setDiss is null, descriptions don't exist, which is ok
     public FedoraSetInfo(FedoraClient fedora,
@@ -80,7 +80,7 @@ public class FedoraSetInfo
         } finally {
             if (in != null) try {
                 in.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }

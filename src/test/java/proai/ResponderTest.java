@@ -98,17 +98,9 @@ public class ResponderTest {
         }
     }
 
-    private void tryGetRecord(String item, String prefix) throws Exception {
-        ResponseData data = null;
-        try {
-            data = m_responder.getRecord(item, prefix);
-            if (m_print) printResult("getRecord(" + item + ", " + prefix + ")", data);
-        } finally {
-            if (data != null) try {
-                data.release();
-            } catch (Exception e) {
-            }
-        }
+    private void tryGetRecord(String item, String prefix) {
+        ResponseData data = m_responder.getRecord(item, prefix);
+        if (m_print) printResult("getRecord(" + item + ", " + prefix + ")", data);
     }
 
     private void printResult(String call, ResponseData data) {
@@ -138,55 +130,26 @@ public class ResponderTest {
 
     @Test
     public void testIdentify() throws Exception {
-        ResponseData data = null;
-        try {
-            data = m_responder.identify();
-            if (m_print) printResult("identify()", data);
-        } finally {
-            if (data != null) try {
-                data.release();
-            } catch (Exception e) {
-            }
-        }
+        ResponseData data = m_responder.identify();
+        if (m_print) printResult("identify()", data);
     }
 
-    private void doListMetadataFormatsTest(String item) throws Exception {
-        ResponseData data = null;
-        try {
-            data = m_responder.listMetadataFormats(item);
-            if (m_print) printResult("listMetadataFormats(" + item + ")", data);
-        } finally {
-            if (data != null) try {
-                data.release();
-            } catch (Exception e) {
-            }
-        }
+    private void doListMetadataFormatsTest(String item) {
+        ResponseData data = m_responder.listMetadataFormats(item);
+        if (m_print) printResult("listMetadataFormats(" + item + ")", data);
     }
 
-    private void doListSetsTest() throws Exception {
-        ResponseData data = null;
-        try {
-            data = m_responder.listSets(null);
-            if (m_print) printResult("listSets(null)", data);
-            String token = data.getResumptionToken();
-            while (token != null) {
-                try {
-                    data.release();
-                } catch (Exception e) {
-                }
-                data = m_responder.listSets(token);
-                if (m_print) printResult("listSets(" + token + ")", data);
-                data = m_responder.listSets(token);
-                if (m_print) printResult("listSets(" + token + ")", data);
-                token = data.getResumptionToken();
-            }
-        } finally {
-            if (data != null) try {
-                data.release();
-            } catch (Exception e) {
-            }
+    private void doListSetsTest() {
+        ResponseData data = m_responder.listSets(null);
+        if (m_print) printResult("listSets(null)", data);
+        String token = data.getResumptionToken();
+        while (token != null) {
+            data = m_responder.listSets(token);
+            if (m_print) printResult("listSets(" + token + ")", data);
+            data = m_responder.listSets(token);
+            if (m_print) printResult("listSets(" + token + ")", data);
+            token = data.getResumptionToken();
         }
-
     }
 
     private void doListRecordsTest(String from, String until, String prefix, String set) throws Exception {
@@ -201,7 +164,7 @@ public class ResponderTest {
                                                 String until,
                                                 String prefix,
                                                 String set,
-                                                boolean identifiers) throws Exception {
+                                                boolean identifiers) {
         ResponseData data = null;
         String which = null;
         try {
@@ -216,10 +179,6 @@ public class ResponderTest {
                 printResult("list" + which + "(" + from + ", " + until + ", " + prefix + ", " + set + ", null)", data);
             String token = data.getResumptionToken();
             while (token != null) {
-                try {
-                    data.release();
-                } catch (Exception e) {
-                }
                 if (identifiers) {
                     data = m_responder.listIdentifiers(null, null, null, null, token);
                 } else {
@@ -230,11 +189,6 @@ public class ResponderTest {
             }
         } catch (ProtocolException e) {
             System.out.println("For from = " + from + ", until = " + until + ", prefix = " + prefix + ", set = " + set + ", List" + which + " got protocol exception: " + e.getMessage());
-        } finally {
-            if (data != null) try {
-                data.release();
-            } catch (Exception e) {
-            }
         }
     }
 
