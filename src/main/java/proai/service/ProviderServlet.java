@@ -37,14 +37,6 @@ public class ProviderServlet extends HttpServlet {
     private String stylesheetLocation = null;
     private String xmlProcInst = _PROC_INST + _XMLSTART;
 
-    private static void appendAttribute(String name, String value, StringBuffer buf) {
-        if (value != null) {
-            buf.append(" " + name + "=\"");
-            buf.append(StreamUtil.xmlEncode(value));
-            buf.append("\"");
-        }
-    }
-
     /**
      * Close the Responder at shutdown-time.
      * <p/>
@@ -79,44 +71,47 @@ public class ProviderServlet extends HttpServlet {
             logger.debug(buf.toString());
         }
 
-        String url;
-        String verb;
-        String identifier;
-        String from;
-        String until;
-        String metadataPrefix;
-        String set;
-        String resumptionToken;
+        String url = request.getRequestURL().toString();
 
-        url = request.getRequestURL().toString();
+        String verb;
         verb = request.getParameter("verb");
-        if (verb == null) throw new BadVerbException("request did not specify a verb");
-        identifier = request.getParameter("identifier");
-        from = request.getParameter("from");
-        until = request.getParameter("until");
-        metadataPrefix = request.getParameter("metadataPrefix");
+
+        String identifier = request.getParameter("identifier");
+
+        String from = request.getParameter("from");
+
+        String until = request.getParameter("until");
+
+        String metadataPrefix = request.getParameter("metadataPrefix");
+
+        String set;
         set = request.getParameter("set");
+
+        String resumptionToken;
         resumptionToken = request.getParameter("resumptionToken");
 
-        // die if any other parameters are given, too
-        // this is a bit draconian, but required by the spec nonetheless
-        Set argKeys = request.getParameterMap().keySet();
-        int argCount = argKeys.size() - 1;
-        for (Object argKey : argKeys) {
-            String n = (String) argKey;
-            if (!n.equals("verb")
-                    && !n.equals("identifier")
-                    && !n.equals("from")
-                    && !n.equals("until")
-                    && !n.equals("metadataPrefix")
-                    && !n.equals("set")
-                    && !n.equals("resumptionToken")) {
-                throw new BadArgumentException("unknown argument: " + n);
-            }
-        }
 
-        ResponseData data;
         try {
+            if (verb == null) throw new BadVerbException("request did not specify a verb");
+
+            // die if any other parameters are given, too
+            // this is a bit draconian, but required by the spec nonetheless
+            Set argKeys = request.getParameterMap().keySet();
+            int argCount = argKeys.size() - 1;
+            for (Object argKey : argKeys) {
+                String n = (String) argKey;
+                if (!n.equals("verb")
+                        && !n.equals("identifier")
+                        && !n.equals("from")
+                        && !n.equals("until")
+                        && !n.equals("metadataPrefix")
+                        && !n.equals("set")
+                        && !n.equals("resumptionToken")) {
+                    throw new BadArgumentException("unknown argument: " + n);
+                }
+            }
+
+            ResponseData data;
             switch (verb) {
                 case "GetRecord":
                     if (argCount != 2) throw new BadArgumentException("two arguments needed, got " + argCount);
@@ -206,6 +201,19 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
+    public void doPost(HttpServletRequest request,
+                       HttpServletResponse response) {
+        doGet(request, response);
+    }
+
+    private static void appendAttribute(String name, String value, StringBuffer buf) {
+        if (value != null) {
+            buf.append(" " + name + "=\"");
+            buf.append(StreamUtil.xmlEncode(value));
+            buf.append("\"");
+        }
+    }
+
     private String getResponseStart(String url,
                                     String verb,
                                     String identifier,
@@ -268,13 +276,6 @@ public class ProviderServlet extends HttpServlet {
             logger.warn("Error while sending a protocol exception (" + e.getClass().getName() + ") response", th);
         }
     }
-
-
-    public void doPost(HttpServletRequest request,
-                       HttpServletResponse response) {
-        doGet(request, response);
-    }
-
 
     /**
      * Method adds Stylesheet Instruction to the XML-Processing Instructions if available
