@@ -197,16 +197,13 @@ public class ProviderServlet extends HttpServlet {
             }
             Properties props = new Properties();
             props.load(propStream);
-            init(props);
+
+            m_responder = new Responder(props);
+            setStylesheetProperty(props);
+
         } catch (Exception e) {
             throw new ServletException("Unable to initialize ProviderServlet", e);
         }
-    }
-
-    public void init(Properties props) throws ServerException {
-        m_responder = new Responder(props);
-        //add Stylesheet Instruction to XML if configured
-        setStylesheetProperty(props);
     }
 
     private String getResponseStart(String url,
