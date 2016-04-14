@@ -12,9 +12,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -185,11 +185,38 @@ public class ProviderServlet extends HttpServlet {
     }
 
     public void init() throws ServletException {
-        try {
-            InputStream propStream = this.getClass().getResourceAsStream("/proai.properties");
-            if (propStream == null) {
-                throw new IOException("Error loading configuration: /proai.properties not found in classpath");
+        Path proaiPropetiesPath = null;
+
+        final String proaiHome = firstOf(
+                System.getProperty("proai.home"),
+                getServletConfig().getInitParameter("proai.home"));
+
+        if (proaiHome != null) {
+            Path p = Paths.get(proaiHome);
+            if (p.isAbsolute() && p.toFile().exists()) {
+                proaiPropetiesPath = p.resolve("proai.properties");
+            } else {
+                throw new ServletException(
+                        String.format("Configured proai.home '%s' is not an existing directory.", proaiHome));
             }
+        }
+
+        InputStream propStream;
+        if (proaiPropetiesPath != null) {
+            try {
+                propStream = new FileInputStream(proaiPropetiesPath.toFile());
+            } catch (FileNotFoundException e) {
+                throw new ServletException(
+                        String.format("Error loading configuration from '%s': %s", proaiPropetiesPath, e.getMessage()));
+            }
+        } else {
+            propStream = this.getClass().getResourceAsStream("/config/proai.default.properties");
+            if (propStream == null) {
+                throw new ServletException("Error loading default configuration: proai.default.properties not found in classpath");
+            }
+        }
+
+        try {
             Properties props = new Properties();
             props.load(propStream);
 
@@ -208,7 +235,7 @@ public class ProviderServlet extends HttpServlet {
 
     private static void appendAttribute(String name, String value, StringBuffer buf) {
         if (value != null) {
-            buf.append(" " + name + "=\"");
+            buf.append(" ").append(name).append("=\"");
             buf.append(StreamUtil.xmlEncode(value));
             buf.append("\"");
         }
@@ -243,7 +270,7 @@ public class ProviderServlet extends HttpServlet {
             appendAttribute("set", set, buf);
             appendAttribute("resumptionToken", resumptionToken, buf);
         }
-        buf.append(">" + url + "</request>\n");
+        buf.append(">").append(url).append("</request>\n");
         return buf.toString();
     }
 
@@ -289,5 +316,15 @@ public class ProviderServlet extends HttpServlet {
         return xmlProcInst;
     }
 
+    private static String firstOf(String... strings) {
+        for (String s : strings) {
+            if (!orEmptyString(s).isEmpty()) return s;
+        }
+        return null;
+    }
+
+    private static String orEmptyString(String s) {
+        return (s != null) ? s : "";
+    }
 
 }
