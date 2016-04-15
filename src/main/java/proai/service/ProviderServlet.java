@@ -192,9 +192,11 @@ public class ProviderServlet extends HttpServlet {
                 getServletContext().getInitParameter("proai.home"));
 
         if (proaiHome != null) {
-            Path p = Paths.get(proaiHome);
-            if (p.isAbsolute() && p.toFile().exists()) {
-                proaiPropetiesPath = p.resolve("proai.properties");
+            Path proaiHomePath = Paths.get(proaiHome);
+            if (proaiHomePath.isAbsolute() && proaiHomePath.toFile().exists()) {
+                proaiPropetiesPath = proaiHomePath
+                        .resolve("config")
+                        .resolve("proai.properties");
             } else {
                 throw new ServletException(
                         String.format("Configured proai.home '%s' is not an existing directory.", proaiHome));

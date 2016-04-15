@@ -90,7 +90,7 @@ public class RCDatabase {
         logger.debug("Creating tables...");
         List<TableSpec> specs;
         try {
-            InputStream in = this.getClass().getResourceAsStream("/dbspec.xml");
+            InputStream in = this.getClass().getResourceAsStream("/config/dbspec.xml");
             specs = TableSpec.getTableSpecs(in);
         } catch (Exception e) {
             throw new ServerException("Unable to initialize tablespecs", e);
