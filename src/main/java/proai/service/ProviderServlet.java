@@ -189,7 +189,7 @@ public class ProviderServlet extends HttpServlet {
 
         final String proaiHome = firstOf(
                 System.getProperty("proai.home"),
-                getServletConfig().getInitParameter("proai.home"));
+                getServletContext().getInitParameter("proai.home"));
 
         if (proaiHome != null) {
             Path p = Paths.get(proaiHome);

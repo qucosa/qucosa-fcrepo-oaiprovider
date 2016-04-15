@@ -3,13 +3,14 @@
 <web-app>
   <display-name>Proai Webapp</display-name>
 
+  <context-param>
+    <param-name>proai.home</param-name>
+    <param-value>/tmp/proai</param-value>
+  </context-param>
+
   <servlet>
     <servlet-name>ProviderServlet</servlet-name>
     <servlet-class>proai.service.ProviderServlet</servlet-class>
-    <init-param>
-      <param-name>proai.home</param-name>
-      <param-value>/tmp/proai</param-value>
-    </init-param>
     <load-on-startup>0</load-on-startup>
   </servlet>
 
