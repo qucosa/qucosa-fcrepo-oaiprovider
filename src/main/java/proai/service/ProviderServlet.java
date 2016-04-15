@@ -1,5 +1,9 @@
 package proai.service;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proai.error.BadArgumentException;
@@ -185,46 +189,29 @@ public class ProviderServlet extends HttpServlet {
     }
 
     public void init() throws ServletException {
-        Path proaiPropetiesPath = null;
-
-        final String proaiHome = firstOf(
+        String s = firstOf(
                 System.getProperty("proai.home"),
                 getServletContext().getInitParameter("proai.home"));
+        if (s == null) {
+            throw new ServerException("Could not obtain proai.home directory path.");
+        }
 
-        if (proaiHome != null) {
-            Path proaiHomePath = Paths.get(proaiHome);
-            if (proaiHomePath.isAbsolute() && proaiHomePath.toFile().exists()) {
-                proaiPropetiesPath = proaiHomePath
-                        .resolve("config")
-                        .resolve("proai.properties");
-            } else {
+        final Path proaiHomePath = Paths.get(s);
+        if (proaiHomePath != null) {
+            if (!proaiHomePath.isAbsolute() || !proaiHomePath.toFile().exists()) {
                 throw new ServletException(
-                        String.format("Configured proai.home '%s' is not an existing directory.", proaiHome));
+                        String.format("Configured proai.home '%s' is not an existing directory.", proaiHomePath));
             }
         }
 
-        InputStream propStream;
-        if (proaiPropetiesPath != null) {
-            try {
-                propStream = new FileInputStream(proaiPropetiesPath.toFile());
-            } catch (FileNotFoundException e) {
-                throw new ServletException(
-                        String.format("Error loading configuration from '%s': %s", proaiPropetiesPath, e.getMessage()));
-            }
-        } else {
-            propStream = this.getClass().getResourceAsStream("/config/proai.default.properties");
-            if (propStream == null) {
-                throw new ServletException("Error loading default configuration: proai.default.properties not found in classpath");
-            }
-        }
+        final Path proaiConfigPath = (proaiHomePath != null) ? proaiHomePath.resolve("config") : null;
+        final InputStream propertiesStream = getPropertiesInputStream(proaiConfigPath);
 
         try {
             Properties props = new Properties();
-            props.load(propStream);
-
+            props.load(propertiesStream);
             m_responder = new Responder(props);
             setStylesheetProperty(props);
-
         } catch (Exception e) {
             throw new ServletException("Unable to initialize ProviderServlet", e);
         }
@@ -233,6 +220,27 @@ public class ProviderServlet extends HttpServlet {
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response) {
         doGet(request, response);
+    }
+
+    private void configureLogback(Path proaiConfigPath) {
+        final Path proaiLogbackConfigPath;
+        if (proaiConfigPath != null) {
+            proaiLogbackConfigPath = proaiConfigPath.resolve("logback.xml");
+            File proaiLogbackConfig = proaiLogbackConfigPath.toFile();
+            // assume SLF4J is bound to logback in the current environment
+            LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+            try {
+                JoranConfigurator configurator = new JoranConfigurator();
+                configurator.setContext(context);
+                context.reset();
+                configurator.doConfigure(proaiLogbackConfig);
+                logger.info(String.format("Using logging configuration from '%s'", proaiLogbackConfig.getAbsolutePath()));
+            } catch (JoranException ignored) {
+                // StatusPrinter will handle this
+            }
+            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+        }
     }
 
     private static void appendAttribute(String name, String value, StringBuffer buf) {
