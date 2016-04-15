@@ -205,6 +205,9 @@ public class ProviderServlet extends HttpServlet {
         }
 
         final Path proaiConfigPath = (proaiHomePath != null) ? proaiHomePath.resolve("config") : null;
+
+        configureLogback(proaiConfigPath);
+
         final InputStream propertiesStream = getPropertiesInputStream(proaiConfigPath);
 
         try {
@@ -241,6 +244,26 @@ public class ProviderServlet extends HttpServlet {
             }
             StatusPrinter.printInCaseOfErrorsOrWarnings(context);
         }
+    }
+
+    private InputStream getPropertiesInputStream(Path proaiConfigPath) throws ServletException {
+        InputStream propertiesStream;
+        if (proaiConfigPath != null) {
+            final Path proaiPropetiesPath = proaiConfigPath.resolve("proai.properties");
+            final File propertiesFile = proaiPropetiesPath.toFile();
+            try {
+                propertiesStream = new FileInputStream(propertiesFile);
+            } catch (IOException e) {
+                throw new ServletException(
+                        String.format("Error loading configuration from '%s': %s", proaiPropetiesPath, e.getMessage()));
+            }
+        } else {
+            propertiesStream = this.getClass().getResourceAsStream("/config/proai.default.properties");
+            if (propertiesStream == null) {
+                throw new ServletException("Error loading default configuration: proai.default.properties not found in classpath");
+            }
+        }
+        return propertiesStream;
     }
 
     private static void appendAttribute(String name, String value, StringBuffer buf) {
