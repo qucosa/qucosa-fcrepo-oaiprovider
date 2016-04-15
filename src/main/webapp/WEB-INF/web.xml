@@ -6,7 +6,7 @@
 
     <context-param>
         <param-name>proai.home</param-name>
-        <param-value>/tmp/proai</param-value>
+        <param-value>/tmp/oaiprovider</param-value>
     </context-param>
 
     <servlet>
