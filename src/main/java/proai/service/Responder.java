@@ -6,7 +6,14 @@ import proai.SetInfo;
 import proai.Writable;
 import proai.cache.CachedContent;
 import proai.cache.RecordCache;
-import proai.error.*;
+import proai.error.BadArgumentException;
+import proai.error.BadResumptionTokenException;
+import proai.error.CannotDisseminateFormatException;
+import proai.error.IdDoesNotExistException;
+import proai.error.NoMetadataFormatsException;
+import proai.error.NoRecordsMatchException;
+import proai.error.NoSetHierarchyException;
+import proai.error.ServerException;
 
 import java.util.Date;
 import java.util.Properties;
@@ -32,23 +39,22 @@ import java.util.Properties;
  */
 public class Responder {
 
-    public static final String ERR_MISSING_IDENTIFIER = "identifier must be specified";
-    public static final String ERR_MISSING_PREFIX = "metadataPrefix must be specified";
-    public static final String ERR_ITEM_DOESNT_EXIST = "the indicated item does not exist";
-    public static final String ERR_BAD_FORMAT_FOR_ITEM = "the indicated item does not support that metadata format";
-    public static final String ERR_NO_FORMATS_FOR_ITEM = "the indicated item has no metadata formats";
-    public static final String ERR_NO_SET_HIERARCHY = "there are no sets in the repository";
-    public static final String ERR_RESUMPTION_EXCLUSIVE = "the resumptionToken argument may only be specified by itself";
-    public static final String ERR_NO_SUCH_FORMAT = "the metadataPrefix is unrecognized";
-    public static final String ERR_NO_RECORDS_MATCH = "no records match your selection criteria";
     private static final Logger logger = LoggerFactory.getLogger(Responder.class);
-    private static final String _PFX = "proai.";
-    public static final String PROP_INCOMPLETESETLISTSIZE = _PFX
-            + "incompleteSetListSize";
-    public static final String PROP_INCOMPLETERECORDLISTSIZE = _PFX
-            + "incompleteRecordListSize";
-    public static final String PROP_INCOMPLETEIDENTIFIERLISTSIZE = _PFX
-            + "incompleteRecordListSize";
+
+    static final String ERR_NO_SET_HIERARCHY = "there are no sets in the repository";
+    static final String ERR_NO_SUCH_FORMAT = "the metadataPrefix is unrecognized";
+    static final String ERR_NO_RECORDS_MATCH = "no records match your selection criteria";
+
+    private static final String ERR_MISSING_IDENTIFIER = "identifier must be specified";
+    private static final String ERR_MISSING_PREFIX = "metadataPrefix must be specified";
+    private static final String ERR_ITEM_DOESNT_EXIST = "the indicated item does not exist";
+    private static final String ERR_BAD_FORMAT_FOR_ITEM = "the indicated item does not support that metadata format";
+    private static final String ERR_NO_FORMATS_FOR_ITEM = "the indicated item has no metadata formats";
+    private static final String ERR_RESUMPTION_EXCLUSIVE = "the resumptionToken argument may only be specified by itself";
+
+    private static final String PROP_INCOMPLETESETLISTSIZE = "proai.incompleteSetListSize";
+    private static final String PROP_INCOMPLETERECORDLISTSIZE = "proai.incompleteRecordListSize";
+    private static final String PROP_INCOMPLETEIDENTIFIERLISTSIZE = "proai.incompleteIdentifierListSize";
 
     private RecordCache m_cache;
 
