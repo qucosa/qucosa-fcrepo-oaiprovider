@@ -15,6 +15,7 @@ import proai.error.NoRecordsMatchException;
 import proai.error.NoSetHierarchyException;
 import proai.error.ServerException;
 
+import java.io.Closeable;
 import java.util.Date;
 import java.util.Properties;
 
@@ -37,7 +38,7 @@ import java.util.Properties;
  *
  * @author Chris Wilper
  */
-public class Responder {
+public class Responder implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(Responder.class);
 
@@ -45,20 +46,20 @@ public class Responder {
     private static final String PROP_INCOMPLETERECORDLISTSIZE = "proai.incompleteRecordListSize";
     private static final String PROP_INCOMPLETEIDENTIFIERLISTSIZE = "proai.incompleteIdentifierListSize";
 
-    private RecordCache m_cache;
+    private final RecordCache m_cache;
 
-    private int m_incompleteIdentifierListSize;
-    private int m_incompleteRecordListSize;
-    private int m_incompleteSetListSize;
+    private final int m_incompleteIdentifierListSize;
+    private final int m_incompleteRecordListSize;
+    private final int m_incompleteSetListSize;
 
-    private SessionManager m_sessionManager;
+    private final SessionManager m_sessionManager;
 
     public Responder(Properties props) throws ServerException {
-        init(new RecordCache(props),
-                new SessionManager(props),
-                nonNegativeValue(props, PROP_INCOMPLETEIDENTIFIERLISTSIZE, true),
-                nonNegativeValue(props, PROP_INCOMPLETERECORDLISTSIZE, true),
-                nonNegativeValue(props, PROP_INCOMPLETESETLISTSIZE, true));
+        m_cache = new RecordCache(props);
+        m_sessionManager = new SessionManager(props);
+        m_incompleteIdentifierListSize = nonNegativeValue(props, PROP_INCOMPLETEIDENTIFIERLISTSIZE, true);
+        m_incompleteRecordListSize = nonNegativeValue(props, PROP_INCOMPLETERECORDLISTSIZE, true);
+        m_incompleteSetListSize = nonNegativeValue(props, PROP_INCOMPLETESETLISTSIZE, true);
     }
 
     private static String q(String s) {
@@ -89,16 +90,6 @@ public class Responder {
         if (metadataPrefix == null || metadataPrefix.length() == 0) {
             throw new BadArgumentException("metadataPrefix must be specified");
         }
-    }
-
-    private void init(RecordCache cache, SessionManager sessionManager,
-                      int incompleteIdentifierListSize, int incompleteRecordListSize,
-                      int incompleteSetListSize) {
-        m_cache = cache;
-        m_sessionManager = sessionManager;
-        m_incompleteIdentifierListSize = incompleteIdentifierListSize;
-        m_incompleteRecordListSize = incompleteRecordListSize;
-        m_incompleteSetListSize = incompleteSetListSize;
     }
 
     private int nonNegativeValue(Properties props, String name, boolean nonZero)
