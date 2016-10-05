@@ -41,17 +41,6 @@ public class Responder {
 
     private static final Logger logger = LoggerFactory.getLogger(Responder.class);
 
-    static final String ERR_NO_SET_HIERARCHY = "there are no sets in the repository";
-    static final String ERR_NO_SUCH_FORMAT = "the metadataPrefix is unrecognized";
-    static final String ERR_NO_RECORDS_MATCH = "no records match your selection criteria";
-
-    private static final String ERR_MISSING_IDENTIFIER = "identifier must be specified";
-    private static final String ERR_MISSING_PREFIX = "metadataPrefix must be specified";
-    private static final String ERR_ITEM_DOESNT_EXIST = "the indicated item does not exist";
-    private static final String ERR_BAD_FORMAT_FOR_ITEM = "the indicated item does not support that metadata format";
-    private static final String ERR_NO_FORMATS_FOR_ITEM = "the indicated item has no metadata formats";
-    private static final String ERR_RESUMPTION_EXCLUSIVE = "the resumptionToken argument may only be specified by itself";
-
     private static final String PROP_INCOMPLETESETLISTSIZE = "proai.incompleteSetListSize";
     private static final String PROP_INCOMPLETERECORDLISTSIZE = "proai.incompleteRecordListSize";
     private static final String PROP_INCOMPLETEIDENTIFIERLISTSIZE = "proai.incompleteIdentifierListSize";
@@ -87,7 +76,7 @@ public class Responder {
     private static void checkIdentifier(String identifier)
             throws BadArgumentException {
         if (identifier == null || identifier.length() == 0) {
-            throw new BadArgumentException(ERR_MISSING_IDENTIFIER);
+            throw new BadArgumentException("identifier must be specified");
         }
     }
 
@@ -98,7 +87,7 @@ public class Responder {
     private static void checkMetadataPrefix(String metadataPrefix)
             throws BadArgumentException {
         if (metadataPrefix == null || metadataPrefix.length() == 0) {
-            throw new BadArgumentException(ERR_MISSING_PREFIX);
+            throw new BadArgumentException("metadataPrefix must be specified");
         }
     }
 
@@ -166,7 +155,7 @@ public class Responder {
             if (content == null) {
                 checkItemExists(identifier);
                 throw new CannotDisseminateFormatException(
-                        ERR_BAD_FORMAT_FOR_ITEM);
+                );
             } else {
                 return new ResponseDataImpl(content);
             }
@@ -185,7 +174,7 @@ public class Responder {
     private void checkItemExists(String identifier)
             throws ServerException {
         if (!m_cache.itemExists(identifier)) {
-            throw new IdDoesNotExistException(ERR_ITEM_DOESNT_EXIST);
+            throw new IdDoesNotExistException();
         }
     }
 
@@ -284,7 +273,7 @@ public class Responder {
         } else {
             if (from != null || until != null || metadataPrefix != null
                     || set != null) {
-                throw new BadArgumentException(ERR_RESUMPTION_EXCLUSIVE);
+                throw new BadArgumentException("the resumptionToken argument may only be specified by itself");
             }
             return m_sessionManager.getResponseData(resumptionToken);
         }
@@ -314,7 +303,7 @@ public class Responder {
             content = m_cache.getMetadataFormatsContent(identifier);
             if (content == null && identifier != null) {
                 checkItemExists(identifier);
-                throw new NoMetadataFormatsException(ERR_NO_FORMATS_FOR_ITEM);
+                throw new NoMetadataFormatsException();
             }
             return new ResponseDataImpl(content);
         } finally {

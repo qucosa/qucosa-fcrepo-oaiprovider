@@ -24,7 +24,7 @@ public class SetListProvider implements ListProvider<SetInfo> {
             iter.close();
         } catch (Exception ignored) {
         }
-        throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
+        throw new NoSetHierarchyException();
     }
 
     public CloseableIterator<String[]> getPathList() throws ServerException {
@@ -34,7 +34,7 @@ public class SetListProvider implements ListProvider<SetInfo> {
             iter.close();
         } catch (Exception ignored) {
         }
-        throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
+        throw new NoSetHierarchyException();
     }
 
     public RecordCache getRecordCache() {

@@ -1,10 +1,9 @@
 package proai.error;
 
 public class IdDoesNotExistException extends ProtocolException {
-    static final long serialVersionUID = 1;
 
-    public IdDoesNotExistException(String message) {
-        super(message);
+    public IdDoesNotExistException() {
+        super("the indicated item does not exist");
     }
 
     public String getCode() {

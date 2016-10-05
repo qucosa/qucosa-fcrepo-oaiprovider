@@ -47,10 +47,10 @@ public class RecordListProvider implements ListProvider<CachedContent> {
         if (iter.hasNext()) return iter;
         // else figure out why and throw the right exception
         if (!m_cache.formatExists(m_prefix)) {
-            throw new CannotDisseminateFormatException(Responder.ERR_NO_SUCH_FORMAT);
+            throw new CannotDisseminateFormatException();
         }
         closeSetinfoIfNotNull(m_set);
-        throw new NoRecordsMatchException(Responder.ERR_NO_RECORDS_MATCH);
+        throw new NoRecordsMatchException();
     }
 
     private void closeSetinfoIfNotNull(String mSet) {
@@ -62,7 +62,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
             } catch (Exception ignored) {
             }
             if (!supportsSets) {
-                throw new NoSetHierarchyException(Responder.ERR_NO_SET_HIERARCHY);
+                throw new NoSetHierarchyException();
             }
         }
     }
@@ -76,10 +76,10 @@ public class RecordListProvider implements ListProvider<CachedContent> {
         if (iter.hasNext()) return iter;
         // else figure out why and throw the right exception
         if (!m_cache.formatExists(m_prefix)) {
-            throw new CannotDisseminateFormatException(Responder.ERR_NO_SUCH_FORMAT);
+            throw new CannotDisseminateFormatException();
         }
         closeSetinfoIfNotNull(m_set);
-        throw new NoRecordsMatchException(Responder.ERR_NO_RECORDS_MATCH);
+        throw new NoRecordsMatchException();
     }
 
     public RecordCache getRecordCache() {
