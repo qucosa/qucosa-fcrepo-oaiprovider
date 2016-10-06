@@ -121,7 +121,7 @@ public class RCDatabase {
             while (iter.hasNext()) {
                 TableSpec spec = iter.next();
                 tableName = spec.getName();
-                logger.info("Creating " + tableName + " table");
+                logger.debug("Creating " + tableName + " table");
                 List<String> commands = ddlc.getDDL(spec);
                 for (String command1 : commands) {
                     command = command1;
@@ -329,14 +329,14 @@ public class RCDatabase {
                 String uri = rs.getString(2);
                 String loc = rs.getString(3);
                 if ((!uri.equals(newuri)) || (!loc.equals(newloc))) {
-                    logger.info("Format " + newprefix + " changed.  Updating in db.");
+                    logger.info(String.format("Format %s changed.  Updating in db.", newprefix));
                     sql = "UPDATE rcFormat SET namespaceURI = " + qsc(newuri)
                             + "schemaLocation = " + qss(newloc)
                             + "WHERE formatKey = " + key;
                     executeUpdate(stmt, sql);
                 }
             } else {
-                logger.info("Format " + newprefix + " is new.  Adding to db.");
+                logger.info(String.format("Format %s is new.  Adding to db.", newprefix));
                 sql = "INSERT INTO rcFormat (mdPrefix, "
                         + "namespaceURI, "
                         + "schemaLocation) "
@@ -423,7 +423,6 @@ public class RCDatabase {
                                 long lastPollDate) throws ServerException {
 
         Statement stmt = null;
-        ResultSet rs = null;
         try {
             stmt = getStatement(conn, false);
             executeUpdate(stmt, "UPDATE rcFormat "
@@ -696,7 +695,7 @@ public class RCDatabase {
         Statement stmt = null;
         ResultSet rs = null;
         try {
-            logger.info("Putting record: " + rec.getItemID() + " (" + rec.getPrefix() + ")");
+            logger.debug("Putting record: " + rec.getItemID() + " (" + rec.getPrefix() + ")");
             //
             // To update a record:
             //    Make sure there's an rcItem for it.
@@ -1173,7 +1172,7 @@ public class RCDatabase {
     public void dumpQueue(Connection conn,
                           PrintWriter writer) throws ServerException {
 
-        logger.info("Preparing queue for processing...");
+        logger.debug("Preparing queue for processing...");
 
         Statement stmt = null;
         ResultSet results = null;
@@ -1413,7 +1412,7 @@ public class RCDatabase {
     public int dumpPrunables(Connection conn,
                              PrintWriter writer) throws ServerException {
 
-        logger.info("Preparing list of prunable files in cache");
+        logger.debug("Preparing list of prunable files in cache");
 
         Statement stmt = null;
         ResultSet results = null;

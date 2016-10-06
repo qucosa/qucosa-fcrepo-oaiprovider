@@ -78,7 +78,7 @@ public class CacheSession<T> extends Thread
     ///////////////////////////////////////////////////////////////////////////
 
     public void run() {
-        log.info(_sessionKey + " retrieval thread started");
+        log.debug(_sessionKey + " retrieval thread started");
         int incompleteListSize = _provider.getIncompleteListSize();
         CloseableIterator<String[]> iter = null;
         PrintWriter out = null;
@@ -137,7 +137,7 @@ public class CacheSession<T> extends Thread
             } catch (Exception ignored) {
             }
             _threadWorking = false;
-            log.info(_sessionKey + " retrieval thread finished");
+            log.debug(_sessionKey + " retrieval thread finished");
         }
     }
 
@@ -184,8 +184,9 @@ public class CacheSession<T> extends Thread
         if (sessionDir.exists()) {
             File[] files = sessionDir.listFiles();
             if (files != null) {
-                log.debug("Deleting session " + _sessionKey + " directory and all "
-                        + files.length + " files within");
+                log.debug(String.format(
+                        "Deleting session %s directory and all %d files within",
+                        _sessionKey, files.length));
                 for (File file : files) {
                     file.delete();
                 }
@@ -269,7 +270,9 @@ public class CacheSession<T> extends Thread
 
             _lastSentPart = partNum;
             _expirationTime = new Date().getTime() + (1000 * _secondsBetweenRequests);
-            log.info(_sessionKey + " returning part " + partNum);
+
+            log.debug(String.format("%s returning part %d", _sessionKey, partNum));
+
             return response;
         } else {
             throw new BadResumptionTokenException("the indicated part either doesn't exist yet or has expired");

@@ -87,10 +87,13 @@ public class ITQLQueryFactory
      */
     public Date latestRecordDate(Iterator<? extends MetadataFormat> formats)
             throws RepositoryException {
-        Date current = new Date();
 
-        logger.info("Current date reported by Fedora is "
-                + DateUtility.convertDateToString(current));
+        //FIXME Query real lates-date from Fedora Index
+        Date current = new Date();
+        logger.debug(String.format(
+                "Current date is %s",
+                DateUtility.convertDateToString(current)));
+
         return current;
     }
 

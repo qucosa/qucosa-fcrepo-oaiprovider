@@ -147,8 +147,7 @@ public class Responder implements Closeable {
             ServerException {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Entered getRecord(" + q(identifier) + ", "
-                    + q(metadataPrefix) + ")");
+            logger.debug(String.format("Entered getRecord(%s, %s)", q(identifier), q(metadataPrefix)));
         }
 
         try {
@@ -168,8 +167,7 @@ public class Responder implements Closeable {
             }
         } finally {
             if (logger.isDebugEnabled()) {
-                logger.debug("Exiting getRecord(" + q(identifier) + ", "
-                        + q(metadataPrefix) + ")");
+                logger.debug(String.format("Exiting getRecord(%s, %s)", q(identifier), q(metadataPrefix)));
             }
         }
     }
@@ -233,12 +231,13 @@ public class Responder implements Closeable {
                                         String metadataPrefix, String set, String resumptionToken)
             throws
             ServerException {
-        System.out.println("From " + from + " Until " + until);
+
+        logger.debug(String.format("From %s Until %s", from, until));
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Entered listIdentifiers(" + q(from) + ", " + q(until)
-                    + ", " + q(metadataPrefix) + ", " + q(set) + ", "
-                    + q(resumptionToken) + ")");
+            logger.debug(String.format(
+                    "Entered listIdentifiers(%s, %s, %s, %s, %s)",
+                    q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
         }
 
         try {
@@ -246,9 +245,9 @@ public class Responder implements Closeable {
                     resumptionToken, true, m_incompleteIdentifierListSize);
         } finally {
             if (logger.isDebugEnabled()) {
-                logger.debug("Exiting listIdentifiers(" + q(from) + ", "
-                        + q(until) + ", " + q(metadataPrefix) + ", " + q(set)
-                        + ", " + q(resumptionToken) + ")");
+                logger.debug(String.format(
+                        "Exiting listIdentifiers(%s, %s, %s, %s, %s)",
+                        q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
             }
         }
     }
@@ -302,7 +301,7 @@ public class Responder implements Closeable {
             ServerException {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Entered listMetadataFormats(" + q(identifier) + ")");
+            logger.debug(String.format("Entered listMetadataFormats(%s)", q(identifier)));
         }
 
         try {
@@ -315,8 +314,7 @@ public class Responder implements Closeable {
             return new ResponseDataImpl(content);
         } finally {
             if (logger.isDebugEnabled()) {
-                logger.debug("Exiting listMetadataFormats(" + q(identifier)
-                        + ")");
+                logger.debug(String.format("Exiting listMetadataFormats(%s)", q(identifier)));
             }
         }
     }
@@ -356,18 +354,16 @@ public class Responder implements Closeable {
             ServerException {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Entered listRecords(" + q(from) + ", " + q(until)
-                    + ", " + q(metadataPrefix) + ", " + q(set) + ", "
-                    + q(resumptionToken) + ")");
+            logger.debug(String.format("Entered listRecords(%s, %s, %s, %s, %s)",
+                    q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
         }
         try {
             return listRecords(from, until, metadataPrefix, set,
                     resumptionToken, false, m_incompleteRecordListSize);
         } finally {
             if (logger.isDebugEnabled()) {
-                logger.debug("Exiting listRecords(" + q(from) + ", " + q(until)
-                        + ", " + q(metadataPrefix) + ", " + q(set) + ", "
-                        + q(resumptionToken) + ")");
+                logger.debug(String.format("Exiting listRecords(%s, %s, %s, %s, %s)",
+                        q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
             }
         }
     }
@@ -388,7 +384,7 @@ public class Responder implements Closeable {
             ServerException {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Entered listSets(" + q(resumptionToken) + ")");
+            logger.debug(String.format("Entered listSets(%s)", q(resumptionToken)));
         }
         try {
             if (resumptionToken == null) {
@@ -400,7 +396,7 @@ public class Responder implements Closeable {
             }
         } finally {
             if (logger.isDebugEnabled()) {
-                logger.debug("Exiting listSets(" + q(resumptionToken) + ")");
+                logger.debug(String.format("Exiting listSets(%s)", q(resumptionToken)));
             }
         }
     }

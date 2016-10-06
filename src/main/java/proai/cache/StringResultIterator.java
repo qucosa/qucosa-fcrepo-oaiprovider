@@ -117,12 +117,12 @@ public class StringResultIterator implements CloseableIterator<String[]> {
             System.gc();
             long ms = System.currentTimeMillis() - startTime;
             long currentFreeBytes = Runtime.getRuntime().freeMemory();
-            logger.info("GC ran in " + ms + "ms and free memory "
-                    + "went from " + startFreeBytes + " to "
-                    + currentFreeBytes + " bytes.");
+            logger.debug(String.format(
+                    "GC ran in %dms and free memory went from %d to %d bytes.",
+                    ms, startFreeBytes, currentFreeBytes));
 
             m_closed = true;
-            logger.info("Closed.");
+            logger.debug("Closed.");
         }
     }
 
