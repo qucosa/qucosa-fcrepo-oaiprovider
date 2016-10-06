@@ -32,6 +32,7 @@ import java.io.StringWriter;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ResponderTest {
 
@@ -101,9 +102,8 @@ public class ResponderTest {
     }
 
     @Test
-    @Ignore("Doesn't work anymore, no idea why")
+    @Ignore("test_format records are not in the database")
     public void testGetGoodTestFormatRecords() throws Exception {
-        // FIXME test_format records are not in the database
         doGetGoodRecord("oai:example.org:item1", "test_format");
         doGetGoodRecord("oai:example.org:item2", "test_format");
         doGetGoodRecord("oai:example.org:item3", "test_format");
@@ -113,10 +113,10 @@ public class ResponderTest {
         try {
             tryGetRecord(item, prefix);
             System.out.println("doGetGoodRecord success for " + item + "/" + prefix);
-        } catch (ServerException e) {
-            assertEquals("Failed to get " + prefix + " record of item: " + item
-                            + " (Error message was: " + e.getMessage() + ")",
-                    true, false);
+        } catch (Exception e) {
+            fail(String.format(
+                    "Failed to get %s record of item: %s (Error message was: %s)",
+                    prefix, item, e.getMessage()));
         }
     }
 
