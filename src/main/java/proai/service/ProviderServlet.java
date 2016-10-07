@@ -185,17 +185,17 @@ public class ProviderServlet extends HttpServlet {
                     e, response);
         } catch (ServerException e) {
             try {
-                logger.warn("OAI Service Error", e);
+                logger.error("OAI Service Error", e);
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAI Service Error");
             } catch (IOException ioe) {
-                logger.warn("Could not send error to client", ioe);
+                logger.error("Could not send error to client", ioe);
             }
         } catch (Throwable th) {
             try {
-                logger.warn("Unexpected Error", th);
+                logger.error("Unexpected Error", th);
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unexpected error");
             } catch (IOException ioe) {
-                logger.warn("Could not send error to client", ioe);
+                logger.error("Could not send error to client", ioe);
             }
         } finally {
             if (logger.isDebugEnabled()) {
