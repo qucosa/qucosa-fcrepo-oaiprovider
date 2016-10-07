@@ -35,7 +35,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Java interface to the database.
@@ -420,13 +425,13 @@ public class RCDatabase {
 
     public void setLastPollDate(Connection conn,
                                 String mdPrefix,
-                                long lastPollDate) throws ServerException {
+                                Date lastPollDate) throws ServerException {
 
         Statement stmt = null;
         try {
             stmt = getStatement(conn, false);
             executeUpdate(stmt, "UPDATE rcFormat "
-                    + "SET lastPollDate = " + lastPollDate + " "
+                    + "SET lastPollDate = " + lastPollDate.getTime() + " "
                     + "WHERE mdPrefix = " + qs(mdPrefix));
         } catch (SQLException e) {
             throw new ServerException("Error setting last poll date", e);

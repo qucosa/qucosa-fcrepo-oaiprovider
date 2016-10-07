@@ -17,6 +17,7 @@
 package proai.cache;
 
 import net.sf.bvalid.Validator;
+import org.apache.commons.httpclient.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proai.MetadataFormat;
@@ -48,7 +49,7 @@ import static java.lang.String.format;
 
 public class Updater extends Thread {
 
-    private static final Logger _LOG = LoggerFactory.getLogger(Updater.class);
+    private static final Logger logger = LoggerFactory.getLogger(Updater.class);
 
     private final RCDatabase _db;
     private final RCDisk _disk;
@@ -138,13 +139,13 @@ public class Updater extends Thread {
 
         _status = "Started";
 
-        _LOG.info("Updater started");
+        logger.info("Updater started");
 
         while (!_shutdownRequested) {
 
             long cycleStartTime = System.currentTimeMillis();
 
-            _LOG.debug("Update cycle initiated");
+            logger.debug("Update cycle initiated");
 
             try {
                 // It's important to do this first because old items may have
@@ -154,7 +155,7 @@ public class Updater extends Thread {
                 // during the polling+updating phase.
                 _status = "Processing any old items in queue";
                 checkImmediateShutdown();
-                _LOG.debug("Processing old records in queue...");
+                logger.debug("Processing old records in queue...");
                 processQueue();
 
                 checkImmediateShutdown();
@@ -163,7 +164,7 @@ public class Updater extends Thread {
 
                 _status = "Processing any new items in queue";
                 checkImmediateShutdown();
-                _LOG.debug("Processing new records in queue...");
+                logger.debug("Processing new records in queue...");
                 processQueue();
 
                 checkImmediateShutdown();
@@ -171,12 +172,12 @@ public class Updater extends Thread {
                 pruneIfNeeded();
 
                 long sec = (System.currentTimeMillis() - cycleStartTime) / 1000;
-                _LOG.debug(format("Update cycle finished in %dsec.Next cycle scheduled in %dsec.", sec, _pollSeconds));
+                logger.debug(format("Update cycle finished in %dsec.Next cycle scheduled in %dsec.", sec, _pollSeconds));
 
             } catch (ImmediateShutdownException e) {
-                _LOG.info("Update cycle aborted due to immediate shutdown request");
+                logger.info("Update cycle aborted due to immediate shutdown request");
             } catch (Throwable th) {
-                _LOG.error("Update cycle failed", th);
+                logger.error("Update cycle failed", th);
             }
 
             _status = "Sleeping";
@@ -212,15 +213,103 @@ public class Updater extends Thread {
             _shutdownRequested = true;
             _immediateShutdownRequested = immediate;
 
-            _LOG.info(format("Waiting for updater to finish.  Current status: %s", _status));
+            logger.info(format("Waiting for updater to finish.  Current status: %s", _status));
             while (this.isAlive()) {
                 try {
                     Thread.sleep(250);
                 } catch (Exception ignored) {
                 }
             }
-            _LOG.info("Updater shutdown complete");
+            logger.info("Updater shutdown complete");
         }
+    }
+
+    /**
+     * Handle an exception encountered by currently-running Committer while
+     * committing.
+     */
+    protected void handleCommitException(Throwable th) {
+        logger.warn("Processing aborted due to commit failure", th);
+        _processingAborted = true;
+    }
+
+    // return null if no more batches or processing should stop
+    protected List<QueueItem> getNextBatch(List<QueueItem> finishedItems) {
+
+        List<QueueItem> nextBatch = null;
+
+        if (!processingShouldStop()) {
+
+            if (finishedItems != null) {
+                _committer.handoff(finishedItems);
+            }
+
+            try {
+                synchronized (_queueIterator) {
+                    if (_queueIterator.hasNext()) {
+                        nextBatch = new ArrayList<>();
+                        while (_queueIterator.hasNext() &&
+                                nextBatch.size() < _maxWorkBatchSize) {
+                            nextBatch.add(_queueIterator.next());
+                        }
+                    }
+                }
+            } catch (Throwable th) {
+                logger.warn("Processing aborted due to commit failure", th);
+                synchronized (this) {
+                    _processingAborted = true;
+                }
+                nextBatch = null;
+            }
+
+        }
+
+        return nextBatch;
+    }
+
+    private int countItemsInQueue() throws Exception {
+        Connection conn = RecordCache.getConnection();
+        try {
+            return _db.getQueueSize(conn);
+        } finally {
+            RecordCache.releaseConnection(conn);
+        }
+    }
+
+    /**
+     * Get a new <code>QueueIterator</code> over the current queue.
+     */
+    private QueueIterator newQueueIterator() throws Exception {
+
+        Connection conn = null;
+        File queueFile = null;
+        PrintWriter queueWriter = null;
+        try {
+
+            conn = RecordCache.getConnection();
+
+            queueFile = File.createTempFile("proai-queue", ".txt");
+            queueWriter = new PrintWriter(
+                    new OutputStreamWriter(
+                            new FileOutputStream(queueFile), "UTF-8"));
+            _db.dumpQueue(conn, queueWriter);
+            queueWriter.close();
+
+            return new QueueIterator(queueFile);
+
+        } finally {
+            if (queueWriter != null) {
+                try {
+                    queueWriter.close();
+                } catch (Exception ignored) {
+                }
+            }
+            if (queueFile != null) {
+                queueFile.delete();
+            }
+            RecordCache.releaseConnection(conn);
+        }
+
     }
 
     /**
@@ -253,7 +342,7 @@ public class Updater extends Thread {
                     if (numWorkers > _maxWorkers) numWorkers = _maxWorkers;
                     if (numWorkers == 0) numWorkers = 1;
 
-                    _LOG.debug(format(
+                    logger.debug(format(
                             "Queue has %d records.  Starting %d worker threads for processing.",
                             itemsInQueue, numWorkers));
 
@@ -305,7 +394,7 @@ public class Updater extends Thread {
             }
 
         } else {
-            _LOG.debug("Queue is empty.  No processing needed.");
+            logger.debug("Queue is empty.  No processing needed.");
         }
 
     }
@@ -322,10 +411,17 @@ public class Updater extends Thread {
             _db.queueFailedRecords(conn, _maxFailedRetries);
 
             if (_db.isPollingEnabled(conn)) {
-                long latestRemoteDate = _driver.getLatestDate().getTime();
-                if (latestRemoteDate > _db.getEarliestPollDate(conn)) {
+                Date latestRemoteDate = _driver.getLatestDate();
+                Date earliestPollDate = new Date(_db.getEarliestPollDate(conn));
 
-                    _LOG.debug("Starting update process; source data of interest may have changed.");
+                logger.debug(String.format("Latest modification reported by Fedora: %s",
+                        DateUtil.formatDate(latestRemoteDate)));
+                logger.debug(String.format("Earliest poll date: %s",
+                        DateUtil.formatDate(earliestPollDate)));
+
+                if (latestRemoteDate.after(earliestPollDate)) {
+
+                    logger.debug("Starting update process; source data of interest may have changed.");
                     checkImmediateShutdown();
                     updateIdentify(conn);
 
@@ -338,10 +434,10 @@ public class Updater extends Thread {
                     checkImmediateShutdown();
                     queueUpdatedRecords(conn, allPrefixes, latestRemoteDate);
                 } else {
-                    _LOG.debug("Skipping update process; source data of interest has not changed");
+                    logger.debug("Skipping update process; source data of interest has not changed");
                 }
             } else {
-                _LOG.debug("Remote polling skipped -- polling is disabled");
+                logger.debug("Remote polling skipped -- polling is disabled");
             }
 
             conn.commit();
@@ -350,7 +446,7 @@ public class Updater extends Thread {
                 try {
                     conn.rollback();
                 } catch (SQLException e) {
-                    _LOG.error("Failed to roll back failed transaction", e);
+                    logger.error("Failed to roll back failed transaction", e);
                 }
             }
             throw new ServerException("Update cycle phase one aborted", th);
@@ -359,56 +455,11 @@ public class Updater extends Thread {
                 try {
                     if (startedTransaction) conn.setAutoCommit(false);
                 } catch (SQLException e) {
-                    _LOG.error("Failed to set autoCommit to false", e);
+                    logger.error("Failed to set autoCommit to false", e);
                 } finally {
                     RecordCache.releaseConnection(conn);
                 }
             }
-        }
-
-    }
-
-    private int countItemsInQueue() throws Exception {
-        Connection conn = RecordCache.getConnection();
-        try {
-            return _db.getQueueSize(conn);
-        } finally {
-            RecordCache.releaseConnection(conn);
-        }
-    }
-
-    /**
-     * Get a new <code>QueueIterator</code> over the current queue.
-     */
-    private QueueIterator newQueueIterator() throws Exception {
-
-        Connection conn = null;
-        File queueFile = null;
-        PrintWriter queueWriter = null;
-        try {
-
-            conn = RecordCache.getConnection();
-
-            queueFile = File.createTempFile("proai-queue", ".txt");
-            queueWriter = new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(queueFile), "UTF-8"));
-            _db.dumpQueue(conn, queueWriter);
-            queueWriter.close();
-
-            return new QueueIterator(queueFile);
-
-        } finally {
-            if (queueWriter != null) {
-                try {
-                    queueWriter.close();
-                } catch (Exception ignored) {
-                }
-            }
-            if (queueFile != null) {
-                queueFile.delete();
-            }
-            RecordCache.releaseConnection(conn);
         }
 
     }
@@ -433,7 +484,7 @@ public class Updater extends Thread {
                 int numToPrune = _db.dumpPrunables(conn, resultWriter);
                 resultWriter.close();
 
-                _LOG.debug("Pruning " + numToPrune + " old files from cache");
+                logger.debug("Pruning " + numToPrune + " old files from cache");
                 resultReader = new BufferedReader(
                         new InputStreamReader(
                                 new FileInputStream(resultFile), "UTF-8"));
@@ -454,12 +505,12 @@ public class Updater extends Thread {
                         if (file.exists()) {
                             boolean deleted = file.delete();
                             if (deleted) {
-                                _LOG.debug("Deleted old cache file: " + parts[1]);
+                                logger.debug("Deleted old cache file: " + parts[1]);
                             } else {
-                                _LOG.warn("Unable to delete old cache file (will try again later): " + parts[1]);
+                                logger.warn("Unable to delete old cache file (will try again later): " + parts[1]);
                             }
                         } else {
-                            _LOG.debug("No need to delete non-existing old cache file: " + parts[1]);
+                            logger.debug("No need to delete non-existing old cache file: " + parts[1]);
                         }
 
                         // delete from prune list if it no longer exists
@@ -478,7 +529,7 @@ public class Updater extends Thread {
                     _db.deletePrunables(conn, toPruneKeys, i);
                 }
             } else {
-                _LOG.debug("Pruning is not needed.");
+                logger.debug("Pruning is not needed.");
             }
 
         } finally {
@@ -539,7 +590,7 @@ public class Updater extends Thread {
                 .append(format("\tAvg time/transaction\t\t\t: %s\n", getHMSString(msPerTrans)))
                 .append(format("\tAvg recs/transaction\t\t\t: %s of %d maximum\n", round(recsPerTrans), _maxRecordsPerTransaction));
 
-        _LOG.info(format("A round of queue processing has finished.\n\nProcessing Stats:\n%s", stats.toString()));
+        logger.info(format("A round of queue processing has finished.\n\nProcessing Stats:\n%s", stats.toString()));
     }
 
     /**
@@ -550,7 +601,7 @@ public class Updater extends Thread {
      */
     private List<String> updateFormats(Connection conn) {
 
-        _LOG.debug("Updating metadata formats...");
+        logger.debug("Updating metadata formats...");
 
         // apply new / updated
         RemoteIterator<? extends MetadataFormat> riter = _driver.listMetadataFormats();
@@ -567,7 +618,7 @@ public class Updater extends Thread {
             try {
                 riter.close();
             } catch (Exception e) {
-                _LOG.warn("Unable to close remote metadata format iterator", e);
+                logger.warn("Unable to close remote metadata format iterator", e);
             }
         }
 
@@ -587,7 +638,7 @@ public class Updater extends Thread {
 
     private void updateIdentify(Connection conn) {
 
-        _LOG.debug("Getting 'Identify' xml from remote source...");
+        logger.debug("Getting 'Identify' xml from remote source...");
 
         _db.setIdentifyPath(conn, _disk.write(_driver));
     }
@@ -600,7 +651,7 @@ public class Updater extends Thread {
      */
     private void updateSets(Connection conn) {
 
-        _LOG.debug("Updating sets...");
+        logger.debug("Updating sets...");
 
         // apply new / updated
         RemoteIterator<? extends SetInfo> riter = _driver.listSetInfo();
@@ -634,7 +685,7 @@ public class Updater extends Thread {
             try {
                 riter.close();
             } catch (Exception e) {
-                _LOG.debug("Unable to close remote set info iterator", e);
+                logger.debug("Unable to close remote set info iterator", e);
             }
         }
 
@@ -650,7 +701,7 @@ public class Updater extends Thread {
                     _db.putSetInfo(conn, spec, _disk.write(
                             SetSpec.defaultInfoFor(spec)));
                     newSpecs.add(spec);
-                    _LOG.info(format("Adding missing set: %s", spec));
+                    logger.info(format("Adding missing set: %s", spec));
                 }
             }
         }
@@ -669,28 +720,29 @@ public class Updater extends Thread {
 
     private void queueUpdatedRecords(Connection conn,
                                      List<String> allPrefixes,
-                                     long latestRemoteDate) {
+                                     Date latestRemoteDate) {
 
-        _LOG.debug("Querying and queueing updated records...");
+        logger.debug("Querying and queueing updated records...");
 
         long queueStartTime = System.currentTimeMillis();
         int totalQueuedCount = 0;
         for (String mdPrefix : allPrefixes) {
 
-            long lastPollDate = _db.getLastPollDate(conn, mdPrefix);
+            Date lastPollDate = new Date(_db.getLastPollDate(conn, mdPrefix));
 
             // if something may have changed remotely *after* the last
             // known date that any records of this format were queried for,
             // query for updated records
-            if (lastPollDate < latestRemoteDate) {
+            if (lastPollDate.before(latestRemoteDate)) {
 
-                _LOG.debug(format(
+                logger.debug(format(
                         "Querying for changed %s records because %d is less than %d",
-                        mdPrefix, lastPollDate, latestRemoteDate));
+                        mdPrefix, lastPollDate.getTime(), latestRemoteDate.getTime()));
 
                 checkImmediateShutdown();
-                RemoteIterator<? extends Record> riter = _driver.listRecords(new Date(lastPollDate),
-                        new Date(latestRemoteDate),
+                RemoteIterator<? extends Record> riter = _driver.listRecords(
+                        lastPollDate,
+                        latestRemoteDate,
                         mdPrefix);
                 try {
 
@@ -707,7 +759,7 @@ public class Updater extends Thread {
                         queuedCount++;
                     }
 
-                    _LOG.debug(format(
+                    logger.debug(format(
                             "Queued %d new/modified %s records.",
                             queuedCount, mdPrefix));
 
@@ -718,63 +770,20 @@ public class Updater extends Thread {
                     try {
                         riter.close();
                     } catch (Exception e) {
-                        _LOG.debug("Unable to close remote record iterator", e);
+                        logger.debug("Unable to close remote record iterator", e);
                     }
                 }
             } else {
-                _LOG.debug(format(
+                logger.debug(format(
                         "Skipping %s records because %d is not less than %d",
-                        mdPrefix, lastPollDate, latestRemoteDate));
+                        mdPrefix, lastPollDate.getTime(), latestRemoteDate.getTime()));
             }
         }
 
         long sec = (System.currentTimeMillis() - queueStartTime) / 1000;
-        _LOG.debug(format(
+        logger.debug(format(
                 "Queued %d total new/modified records in %dsec.",
                 totalQueuedCount, sec));
-    }
-
-    /**
-     * Handle an exception encountered by currently-running Committer while
-     * committing.
-     */
-    protected void handleCommitException(Throwable th) {
-        _LOG.warn("Processing aborted due to commit failure", th);
-        _processingAborted = true;
-    }
-
-    // return null if no more batches or processing should stop
-    protected List<QueueItem> getNextBatch(List<QueueItem> finishedItems) {
-
-        List<QueueItem> nextBatch = null;
-
-        if (!processingShouldStop()) {
-
-            if (finishedItems != null) {
-                _committer.handoff(finishedItems);
-            }
-
-            try {
-                synchronized (_queueIterator) {
-                    if (_queueIterator.hasNext()) {
-                        nextBatch = new ArrayList<>();
-                        while (_queueIterator.hasNext() &&
-                                nextBatch.size() < _maxWorkBatchSize) {
-                            nextBatch.add(_queueIterator.next());
-                        }
-                    }
-                }
-            } catch (Throwable th) {
-                _LOG.warn("Processing aborted due to commit failure", th);
-                synchronized (this) {
-                    _processingAborted = true;
-                }
-                nextBatch = null;
-            }
-
-        }
-
-        return nextBatch;
     }
 
     protected synchronized boolean processingShouldStop() {

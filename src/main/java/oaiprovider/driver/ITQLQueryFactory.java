@@ -16,21 +16,35 @@
 
 package oaiprovider.driver;
 
-import oaiprovider.*;
+import oaiprovider.FedoraMetadataFormat;
+import oaiprovider.FedoraRecord;
+import oaiprovider.InvocationSpec;
+import oaiprovider.QueryFactory;
+import oaiprovider.ResultCombiner;
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.Constants;
 import org.fcrepo.utilities.DateUtility;
+import org.jrdf.graph.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.trippi.RDFFormat;
+import org.trippi.TrippiException;
 import org.trippi.TupleIterator;
 import proai.MetadataFormat;
 import proai.SetInfo;
 import proai.driver.RemoteIterator;
 import proai.error.RepositoryException;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 @SuppressWarnings("unused") // dynamically loaded via configuration
 public class ITQLQueryFactory
@@ -41,10 +55,12 @@ public class ITQLQueryFactory
     private static final String QUERY_LANGUAGE = "itql";
 
     private String m_deleted;
+
     private FedoraClient m_fedora;
+    private FedoraClient m_queryClient;
+
     private String m_itemSetSpecPath;
     private String m_oaiItemID;
-    private FedoraClient m_queryClient;
     private String m_setSpec;
     private String m_setSpecName;
 
@@ -79,22 +95,36 @@ public class ITQLQueryFactory
     }
 
     /**
-     * Rather than querying for this information, which can be costly, simply
-     * return the current date.
+     * Return latest modification date of any OAI relevant record.
      *
-     * @param formats iterator over all FedoraMetadataFormats
-     * @return current date according to Fedora
+     * If no records match, the current date is returned as a fallback.
+     *
+     * @param formats Ignored. All items are queried.
+     * @return Latest modification date according to Fedora.
      */
-    public Date latestRecordDate(Iterator<? extends MetadataFormat> formats)
-            throws RepositoryException {
+    public Date latestRecordDate(Iterator<? extends MetadataFormat> formats) throws RepositoryException {
 
-        //FIXME Query real lates-date from Fedora Index
-        Date current = new Date();
-        logger.debug(String.format(
-                "Current date is %s",
-                DateUtility.convertDateToString(current)));
+        String query =
+                "select $item $modified from <#ri>\n" +
+                        "where $item <http://www.openarchives.org/OAI/2.0/itemID> $itemID\n" +
+                        "and $item <fedora-view:lastModifiedDate> $modified\n" +
+                        "order by $modified desc\n" +
+                        "limit 1";
+        TupleIterator it = getTuples(query);
 
-        return current;
+        try {
+            if (it.hasNext()) {
+                Map<String, Node> t = it.next();
+                String item = t.get("item").stringValue();
+                String modified = t.get("modified").stringValue();
+                return DateUtility.convertStringToDate(modified);
+            }
+        } catch (TrippiException e) {
+            logger.error("Failed to query for latest modification date", e);
+        }
+
+        logger.warn("No OAI relevant elements for obtaining the latest modification date. Fallback to current host time.");
+        return new Date();
     }
 
     public RemoteIterator<SetInfo> listSetInfo(InvocationSpec setInfoSpec) {
@@ -375,12 +405,9 @@ public class ITQLQueryFactory
     private String getDatastreamDissType(InvocationSpec spec,
                                          String objectVar,
                                          String suffix) {
-        String dissemination = "$diss" + suffix;
-        String s = (objectVar + " <" + VIEW.DISSEMINATES + "> " + dissemination
-                + "\n") +
-                "and " + dissemination + " <" + VIEW.DISSEMINATION_TYPE
-                + "> <" + spec.getDisseminationType() + ">\n";
-        return s;
+        return String.format("%s\n and %s\n",
+                String.format("%s <%s> $diss%s", objectVar, VIEW.DISSEMINATES, suffix),
+                String.format("$diss%s <%s> <%s>", suffix, VIEW.DISSEMINATION_TYPE, spec.getDisseminationType()));
     }
 
     private String getListSetInfoQuery(InvocationSpec setInfoSpec) {

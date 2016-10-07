@@ -28,12 +28,23 @@ import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
 import proai.driver.impl.RemoteIteratorImpl;
+import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -139,81 +150,54 @@ public class FedoraOAIDriver
     }
 
     public void init(Properties props) throws RepositoryException {
-
-        String m_fedoraBaseURL = getRequired(props, PROP_BASEURL);
-        if (!m_fedoraBaseURL.endsWith("/")) m_fedoraBaseURL += "/";
-        String m_fedoraUser = getRequired(props, PROP_USER);
-        String m_fedoraPass = getRequired(props, PROP_PASS);
         m_metadataFormats = getMetadataFormats(props);
 
         try {
             m_identify = new URL(getRequired(props, PROP_IDENTIFY));
         } catch (MalformedURLException e) {
-            throw new RepositoryException("Identify property is not a valid URL: "
-                    + props
-                    .getProperty(PROP_IDENTIFY),
-                    e);
+            throw new RepositoryException(String.format(
+                    "Identify property is not a valid URL: %s", props.getProperty(PROP_IDENTIFY)), e);
         }
 
-        String className = getRequired(props, PROP_QUERY_FACTORY);
+        String m_fedoraBaseURL = getRequired(props, PROP_BASEURL);
+        if (!m_fedoraBaseURL.endsWith("/")) {
+            m_fedoraBaseURL += "/";
+        }
+        String m_fedoraUser = getRequired(props, PROP_USER);
+        String m_fedoraPass = getRequired(props, PROP_PASS);
+
         try {
-            m_fedora =
-                    new FedoraClient(m_fedoraBaseURL,
-                            m_fedoraUser,
-                            m_fedoraPass);
-            // FIXME Find a proper way to set up connection timeout
-//            m_fedora.TIMEOUT_SECONDS =
-//                    getRequiredInt(props, PROP_DISS_CONN_TIMEOUT);
-//            m_fedora.SOCKET_TIMEOUT_SECONDS =
-//                    getRequiredInt(props, PROP_DISS_SOCK_TIMEOUT);
+            m_fedora = new FedoraClient(m_fedoraBaseURL, m_fedoraUser, m_fedoraPass);
         } catch (Exception e) {
             throw new RepositoryException("Error parsing baseURL", e);
         }
 
+        String className = getRequired(props, PROP_QUERY_FACTORY);
         try {
             Class<?> queryFactoryClass = Class.forName(className);
             m_queryFactory = (QueryFactory) queryFactoryClass.newInstance();
-            FedoraClient queryClient =
-                    new FedoraClient(m_fedoraBaseURL,
-                            m_fedoraUser,
-                            m_fedoraPass);
-            // FIXME Find a proper way to set up connection timeout
-//            queryClient.TIMEOUT_SECONDS =
-//                    getRequiredInt(props, PROP_QUERY_CONN_TIMEOUT);
-//            queryClient.SOCKET_TIMEOUT_SECONDS =
-//                    getRequiredInt(props, PROP_QUERY_SOCK_TIMEOUT);
+
+            FedoraClient queryClient = new FedoraClient(m_fedoraBaseURL, m_fedoraUser, m_fedoraPass);
             m_queryFactory.init(m_fedora, queryClient, props);
         } catch (Exception e) {
-            throw new RepositoryException("Unable to initialize " + className,
-                    e);
+            throw new RepositoryException("Unable to initialize " + className, e);
         }
 
-        m_setSpecDiss =
-                InvocationSpec
-                        .getInstance(getOptional(props,
-                                PROP_SETSPEC_DESC_DISSTYPE));
+        m_setSpecDiss = InvocationSpec.getInstance(getOptional(props, PROP_SETSPEC_DESC_DISSTYPE));
     }
 
     public void write(PrintWriter out) throws RepositoryException {
-        HttpInputStream in = null;
-        try {
-            in = m_fedora.get(m_identify.toString(), true);
+        try (HttpInputStream in = m_fedora.get(m_identify.toString(), true)) {
             writeStream(in, out, m_identify.toString());
         } catch (IOException e) {
-            throw new RepositoryException("Error getting identify.xml from "
-                    + m_identify.toString(), e);
-        } finally {
-            if (in != null) try {
-                in.close();
-            } catch (Exception ignored) {
-            }
+            throw new RepositoryException(String.format(
+                    "Error getting identify.xml from %s", m_identify.toString()), e);
         }
     }
 
     // TODO: date for volatile disseminations?
     public Date getLatestDate() throws RepositoryException {
-        return m_queryFactory.latestRecordDate(m_metadataFormats.values()
-                .iterator());
+        return m_queryFactory.latestRecordDate(m_metadataFormats.values().iterator());
     }
 
     public RemoteIterator<FedoraMetadataFormat> listMetadataFormats()
@@ -223,20 +207,15 @@ public class FedoraOAIDriver
     }
 
     public RemoteIterator<SetInfo> listSetInfo() throws RepositoryException {
-
         return m_queryFactory.listSetInfo(m_setSpecDiss);
     }
 
-    public RemoteIterator<FedoraRecord> listRecords(Date from,
-                                                    Date until,
-                                                    String mdPrefix)
-            throws RepositoryException {
+    public RemoteIterator<FedoraRecord> listRecords(Date from, Date until, String mdPrefix) throws RepositoryException {
         if (from != null && until != null && from.after(until)) {
-            throw new RepositoryException("from date cannot be later than until date.");
+            throw new BadArgumentException("from date cannot be later than until date.");
         }
 
-        return m_queryFactory.listRecords(from, until, m_metadataFormats
-                .get(mdPrefix));
+        return m_queryFactory.listRecords(from, until, m_metadataFormats.get(mdPrefix));
     }
 
     public void writeRecordXML(String itemID,
