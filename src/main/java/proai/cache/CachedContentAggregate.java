@@ -65,19 +65,15 @@ public class CachedContentAggregate implements Writable {
                     }
                     line = null;
                 } else {
-                    try {
-                        // if it has two parts, we assume the date should be
-                        // translated to the one given, else the content
-                        // is given as-is.
-                        if (parts.length == 2) {
-                            new CachedContent(m_cache.getFile(parts[0]),
-                                    parts[1],
-                                    headersOnly).write(out);
-                        } else {
-                            new CachedContent(m_cache.getFile(parts[0])).write(out);
-                        }
-                    } catch (Exception e) {
-                        // must have moved out of cache -- ignore
+                    // if it has two parts, we assume the date should be
+                    // translated to the one given, else the content
+                    // is given as-is.
+                    if (parts.length == 2) {
+                        new CachedContent(m_cache.getFile(parts[0]),
+                                parts[1],
+                                headersOnly).write(out);
+                    } else {
+                        new CachedContent(m_cache.getFile(parts[0])).write(out);
                     }
                     line = lineReader.readLine();
                 }
