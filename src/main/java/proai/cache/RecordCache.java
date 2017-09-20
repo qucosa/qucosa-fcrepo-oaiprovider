@@ -413,7 +413,7 @@ public class RecordCache extends Thread {
             String[] info = m_rcdb.getRecordInfo(conn, identifier, metadataPrefix);
             if (info == null) return null;
             return new WritableWrapper("<GetRecord>\n",
-                    m_rcDisk.getContent(info[0], info[1], false),
+                    m_rcDisk.getContent(info[0], false),
                     "\n</GetRecord>");
         } catch (SQLException e) {
             throw new ServerException("Error getting a database connection", e);

@@ -22,16 +22,16 @@ import proai.error.ServerException;
 public class CachedRecordContentIterator implements CloseableIterator<CachedContent> {
 
     private final CloseableIterator<String[]> m_arrays;
-    private final boolean m_identifiers;
+    private final boolean m_headersOnly;
     private final RCDisk m_rcDisk;
     private boolean m_closed;
 
-    public CachedRecordContentIterator(CloseableIterator<String[]> paths,
-                                       RCDisk rcDisk,
-                                       boolean identifiers) {
+    CachedRecordContentIterator(CloseableIterator<String[]> paths,
+                                RCDisk rcDisk,
+                                boolean headersOnly) {
         m_arrays = paths;
         m_rcDisk = rcDisk;
-        m_identifiers = identifiers;
+        m_headersOnly = headersOnly;
 
         m_closed = false;
     }
@@ -48,7 +48,7 @@ public class CachedRecordContentIterator implements CloseableIterator<CachedCont
         if (!hasNext()) return null;
         try {
             String[] array = m_arrays.next();
-            return m_rcDisk.getContent(array[0], array[1], m_identifiers);
+            return m_rcDisk.getContent(array[0], m_headersOnly);
         } catch (Exception e) {
             close();
             throw new ServerException("Could not get next record content from iterator", e);
