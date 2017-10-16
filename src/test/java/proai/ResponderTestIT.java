@@ -34,7 +34,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ResponderTest {
+public class ResponderTestIT {
 
     // TODO Debug flag, no need for such in unit tests, remove it
     private static final boolean m_print = false;
@@ -43,9 +43,9 @@ public class ResponderTest {
     @BeforeClass
     public static void setUp() throws IOException, InterruptedException {
         Properties properties = new Properties();
-        properties.load(ResponderTest.class.getResourceAsStream("/proai.properties"));
+        properties.load(ResponderTestIT.class.getResourceAsStream("/proai.properties"));
 
-        File baseDir = new File(ResponderTest.class.getResource("/").getFile());
+        File baseDir = new File(ResponderTestIT.class.getResource("/").getFile());
         File schemaDir = new File(baseDir, "schemaCache");
         File cacheDir = new File(baseDir, "cache");
         File sessionDir = new File(baseDir, "sessions");

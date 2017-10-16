@@ -22,7 +22,7 @@
 
     <context-param>
         <param-name>proai.home</param-name>
-        <param-value>/tmp/oaiprovider</param-value>
+        <param-value>/home/dseelig/opt/oaiprovider</param-value>
     </context-param>
 
     <servlet>
