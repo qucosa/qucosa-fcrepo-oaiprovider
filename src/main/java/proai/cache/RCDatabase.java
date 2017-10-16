@@ -16,18 +16,6 @@
 
 package proai.cache;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import proai.CloseableIterator;
-import proai.MetadataFormat;
-import proai.SetInfo;
-import proai.driver.impl.RemoteIteratorImpl;
-import proai.driver.impl.SetInfoImpl;
-import proai.error.ServerException;
-import proai.util.DBUtil;
-import proai.util.DDLConverter;
-import proai.util.TableSpec;
-
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -41,6 +29,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import proai.CloseableIterator;
+import proai.MetadataFormat;
+import proai.SetInfo;
+import proai.driver.impl.RemoteIteratorImpl;
+import proai.driver.impl.SetInfoImpl;
+import proai.error.ServerException;
+import proai.util.DBUtil;
+import proai.util.DDLConverter;
+import proai.util.TableSpec;
 
 /**
  * Java interface to the database.
@@ -782,8 +783,11 @@ public class RCDatabase {
             } else {
                 // we're creating it
                 rs.close();
-                executeUpdate(stmt, "INSERT INTO rcRecord (itemKey, formatKey, modDate, xmlPath) "
-                        + "VALUES (" + itemKey + ", " + formatKey + ", NULL, " + qs(xmlPath) + ")");
+                // Insert the records last modified date instead of NULL (CMR-210)
+                long recordLastModifiedTimestamp = rec.getDate().getTime();
+                executeUpdate(stmt, String.format(
+                        "INSERT INTO rcRecord (itemKey, formatKey, modDate, xmlPath) VALUES (%d, %d,%d, %s)",
+                        itemKey, formatKey, recordLastModifiedTimestamp, qs(xmlPath)));
                 rs = executeQuery(stmt, "SELECT recordKey from rcRecord "
                         + "WHERE itemKey = " + itemKey + " "
                         + "AND formatKey = " + formatKey);
