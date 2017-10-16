@@ -95,18 +95,18 @@ public class RCDisk {
         }
     }
 
-    public CachedContent getContent(String path) {
+    CachedContent getContent(String path) {
         if (path == null) return null;
         return new CachedContent(getFile(path));
     }
 
-    public File getFile(String path) {
-        return new File(m_baseDir, path);
+    CachedContent getContent(String path, boolean headersOnly) {
+        if (path == null) return null;
+        return new CachedContent(getFile(path), headersOnly);
     }
 
-    // Same as getContent, but re-writes the <datestamp> and optionally only returns the header
-    public CachedContent getContent(String path, String dateStamp, boolean headerOnly) {
-        return new CachedContent(getFile(path), dateStamp, headerOnly);
+    File getFile(String path) {
+        return new File(m_baseDir, path);
     }
 
     public void delete(String path) {
