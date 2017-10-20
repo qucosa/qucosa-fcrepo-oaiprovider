@@ -25,7 +25,7 @@
       If 0, 
       This is the time reported by OAIDriver.getLatestDate().
     </column>
-    <column name="identifyPath"    type="varchar(28)"  notNull="false">
+    <column name="identifyPath"    type="varchar(255)"  notNull="false">
       The location of the Identify.xml file in the cache.
     </column>
   </table>
@@ -40,7 +40,7 @@
     <column name="itemKey"        type="int(11)"      notNull="true" index="itemKey"/>
     <column name="formatKey"      type="int(11)"      notNull="true" index="formatKey"/>
     <column name="modDate"        type="bigint"       notNull="false" index="modDate"/>
-    <column name="xmlPath"        type="varchar(500)"  notNull="true" index="xmlPath"/>
+    <column name="xmlPath"        type="varchar(255)"  notNull="true" index="xmlPath"/>
   </table>
   
   <table name="rcFormat" primaryKey="formatKey" type="InnoDB">
@@ -61,7 +61,7 @@
   <table name="rcSet" primaryKey="setKey" type="InnoDB">
     <column name="setKey"         type="int(11)"                                        autoIncrement="true"/>
     <column name="setSpec"        type="varchar(255)" notNull="true"/>
-    <column name="xmlPath"        type="varchar(500)"  notNull="true" index="xmlPath"/>
+    <column name="xmlPath"        type="varchar(255)"  notNull="true" index="xmlPath"/>
   </table>
   
   <table name="rcMembership" type="InnoDB">
@@ -109,7 +109,7 @@
       because they are no longer referenced in the database.
     </comment>
     <column name="pruneKey"       type="bigint"       notNull="true"                    autoIncrement="true"/>
-    <column name="xmlPath"        type="varchar(500)"  notNull="true"/>
+    <column name="xmlPath"        type="varchar(255)"  notNull="true"/>
   </table>
   
 </database>
