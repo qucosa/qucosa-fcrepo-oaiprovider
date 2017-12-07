@@ -1,0 +1,38 @@
+[
+	{
+		"setSpec" : "open_access",
+		"setName" : null
+	},
+	{
+		"setSpec" : "ddc:010",
+		"setName" : "Bibliografien"
+	},
+	{
+		"setSpec" : "ddc:020",
+		"setName" : "Bibliotheks- und Informationswissenscha"
+	},
+	{
+		"setSpec" : "ddc:030",
+		"setName" : "Enzyklopädien"
+	},
+	{
+		"setSpec" : "ddc:050",
+		"setName" : "itschriften, fortlaufende Sammelwerk"
+	},
+	{
+		"setSpec" : "ddc:060",
+		"setName" : "rganisationen, Museumswissenschaf"
+	},
+	{
+		"setSpec" : "ddc:070",
+		"setName" : "achrichtenmedien, Journalismus, Verlagswes"
+	},
+	{
+		"setSpec" : "ddc:080",
+		"setName" : "llgemeine Sammelwerk"
+	},
+	{
+		"setSpec" : "ddc:090",
+		"setName" : "Handschriften, seltene Bücher"
+	}
+]
