@@ -3,9 +3,9 @@ package oaiprovider.mappings;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
  * This is a json mapper class for mapping the list sets config file
@@ -13,10 +13,19 @@ import com.fasterxml.jackson.annotation.JsonRootName;
  * @author dseelig
  *
  */
-@JsonRootName(value = "ListSets")
+@JsonAutoDetect
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ListSetConfJson {
     @JsonProperty("sets")
     private List<Set> sets = new ArrayList<>();
+
+    public List<Set> getSets() {
+        return sets;
+    }
+
+    public void setSets(List<Set> sets) {
+        this.sets = sets;
+    }
 
     @JsonIgnoreProperties(value = { "setName" })
     public static class Set {

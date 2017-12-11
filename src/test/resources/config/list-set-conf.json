@@ -1,0 +1,673 @@
+[
+  {
+    "setSpec": "has-source-swb:true",
+    "setName": "All records with PPN",
+    "predicate" : "xDocNodes=true"
+  },
+  {
+    "setSpec": "open_access",
+    "setName": "Documents with open access restriction",
+    "predicate" : "xDocNodes=open_access"
+  },
+  {
+    "setSpec": "ddc:000",
+    "setName": "Generalities, Science",
+    "predicate" : "xDocNodes=000"
+  },
+  {
+    "setSpec": "ddc:004",
+    "setName": "Data processing Computer science",
+    "predicate" : "xDocNodes=004"
+  },
+  {
+    "setSpec": "ddc:010",
+    "setName": "Bibliography",
+    "predicate" : "xDocNodes=010"
+  },
+  {
+    "setSpec": "ddc:020",
+    "setName": "Library and information sciences",
+    "predicate" : "xDocNodes=020"
+  },
+  {
+    "setSpec": "ddc:030",
+    "setName": "General encyclopedic works",
+    "predicate" : "xDocNodes=030"
+  },
+  {
+    "setSpec": "ddc:050",
+    "setName": "General serials and their indexes",
+    "predicate" : "xDocNodes=050"
+  },
+  {
+    "setSpec": "ddc:060",
+    "setName": "General organization and museology",
+    "predicate" : "xDocNodes=060"
+  },
+  {
+    "setSpec": "ddc:070",
+    "setName": "News media, journalism, publishing",
+    "predicate" : "xDocNodes=070"
+  },
+  {
+    "setSpec": "ddc:080",
+    "setName": "General collections",
+    "predicate" : "xDocNodes=080"
+  },
+  {
+    "setSpec": "ddc:090",
+    "setName": "Manuscripts and rare books",
+    "predicate" : "xDocNodes=090"
+  },
+  {
+    "setSpec": "ddc:100",
+    "setName": "Philosophy",
+    "predicate" : "xDocNodes=100"
+  },
+  {
+    "setSpec": "ddc:130",
+    "setName": "Paranormal phenomena",
+    "predicate" : "xDocNodes=130"
+  },
+  {
+    "setSpec": "ddc:150",
+    "setName": "Psychology",
+    "predicate" : "xDocNodes=150"
+  },
+  {
+    "setSpec": "ddc:200",
+    "setName": "Religion",
+    "predicate" : "xDocNodes=200"
+  },
+  {
+    "setSpec": "ddc:220",
+    "setName": "Bible",
+    "predicate" : "xDocNodes=220"
+  },
+  {
+    "setSpec": "ddc:230",
+    "setName": "Christian theology",
+    "predicate" : "xDocNodes=230"
+  },
+  {
+    "setSpec": "ddc:290",
+    "setName": "Other and comparative religions",
+    "predicate" : "xDocNodes=290"
+  },
+  {
+    "setSpec": "ddc:300",
+    "setName": "Social sciences",
+    "predicate" : "xDocNodes=300"
+  },
+  {
+    "setSpec": "ddc:310",
+    "setName": "General statistics",
+    "predicate" : "xDocNodes=310"
+  },
+  {
+    "setSpec": "ddc:320",
+    "setName": "Political science",
+    "predicate" : "xDocNodes=320"
+  },
+  {
+    "setSpec": "ddc:330",
+    "setName": "Economics",
+    "predicate" : "xDocNodes=330"
+  },
+  {
+    "setSpec": "ddc:333.7",
+    "setName": "Natural ressources, energy and environment",
+    "predicate" : "xDocNodes=333.7"
+  },
+  {
+    "setSpec": "ddc:340",
+    "setName": "Law",
+    "predicate" : "xDocNodes=340"
+  },
+  {
+    "setSpec": "ddc:350",
+    "setName": "Public administration",
+    "predicate" : "xDocNodes=350"
+  },
+  {
+    "setSpec": "ddc:355",
+    "setName": "Military science",
+    "predicate" : "xDocNodes=355"
+  },
+  {
+    "setSpec": "ddc:360",
+    "setName": "Social services; association",
+    "predicate" : "xDocNodes=360"
+  },
+  {
+    "setSpec": "ddc:370",
+    "setName": "Education",
+    "predicate" : "xDocNodes=370"
+  },
+  {
+    "setSpec": "ddc:380",
+    "setName": "Commerce, communications, transport",
+    "predicate" : "xDocNodes=380"
+  },
+  {
+    "setSpec": "ddc:390",
+    "setName": "Customs, etiquette, folklore",
+    "predicate" : "xDocNodes=390"
+  },
+  {
+    "setSpec": "ddc:400",
+    "setName": "Language, Linguistics",
+    "predicate" : "xDocNodes=400"
+  },
+  {
+    "setSpec": "ddc:420",
+    "setName": "English",
+    "predicate" : "xDocNodes=420"
+  },
+  {
+    "setSpec": "ddc:430",
+    "setName": "Germanic",
+    "predicate" : "xDocNodes=430"
+  },
+  {
+    "setSpec": "ddc:439",
+    "setName": "Other Germanic languages",
+    "predicate" : "xDocNodes=439"
+  },
+  {
+    "setSpec": "ddc:440",
+    "setName": "Romance languages French",
+    "predicate" : "xDocNodes=440"
+  },
+  {
+    "setSpec": "ddc:450",
+    "setName": "Italian, Romanian, Rhaeto-Romantic",
+    "predicate" : "xDocNodes=450"
+  },
+  {
+    "setSpec": "ddc:460",
+    "setName": "Spanish and Portugese languages",
+    "predicate" : "xDocNodes=460"
+  },
+  {
+    "setSpec": "ddc:470",
+    "setName": "Italic Latin",
+    "predicate" : "xDocNodes=470"
+  },
+  {
+    "setSpec": "ddc:480",
+    "setName": "Hellenic languages Classical Greek",
+    "predicate" : "xDocNodes=480"
+  },
+  {
+    "setSpec": "ddc:490",
+    "setName": "Other languages",
+    "predicate" : "xDocNodes=490"
+  },
+  {
+    "setSpec": "ddc:500",
+    "setName": "Natural sciences and mathematics",
+    "predicate" : "xDocNodes=500"
+  },
+  {
+    "setSpec": "ddc:510",
+    "setName": "Mathematics",
+    "predicate" : "xDocNodes=510"
+  },
+  {
+    "setSpec": "ddc:520",
+    "setName": "Astronomy and allied sciences",
+    "predicate" : "xDocNodes=520"
+  },
+  {
+    "setSpec": "ddc:530",
+    "setName": "Physics",
+    "predicate" : "xDocNodes=530"
+  },
+  {
+    "setSpec": "ddc:540",
+    "setName": "Chemistry and allied sciences",
+    "predicate" : "xDocNodes=540"
+  },
+  {
+    "setSpec": "ddc:550",
+    "setName": "Earth sciences",
+    "predicate" : "xDocNodes=550"
+  },
+  {
+    "setSpec": "ddc:560",
+    "setName": "Paleontology Paleozoology",
+    "predicate" : "xDocNodes=560"
+  },
+  {
+    "setSpec": "ddc:570",
+    "setName": "Life sciences",
+    "predicate" : "xDocNodes=570"
+  },
+  {
+    "setSpec": "ddc:580",
+    "setName": "Botanical sciences",
+    "predicate" : "xDocNodes=580"
+  },
+  {
+    "setSpec": "ddc:590",
+    "setName": "Zoological sciences",
+    "predicate" : "xDocNodes=590"
+  },
+  {
+    "setSpec": "ddc:600",
+    "setName": "Technology (Applied sciences)",
+    "predicate" : "xDocNodes=600"
+  },
+  {
+    "setSpec": "ddc:610",
+    "setName": "Medical sciences Medicine",
+    "predicate" : "xDocNodes=610"
+  },
+  {
+    "setSpec": "ddc:620",
+    "setName": "Engineering and allied operations",
+    "predicate" : "xDocNodes=620"
+  },
+  {
+    "setSpec": "ddc:630",
+    "setName": "Agriculture",
+    "predicate" : "xDocNodes=630"
+  },
+  {
+    "setSpec": "ddc:640",
+    "setName": "Home economics and family living",
+    "predicate" : "xDocNodes=640"
+  },
+  {
+    "setSpec": "ddc:650",
+    "setName": "Management and auxiliary services",
+    "predicate" : "xDocNodes=650"
+  },
+  {
+    "setSpec": "ddc:660",
+    "setName": "Chemical engineering Technische",
+    "predicate" : "xDocNodes=660"
+  },
+  {
+    "setSpec": "ddc:670",
+    "setName": "Manufacturing",
+    "predicate" : "xDocNodes=670"
+  },
+  {
+    "setSpec": "ddc:690",
+    "setName": "Buildings",
+    "predicate" : "xDocNodes=690"
+  },
+  {
+    "setSpec": "ddc:700",
+    "setName": "The arts",
+    "predicate" : "xDocNodes=700"
+  },
+  {
+    "setSpec": "ddc:710",
+    "setName": "Civic and landscape art",
+    "predicate" : "xDocNodes=710"
+  },
+  {
+    "setSpec": "ddc:720",
+    "setName": "Architecture",
+    "predicate" : "xDocNodes=720"
+  },
+  {
+    "setSpec": "ddc:730",
+    "setName": "Plastic arts Sculpture",
+    "predicate" : "xDocNodes=730"
+  },
+  {
+    "setSpec": "ddc:740",
+    "setName": "Drawing and decorative arts",
+    "predicate" : "xDocNodes=740"
+  },
+  {
+    "setSpec": "ddc:741.5",
+    "setName": "Comics, Cartoons",
+    "predicate" : "xDocNodes=741.5"
+  },
+  {
+    "setSpec": "ddc:750",
+    "setName": "Painting and paintings",
+    "predicate" : "xDocNodes=750"
+  },
+  {
+    "setSpec": "ddc:760",
+    "setName": "Graphic arts Printmaking and prints",
+    "predicate" : "xDocNodes=760"
+  },
+  {
+    "setSpec": "ddc:770",
+    "setName": "Photography and photographs",
+    "predicate" : "xDocNodes=770"
+  },
+  {
+    "setSpec": "ddc:780",
+    "setName": "Music",
+    "predicate" : "xDocNodes=780"
+  },
+  {
+    "setSpec": "ddc:790",
+    "setName": "Recreational and performing arts",
+    "predicate" : "xDocNodes=790"
+  },
+  {
+    "setSpec": "ddc:791",
+    "setName": "Public performances",
+    "predicate" : "xDocNodes=791"
+  },
+  {
+    "setSpec": "ddc:792",
+    "setName": "Stage presentations",
+    "predicate" : "xDocNodes=792"
+  },
+  {
+    "setSpec": "ddc:793",
+    "setName": "Indoor games and amusements",
+    "predicate" : "xDocNodes=793"
+  },
+  {
+    "setSpec": "ddc:796",
+    "setName": "Athletic and outdoor sports and games",
+    "predicate" : "xDocNodes=796"
+  },
+  {
+    "setSpec": "ddc:800",
+    "setName": "Literature and rhetoric",
+    "predicate" : "xDocNodes=800"
+  },
+  {
+    "setSpec": "ddc:810",
+    "setName": "American literature in English",
+    "predicate" : "xDocNodes=810"
+  },
+  {
+    "setSpec": "ddc:820",
+    "setName": "English and Old English literatures",
+    "predicate" : "xDocNodes=820"
+  },
+  {
+    "setSpec": "ddc:830",
+    "setName": "Literatures of Germanic languages",
+    "predicate" : "xDocNodes=830"
+  },
+  {
+    "setSpec": "ddc:839",
+    "setName": "Other Germanic literatures",
+    "predicate" : "xDocNodes=839"
+  },
+  {
+    "setSpec": "ddc:840",
+    "setName": "Literatures of Romance languages",
+    "predicate" : "xDocNodes=840"
+  },
+  {
+    "setSpec": "ddc:850",
+    "setName": "Italian, Romanian, Rhaeto-Romanic literatures",
+    "predicate" : "xDocNodes=850"
+  },
+  {
+    "setSpec": "ddc:860",
+    "setName": "Spanish and Portuguese literatures",
+    "predicate" : "xDocNodes=860"
+  },
+  {
+    "setSpec": "ddc:870",
+    "setName": "Italic literatures Latin",
+    "predicate" : "xDocNodes=870"
+  },
+  {
+    "setSpec": "ddc:880",
+    "setName": "Hellenic literatures Classical Greek",
+    "predicate" : "xDocNodes=880"
+  },
+  {
+    "setSpec": "ddc:890",
+    "setName": "Literatures of other languages",
+    "predicate" : "xDocNodes=890"
+  },
+  {
+    "setSpec": "ddc:900",
+    "setName": "Geography and history",
+    "predicate" : "xDocNodes=900"
+  },
+  {
+    "setSpec": "ddc:910",
+    "setName": "Geography and travel",
+    "predicate" : "xDocNodes=910"
+  },
+  {
+    "setSpec": "ddc:914.3",
+    "setName": "Geography and travel",
+    "predicate" : "xDocNodes=914.3"
+  },
+  {
+    "setSpec": "ddc:920",
+    "setName": "Biography, genealogy, insignia",
+    "predicate" : "xDocNodes=920"
+  },
+  {
+    "setSpec": "ddc:930",
+    "setName": "History of the ancient world",
+    "predicate" : "xDocNodes=930"
+  },
+  {
+    "setSpec": "ddc:940",
+    "setName": "General history of Europe",
+    "predicate" : "xDocNodes=940"
+  },
+  {
+    "setSpec": "ddc:943",
+    "setName": "General history of Europe Central Europe Germany",
+    "predicate" : "xDocNodes=943"
+  },
+  {
+    "setSpec": "ddc:950",
+    "setName": "General history of Asia Far East",
+    "predicate" : "xDocNodes=950"
+  },
+  {
+    "setSpec": "ddc:960",
+    "setName": "General history of Africa",
+    "predicate" : "xDocNodes=960"
+  },
+  {
+    "setSpec": "ddc:970",
+    "setName": "General history of North America",
+    "predicate" : "xDocNodes=970"
+  },
+  {
+    "setSpec": "ddc:980",
+    "setName": "General history of South America",
+    "predicate" : "xDocNodes=980"
+  },
+  {
+    "setSpec": "ddc:990",
+    "setName": "General history of other areas",
+    "predicate" : "xDocNodes=990"
+  },
+  {
+    "setSpec": "doc-type:annotation",
+    "setName": "Annotation",
+    "predicate" : "xDocNodes=annotation"
+  },
+  {
+    "setSpec": "doc-type:article",
+    "setName": "Article",
+    "predicate" : "xDocNodes=aricle"
+  },
+  {
+    "setSpec": "doc-type:bachelorThesis",
+    "setName": "BachelorThesis",
+    "predicate" : "xDocNodes=bachelorThesis"
+  },
+  {
+    "setSpec": "doc-type:book",
+    "setName": "Book",
+    "predicate" : "xDocNodes=book"
+  },
+  {
+    "setSpec": "doc-type:bookPart",
+    "setName": "BookPart",
+    "predicate" : "xDocNodes=bookPart"
+  },
+  {
+    "setSpec": "doc-type:CarthographicMaterial",
+    "setName": "CarthographicMaterial",
+    "predicate" : "xDocNodes=CarthographicMaterial"
+  },
+  {
+    "setSpec": "doc-type:conferenceObject",
+    "setName": "conferenceObject",
+    "predicate" : "xDocNodes=conferenceObject"
+  },
+  
+  
+  
+  
+  
+  
+  {
+    "setSpec": "doc-type:contributionToPeriodical",
+    "setName": "ContributionToPeriodical",
+    "predicate" : "xDocNodes=contributionToPeriodical"
+  },
+  {
+    "setSpec": "doc-type:CourseMaterial",
+    "setName": "CourseMaterial",
+    "predicate" : "xDocNodes=CourseMaterial"
+  },
+  {
+    "setSpec": "doc-type:doctoralThesis",
+    "setName": "DoctoralThesis",
+    "predicate" : "xDocNodes=doctoralThesis"
+  },
+  {
+    "setSpec": "doc-type:Image",
+    "setName": "Image",
+    "predicate" : "xDocNodes=Image"
+  },
+  {
+    "setSpec": "doc-type:lecture",
+    "setName": "Lecture",
+    "predicate" : "xDocNodes=lecture"
+  },
+  {
+    "setSpec": "doc-type:Manuscript",
+    "setName": "Manuscript",
+    "predicate" : "xDocNodes=Manuscript"
+  },
+  {
+    "setSpec": "doc-type:masterThesis",
+    "setName": "MasterThesis",
+    "predicate" : "xDocNodes=masterThesis"
+  },
+  {
+    "setSpec": "doc-type:MovingImage",
+    "setName": "MovingImage",
+    "predicate" : "xDocNodes=MovingImage"
+  },
+  {
+    "setSpec": "doc-type:MusicalNotation",
+    "setName": "MusicalNotation",
+    "predicate" : "xDocNodes=MusicalNotation"
+  },
+  {
+    "setSpec": "doc-type:Other",
+    "setName": "Other",
+    "predicate" : "xDocNodes=Other"
+  },
+  {
+    "setSpec": "doc-type:patent",
+    "setName": "Patent",
+    "predicate" : "xDocNodes=patent"
+  },
+  {
+    "setSpec": "doc-type:Periodical",
+    "setName": "Periodical",
+    "predicate" : "xDocNodes=Periodical"
+  },
+  {
+    "setSpec": "doc-type:PeriodicalPart",
+    "setName": "PeriodicalPart",
+    "predicate" : "xDocNodes=PeriodicalPart"
+  },
+  {
+    "setSpec": "doc-type:preprint",
+    "setName": "Preprint",
+    "predicate" : "xDocNodes=preprint"
+  },
+  {
+    "setSpec": "doc-type:report",
+    "setName": "Report",
+    "predicate" : "xDocNodes=report"
+  },
+  {
+    "setSpec": "doc-type:ResearchData",
+    "setName": "ResearchData",
+    "predicate" : "xDocNodes=ResearchData"
+  },
+  {
+    "setSpec": "doc-type:review",
+    "setName": "Review",
+    "predicate" : "xDocNodes=review"
+  },
+  {
+    "setSpec": "doc-type:Software",
+    "setName": "Software",
+    "predicate" : "xDocNodes=Software"
+  },
+  {
+    "setSpec": "doc-type:Sound",
+    "setName": "Sound",
+    "predicate" : "xDocNodes=Sound"
+  },
+  {
+    "setSpec": "doc-type:StillImage",
+    "setName": "StillImage",
+    "predicate" : "xDocNodes=StillImage"
+  },
+  {
+    "setSpec": "doc-type:StudyThesis",
+    "setName": "StudyThesis",
+    "predicate" : "xDocNodes=StudyThesis"
+  },
+  {
+    "setSpec": "doc-type:Text",
+    "setName": "Text",
+    "predicate" : "xDocNodes=Text"
+  },
+  {
+    "setSpec": "doc-type:Website",
+    "setName": "Website",
+    "predicate" : "xDocNodes=Website"
+  },
+  {
+    "setSpec": "doc-type:workingPaper",
+    "setName": "WorkingPaper",
+    "predicate" : "xDocNodes=workingPaper"
+  },
+  {
+    "setSpec": "status-type:draftVersion",
+    "predicate" : "xDocNodes=draftVersion"
+  },
+  {
+    "setSpec": "status-type:submittedVersion",
+    "predicate" : "xDocNodes=submittedVersion"
+  },
+  {
+    "setSpec": "status-type:acceptedVersion",
+    "predicate" : "xDocNodes=acceptedVersion"
+  },
+  {
+    "setSpec": "status-type:publishedVersion",
+    "predicate" : "xDocNodes=publishedVersion"
+  },
+  {
+    "setSpec": "status-type:updatedVersion",
+    "predicate" : "xDocNodes=updatedVersion"
+  }
+]
