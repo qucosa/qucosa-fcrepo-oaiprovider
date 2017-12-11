@@ -3,8 +3,12 @@ package oaiprovider.mappings;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonAutoDetect
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DisseminationTerms {
     @JsonProperty("xDocNodes")
     private List<XpathDocNode> xDocNodes = new ArrayList<>();
