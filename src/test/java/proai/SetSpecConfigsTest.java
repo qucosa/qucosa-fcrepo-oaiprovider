@@ -15,7 +15,7 @@ public class SetSpecConfigsTest {
 
     @Test
     public void loadXpathDocNodes() {
-        setSpecMerge.getXpathDocNodeTerms();
+        setSpecMerge.getDissTerms();
     }
 
     @Test

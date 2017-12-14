@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.bvalid.Validator;
+import oaiprovider.FedoraSetInfo;
 import proai.MetadataFormat;
 import proai.Record;
 import proai.SetInfo;
@@ -660,13 +661,15 @@ public class Updater extends Thread {
 
         // apply new / updated
         RemoteIterator<? extends SetInfo> riter = _driver.listSetInfo();
-
         Set<SetInfo> setInfos = new HashSet<>();
+
         try {
+
             while (riter.hasNext()) {
                 setInfos.add(riter.next());
             }
         } finally {
+
             try {
                 riter.close();
             } catch (Exception e) {
@@ -674,8 +677,14 @@ public class Updater extends Thread {
             }
         }
 
-        // add your sets here
-        // setInfos.addAll(setSpecMerge.getSetSpecs());
+        // add sets from json config
+        for (int i = 0; i < setSpecMerge.getSetSpecsConf().size(); i++) {
+            oaiprovider.mappings.ListSetConfJson.Set setObj = setSpecMerge.getSetSpecsConf().get(i);
+            FedoraSetInfo fedoraSetInfo = new FedoraSetInfo();
+            fedoraSetInfo.setSpec(setObj.getSetSpec());
+            fedoraSetInfo.setName(setObj.getSetName());
+            setInfos.add(fedoraSetInfo);
+        }
 
         Set<String> newSpecs = new HashSet<>();
         Set<String> missingSpecs = new HashSet<>();

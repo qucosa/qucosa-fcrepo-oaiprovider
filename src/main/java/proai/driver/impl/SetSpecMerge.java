@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oaiprovider.mappings.DisseminationTerms;
-import oaiprovider.mappings.DisseminationTerms.XpathDocNode;
 import oaiprovider.mappings.ListSetConfJson.Set;
 
 public class SetSpecMerge {
@@ -20,13 +19,13 @@ public class SetSpecMerge {
 
     private java.util.Set setSpecs;
 
-    public List<XpathDocNode> getXpathDocNodeTerms() {
-        File dissTerms = new File(
-                this.getClass().getClassLoader().getResource("config/dissemination-terms.json").getPath());
-        DisseminationTerms terms = null;
+    public List<DisseminationTerms> getDissTerms() {
+        List<DisseminationTerms> dissTerms = null;
+        File file = new File(getClass().getClassLoader().getResource("config/dissemination-terms.json").getPath());
 
         try {
-            terms = om.readValue(dissTerms, DisseminationTerms.class);
+            dissTerms = om.readValue(file,
+                    om.getTypeFactory().constructCollectionType(List.class, DisseminationTerms.class));
         } catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
@@ -35,7 +34,7 @@ public class SetSpecMerge {
             e.printStackTrace();
         }
 
-        return terms.getxDocNodes();
+        return dissTerms;
     }
 
     public List<Set> getSetSpecsConf() {
