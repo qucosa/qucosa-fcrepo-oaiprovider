@@ -27,13 +27,12 @@ public class ListSetConfJson {
         this.sets = sets;
     }
 
-    @JsonIgnoreProperties(value = { "setName" })
     public static class Set {
         @JsonProperty("setSpec")
         private String setSpec;
 
         @JsonProperty("setName")
-        private String setName = null;
+        private String setName;
 
         @JsonProperty("predicate")
         private String predicate;

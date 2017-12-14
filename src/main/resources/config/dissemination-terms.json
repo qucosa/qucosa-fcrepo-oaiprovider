@@ -1,12 +1,67 @@
-{
-	"xDocNodes" : [
-  		{
-  			"name" : "xMetaDiss",
-  			"term" : "//xMetaDiss:xMetaDiss/dc:subject[@xsi:type='dcterms:DDC', text()=$val]"
-  		},
-  		{
-  			"name" : "oai_dc",
-  			"term" : "//oai_dc:dc/"
-  		}
-  	]
-}
+[
+	{
+		"diss" : "xDDC",
+		"terms" : [
+			{
+	  			"name" : "xMetaDiss",
+	  			"term" : "//xMetaDiss:xMetaDiss/dc:subject[@xsi:type='dcterms:DDC', text()=$val]"
+	  		},
+	  		{
+	  			"name" : "oai_dc",
+	  			"term" : "//oai_dc:dc/"
+	  		}
+		]
+	},
+	{
+		"diss" : "xSourceSwb",
+		"terms" : [
+			{
+	  			"name" : "xMetaDiss",
+	  			"term" : ""
+	  		},
+	  		{
+	  			"name" : "oai_dc",
+	  			"term" : ""
+	  		}
+		]
+	},
+	{
+		"diss" : "xOpenAccess",
+		"terms" : [
+			{
+	  			"name" : "xMetaDiss",
+	  			"term" : ""
+	  		},
+	  		{
+	  			"name" : "oai_dc",
+	  			"term" : ""
+	  		}
+		]
+	},
+	{
+		"diss" : "xDocType",
+		"terms" : [
+			{
+	  			"name" : "xMetaDiss",
+	  			"term" : ""
+	  		},
+	  		{
+	  			"name" : "oai_dc",
+	  			"term" : ""
+	  		}
+		]
+	},
+	{
+		"diss" : "xStatusType",
+		"terms" : [
+			{
+	  			"name" : "xMetaDiss",
+	  			"term" : ""
+	  		},
+	  		{
+	  			"name" : "oai_dc",
+	  			"term" : ""
+	  		}
+		]
+	}
+]

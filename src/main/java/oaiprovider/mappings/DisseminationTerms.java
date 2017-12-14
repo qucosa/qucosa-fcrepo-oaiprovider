@@ -1,6 +1,5 @@
 package oaiprovider.mappings;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -10,18 +9,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DisseminationTerms {
-    @JsonProperty("xDocNodes")
-    private List<XpathDocNode> xDocNodes = new ArrayList<>();
+    @JsonProperty("diss")
+    private String diss;
 
-    public List<XpathDocNode> getxDocNodes() {
-        return xDocNodes;
+    private List<Term> terms;
+
+    public String getDiss() {
+        return diss;
     }
 
-    public void setxDocNodes(List<XpathDocNode> xDocNodes) {
-        this.xDocNodes = xDocNodes;
+    public void setDiss(String diss) {
+        this.diss = diss;
     }
 
-    public static class XpathDocNode {
+    @JsonProperty("terms")
+    public List<Term> getTerms() {
+        return terms;
+    }
+
+    public void setTerms(List<Term> terms) {
+        this.terms = terms;
+    }
+
+    public static class Term {
         @JsonProperty("name")
         private String name;
 
