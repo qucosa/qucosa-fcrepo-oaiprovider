@@ -6,16 +6,19 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import proai.driver.impl.SetSpecMerge;
+import proai.driver.impl.DisseminationTermsImpl;
+import proai.driver.impl.SetSpecImpl;
 
-public class SetSpecConfigsTest {
-    private SetSpecMerge setSpecMerge = new SetSpecMerge();
+public class LoadConfigsTest {
+    private SetSpecImpl setSpecMerge = new SetSpecImpl();
+
+    private DisseminationTermsImpl disseminationTermsImpl = new DisseminationTermsImpl();
 
     private ObjectMapper om = new ObjectMapper();
 
     @Test
     public void loadXpathDocNodes() {
-        setSpecMerge.getDissTerms();
+        disseminationTermsImpl.getDissTerms();
     }
 
     @Test

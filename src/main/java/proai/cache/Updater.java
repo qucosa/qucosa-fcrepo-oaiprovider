@@ -44,7 +44,7 @@ import proai.Record;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
-import proai.driver.impl.SetSpecMerge;
+import proai.driver.impl.SetSpecImpl;
 import proai.error.ImmediateShutdownException;
 import proai.error.RepositoryException;
 import proai.error.ServerException;
@@ -657,7 +657,7 @@ public class Updater extends Thread {
 
         logger.debug("Updating sets...");
 
-        SetSpecMerge setSpecMerge = new SetSpecMerge();
+        SetSpecImpl setSpecMerge = new SetSpecImpl();
 
         // apply new / updated
         RemoteIterator<? extends SetInfo> riter = _driver.listSetInfo();
