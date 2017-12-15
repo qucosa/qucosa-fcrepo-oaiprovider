@@ -17,6 +17,7 @@
 package oaiprovider.driver;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,25 +28,42 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import oaiprovider.FedoraMetadataFormat;
 import oaiprovider.FedoraRecord;
 import oaiprovider.InvocationSpec;
 import oaiprovider.QueryFactory;
+import oaiprovider.mappings.DisseminationTerms;
+import oaiprovider.mappings.DisseminationTerms.Term;
+import oaiprovider.mappings.ListSetConfJson.Set;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
+import proai.driver.impl.DisseminationTermsImpl;
 import proai.driver.impl.RemoteIteratorImpl;
-import proai.driver.impl.SetSpecMerge;
+import proai.driver.impl.SetSpecImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
 
@@ -90,7 +108,7 @@ public class FedoraOAIDriver
     private QueryFactory m_queryFactory;
     private InvocationSpec m_setSpecDiss;
 
-    private SetSpecMerge setSpecMerge = new SetSpecMerge();
+    private SetSpecImpl setSpecMerge = new SetSpecImpl();
 
     public FedoraOAIDriver() {
     }
@@ -99,11 +117,10 @@ public class FedoraOAIDriver
     ///////////////////// Methods from proai.driver.OAIDriver ////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    private static void writeRecordHeader(String itemID,
-                                          boolean deleted,
-                                          String date,
-                                          List<String> setSpecs,
-            PrintWriter out, SetSpecMerge setSpecMerge) {
+    // info:fedora/qucosa:48666/qucosa:SDef/xMetaDissPlusDissemination
+    private static void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
+            PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTermsImpl, String xml,
+            String mdPrefix) {
         if (deleted) {
             out.println("  <header status=\"deleted\">");
         } else {
@@ -112,12 +129,110 @@ public class FedoraOAIDriver
         out.println("    <identifier>" + itemID + "</identifier>");
         out.println("    <datestamp>" + date + "</datestamp>");
 
-        setSpecMerge.setSetSpecs(new HashSet<String>(setSpecs));
-
         for (String setSpec : setSpecs) {
             out.println("    <setSpec>" + setSpec
                     + "</setSpec>");
         }
+
+        for (int i = 0; i < setSpecMerge.getSetSpecsConf().size(); i++) {
+            Set set = setSpecMerge.getSetSpecsConf().get(i);
+
+            if (set.getPredicate() != null && !set.getPredicate().equals("")) {
+
+                if (set.getPredicate().contains("=")) {
+                    String[] predicate = set.getPredicate().split("=");
+                    String subject = predicate[0];
+                    String subjectGroup = predicate[1];
+                    List<DisseminationTerms> dissTerms = disseminationTermsImpl.getDissTerms();
+
+                    for (int j = 0; j < dissTerms.size(); j++) {
+                        DisseminationTerms dissTermObj = dissTerms.get(j);
+
+                        if (dissTermObj.getDiss().equals(subject)) {
+
+                            if (dissTermObj.getTerms() != null && dissTermObj.getTerms().size() > 0) {
+
+                                for (int k = 0; k < dissTermObj.getTerms().size(); k++) {
+                                    Term termObj = dissTermObj.getTerms().get(k);
+
+                                    if (termObj.getName().equals(mdPrefix) && !termObj.getTerm().equals("")
+                                            && termObj.getTerm() != null) {
+
+                                        try {
+                                            DocumentBuilderFactory builderFactory = DocumentBuilderFactory
+                                                    .newInstance();
+                                            builderFactory.setNamespaceAware(true);
+                                            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+                                            Document document = builder.parse(new InputSource(new ByteArrayInputStream(
+                                                    xml.getBytes("utf-8"))));
+                                            XPathFactory pathFactory = XPathFactory.newInstance();
+                                            XPath xPath = pathFactory.newInstance().newXPath();
+
+                                            xPath.setNamespaceContext(new NamespaceContext() {
+
+                                                @Override
+                                                public String getNamespaceURI(String prefix) {
+                                                    switch (prefix) {
+                                                    case "xMetaDiss":
+                                                        return "http://www.d-nb.de/standards/xmetadissplus/";
+                                                    case "dc":
+                                                        return "http://purl.org/dc/elements/1.1/";
+                                                    case "dcterms":
+                                                        return "http://purl.org/dc/terms/";
+                                                    case "xsi":
+                                                        return "http://www.w3.org/2001/XMLSchema-instance";
+                                                    default:
+                                                        return null;
+                                                    }
+                                                }
+
+                                                @Override
+                                                public String getPrefix(String namespaceURI) {
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                public Iterator getPrefixes(String namespaceURI) {
+                                                    return null;
+                                                }
+                                            });
+
+                                            Node node = (Node) xPath
+                                                    .compile(termObj.getTerm().replace("$val", subjectGroup))
+                                                    .evaluate(document, XPathConstants.NODE);
+
+                                            if (node != null) {
+                                                out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
+                                            }
+                                        } catch (ParserConfigurationException e1) {
+                                            e1.printStackTrace();
+                                        } catch (SAXException | IOException e1) {
+                                            e1.printStackTrace();
+                                        } catch (XPathExpressionException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        /**
+                                         * @todo call dissemination terms does
+                                         *       not exists exception
+                                         */
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    /**
+                     * @todo call a wrong set spec predicate notaion exception
+                     */
+                }
+            } else {
+                /**
+                 * @todo call a failed set spec conf predicate exception
+                 */
+            }
+        }
+
         out.println("  </header>");
     }
 
@@ -251,10 +366,11 @@ public class FedoraOAIDriver
         List<String> setSpecs = new ArrayList<>();
         setSpecs.addAll(Arrays.asList(parts).subList(4, parts.length));
 
-        setSpecMerge.setDocXml(getXml(dissURI));
+        DisseminationTermsImpl disseminationTermsImpl = new DisseminationTermsImpl();
 
         out.println("<record>");
-        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge);
+        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge, disseminationTermsImpl, getXml(dissURI),
+                mdPrefix);
         if (!deleted) {
             writeRecordMetadata(dissURI, out);
             if (!aboutDissURI.equals("null")) {

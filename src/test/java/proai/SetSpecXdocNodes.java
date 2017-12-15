@@ -22,16 +22,19 @@ import org.xml.sax.SAXException;
 
 import oaiprovider.mappings.DisseminationTerms;
 import oaiprovider.mappings.DisseminationTerms.Term;
-import proai.driver.impl.SetSpecMerge;
+import proai.driver.impl.DisseminationTermsImpl;
+import proai.driver.impl.SetSpecImpl;
 
 public class SetSpecXdocNodes {
-    private SetSpecMerge setSpecMerge = new SetSpecMerge();
+    private SetSpecImpl setSpecMerge = new SetSpecImpl();
+
+    private DisseminationTermsImpl disseminationTermsImpl = new DisseminationTermsImpl();
 
     private File dissFile = new File(getClass().getClassLoader().getResource("disseminations/dcc:330.xml").getPath());
 
     private String confFile = "config/dissemination-terms.json";
 
-    private String nameDissKey = "xMetaDiss";
+    private String nameDissKey = "xMetaDissPlusDissemination";
 
     private String dissType = "xDDC";
 
@@ -40,7 +43,7 @@ public class SetSpecXdocNodes {
         File conf = new File(getClass().getClassLoader().getResource(confFile).getPath());
         Assert.assertTrue(conf.exists());
 
-        List<DisseminationTerms> dissTerms = setSpecMerge.getDissTerms();
+        List<DisseminationTerms> dissTerms = disseminationTermsImpl.getDissTerms();
 
         for (int i = 0; i < dissTerms.size(); i++) {
             DisseminationTerms dissTermObj = dissTerms.get(i);
@@ -93,11 +96,11 @@ public class SetSpecXdocNodes {
 
                                 });
 
-                                Node node = (Node) xPath.compile(termObj.getTerm().replace("$val", "330"))
+                                Node node = (Node) xPath.compile(termObj.getTerm().replace("$val", "050"))
                                         .evaluate(document, XPathConstants.NODE);
 
                                 Assert.assertNotNull(node);
-                                Assert.assertEquals("330", node.getTextContent());
+                                Assert.assertEquals("050", node.getTextContent());
                             } catch (ParserConfigurationException e1) {
                                 e1.printStackTrace();
                             } catch (SAXException | IOException e1) {

@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record>
-  <header>
-    <identifier>oai:qucosa:de:qucosa:51260</identifier>
-    <datestamp>2017-11-21T08:58:33Z</datestamp>
-    <setSpec>qucosa:ubc</setSpec>
-  </header>
-  <metadata>
+<!-- <?xml version="1.0" encoding="UTF-8"?> -->
+<!-- <record> -->
+<!--   <header> -->
+<!--     <identifier>oai:qucosa:de:qucosa:51260</identifier> -->
+<!--     <datestamp>2017-11-21T08:58:33Z</datestamp> -->
+<!--   </header> -->
+<!--   <metadata> -->
 <xMetaDiss:xMetaDiss xmlns:dc="http://purl.org/dc/elements/1.1/"
                      xmlns:ddb="http://www.d-nb.de/standards/ddb/"
                      xmlns:pc="http://www.d-nb.de/standards/pc/"
@@ -22,43 +21,63 @@
                      xmlns:slub="http://slub-dresden.de/"
                      xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <dc:title xsi:type="ddb:titleISO639-2" xml:lang="ger">Die Eignung von Entrepreneurial Orientation zur Beschreibung von Archetypen bei Kleinen und Mittleren Unternehmen</dc:title>
-   <dcterms:alternative xsi:type="ddb:titleISO639-2" xml:lang="eng" ddb:type="translated">The Suitability of Entrepreneurial Orientation to Describe Archetypes of Small and Medium Enterprises</dcterms:alternative>
+   <dc:title xsi:type="ddb:titleISO639-2" xml:lang="ger">Mitteilungen des URZ 2/1991</dc:title>
    <dc:creator xsi:type="pc:MetaPers">
       <pc:person>
          <pc:name type="nameUsedByThePerson">
-            <pc:foreName>Markus</pc:foreName>
-            <pc:surName>Braun</pc:surName>
+            <pc:foreName/>
+            <pc:surName>Clauss</pc:surName>
          </pc:name>
       </pc:person>
    </dc:creator>
-   <dc:subject xsi:type="dcterms:DDC">330</dc:subject>
-   <dc:subject xsi:type="subject:DDC-SG">330</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:SWD">Entrepreneurship</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:SWD">Archetypus</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:SWD">Klein- und Mittelbetrieb</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Entrepreneurship</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Entrepreneurial Orientation</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Archetypen</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">KMU</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Konfigurationen</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Clusteranalyse</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Entrepreneurship</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Entrepreneurial Orientation</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Archetypes</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">SME</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Configurations</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">Cluster analysis</dc:subject>
+   <dc:creator xsi:type="pc:MetaPers">
+      <pc:person>
+         <pc:name type="nameUsedByThePerson">
+            <pc:foreName/>
+            <pc:surName>Ziegler</pc:surName>
+         </pc:name>
+      </pc:person>
+   </dc:creator>
+   <dc:creator xsi:type="pc:MetaPers">
+      <pc:person>
+         <pc:name type="nameUsedByThePerson">
+            <pc:foreName/>
+            <pc:surName>Grunewald</pc:surName>
+         </pc:name>
+      </pc:person>
+   </dc:creator>
+   <dc:creator xsi:type="pc:MetaPers">
+      <pc:person>
+         <pc:name type="nameUsedByThePerson">
+            <pc:foreName/>
+            <pc:surName>Riedel</pc:surName>
+         </pc:name>
+      </pc:person>
+   </dc:creator>
+   <dc:creator xsi:type="pc:MetaPers">
+      <pc:person>
+         <pc:name type="nameUsedByThePerson">
+            <pc:foreName/>
+            <pc:surName>Fischer</pc:surName>
+         </pc:name>
+      </pc:person>
+   </dc:creator>
+   <dc:subject xsi:type="dcterms:DDC">050</dc:subject>
+   <dc:subject xsi:type="subject:DDC-SG">050</dc:subject>
+   <dc:subject xsi:type="dcterms:DDC">004</dc:subject>
+   <dc:subject xsi:type="subject:DDC-SG">004</dc:subject>
+   <dc:subject xsi:type="xMetaDiss:noScheme">Public%Domain%Software</dc:subject>
+   <dc:subject xsi:type="xMetaDiss:noScheme">zentrale Rechentechnik</dc:subject>
+   <dc:subject xsi:type="xMetaDiss:noScheme">Beratungszentrum</dc:subject>
+   <dc:subject xsi:type="xMetaDiss:noScheme">Ausbildungszentrum</dc:subject>
+   <dc:subject xsi:type="xMetaDiss:noScheme">Mainframe</dc:subject>
    <dcterms:abstract xsi:type="ddb:contentISO639-2"
                      ddb:type="subject:noScheme"
-                     xml:lang="ger">In der betriebswirtschaftlichen Forschung gewinnt die KMU- und Entrepreneurshipforschung zunehmend mehr Aufmerksamkeit. In den letzten Jahren wurden zahlreiche Konzepte aus der Forschung für große Unternehmen auf den Entre­preneur­ship- und KMU-Bereich übertragen und dort angewendet, ohne ihre Eignung für Klein- und Kleinstunternehmen zu überprüfen. Eine (empirische) Überprüfung, inwieweit die zugrundeliegenden Modelle und Annahmen auch im Bereich der KMU allgemein zutreffen, ist daher sicherlich angebracht.
-Eines dieser Werkzeuge, das in letzter Zeit immer mehr in den Blickpunkt der Forschung rückt, ist Entrepreneurial Orientation. Mit Entrepreneurial Orientation steht ein Werkzeug zur Verfügung, dass den gesamten Lebenszyklus eines Unternehmens abbilden kann und Elemente sowohl der Entrepreneurship- als auch der Organisations- und Strategieforschung integriert.
-Inwieweit Kombinationen von Entrepreneurial Orientation bei Konfigurationen von Unternehmens­eigenschaften für kleine und mittlere Unternehmen einen Erkenntnisbeitrag leisten können, wird in diesem Buch theoretisch und empirisch untersucht.</dcterms:abstract>
-   <dcterms:abstract xsi:type="ddb:contentISO639-2"
-                     ddb:type="subject:noScheme"
-                     xml:lang="eng">Recently, a major focus in economical research is on small- and medium-sized enterprises and entrepreneurship. As part of this development, many concepts have been transferred and adapted to the Entrepreneurship and SME sector from large corporation research, without being tested for their fit to this area. An (empirical) examination how the underlying models and assumptions transferred apply also to the field of SMEs in general seems to be necessary.
-One of the tools that gain more attention every year is the concept of Entrepreneurial Orientation. Entrepreneurial Orientation provides a tool that can model the entire lifecycle of an enterprise and integrates elements of entrepreneurship as well as organizational and strategy research. 
-This book does provide a theoretical and empirical evaluation of how Entrepreneurial Orientation may be useful by designing configurations of small and medium-sized enterprises.</dcterms:abstract>
+                     xml:lang="ger">InhaltsangabeNutzung der zentralen Rechentechnik
+Mainframe IBM 4381
+Ausbildungs- und Beratungszentrum
+Softwareangebot des PS/2-ABZ
+Public Domain Software</dcterms:abstract>
    <dc:publisher xsi:type="cc:Publisher">
       <cc:universityOrInstitution>
          <cc:name>Universitätsbibliothek Chemnitz</cc:name>
@@ -67,55 +86,20 @@ This book does provide a theoretical and empirical evaluation of how Entrepreneu
    </dc:publisher>
    <dc:publisher xsi:type="cc:Publisher">
       <cc:universityOrInstitution>
-         <cc:name>Universitätsverlag der Technischen Universität Chemnitz</cc:name>
+         <cc:name>Technische Universität Chemnitz</cc:name>
          <cc:place>Chemnitz</cc:place>
       </cc:universityOrInstitution>
    </dc:publisher>
-   <dc:contributor xsi:type="pc:Contributor" thesis:role="referee">
-      <pc:person>
-         <pc:name type="nameUsedByThePerson">
-            <pc:foreName>Friedrich</pc:foreName>
-            <pc:surName>Thießen</pc:surName>
-         </pc:name>
-      </pc:person>
-   </dc:contributor>
-   <dc:contributor xsi:type="pc:Contributor" thesis:role="referee">
-      <pc:person>
-         <pc:name type="nameUsedByThePerson">
-            <pc:foreName>Thomas</pc:foreName>
-            <pc:surName>Steger</pc:surName>
-         </pc:name>
-      </pc:person>
-   </dc:contributor>
-   <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">2013-01-16</dcterms:dateSubmitted>
-   <dcterms:dateAccepted xsi:type="dcterms:W3CDTF">2013-02-08</dcterms:dateAccepted>
-   <dcterms:issued xsi:type="dcterms:W3CDTF">2015-03-04</dcterms:issued>
-   <dcterms:modified xsi:type="dcterms:W3CDTF">2017-11-21</dcterms:modified>
-   <dc:type xsi:type="dini:PublType">doctoralThesis</dc:type>
-   <dc:identifier xsi:type="urn:nbn">urn:nbn:de:bsz:ch1-qucosa-108546</dc:identifier>
-   <dc:identifier xsi:type="urn:isbn">978-3-941003-83-5</dc:identifier>
+   <dcterms:issued xsi:type="dcterms:W3CDTF">1995-06-21</dcterms:issued>
+   <dcterms:modified xsi:type="dcterms:W3CDTF">2017-12-14</dcterms:modified>
+   <dc:type xsi:type="dini:PublType">PeriodicalPart</dc:type>
+   <dc:identifier xsi:type="urn:nbn">urn:nbn:de:bsz:ch1-199500053</dc:identifier>
    <dcterms:medium/>
    <dc:language xsi:type="dcterms:ISO639-2">ger</dc:language>
-   <thesis:degree>
-      <thesis:level>thesis.doctoral</thesis:level>
-      <thesis:grantor xsi:type="cc:Corporate">
-         <cc:universityOrInstitution>
-            <cc:name>Technische Universität Chemnitz</cc:name>
-            <cc:place>Chemnitz</cc:place>
-            <cc:department>
-               <cc:name>Fakultät für Wirtschaftswissenschaften</cc:name>
-            </cc:department>
-         </cc:universityOrInstitution>
-      </thesis:grantor>
-      <thesis:grantor xsi:type="cc:Corporate">
-         <cc:universityOrInstitution>
-            <cc:name>Universitätsverlag der Technischen Universität Chemnitz</cc:name>
-            <cc:place>Chemnitz</cc:place>
-         </cc:universityOrInstitution>
-      </thesis:grantor>
-   </thesis:degree>
-   <ddb:identifier ddb:type="URN">urn:nbn:de:bsz:ch1-qucosa-108546</ddb:identifier>
+   <dcterms:isPartOf xsi:type="dcterms:URI">http://nbn-resolving.de/urn:nbn:de:bsz:ch1-qucosa-62094</dcterms:isPartOf>
+   <ddb:identifier ddb:type="URN">urn:nbn:de:bsz:ch1-199500053</ddb:identifier>
    <ddb:rights ddb:kind="free"/>
 </xMetaDiss:xMetaDiss>
-  </metadata>
-</record>
+
+<!--   </metadata> -->
+<!-- </record> -->

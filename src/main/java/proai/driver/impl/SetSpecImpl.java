@@ -9,33 +9,21 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import oaiprovider.mappings.DisseminationTerms;
 import oaiprovider.mappings.ListSetConfJson.Set;
 
-public class SetSpecMerge {
+/**
+ * Load the setspec json config, write in an set and return this set.
+ *
+ * @author dseelig
+ *
+ */
+public class SetSpecImpl {
     private ObjectMapper om = new ObjectMapper();
 
-    private String docXml;
-
+    /**
+     * set with setspec entries from json setspec config file
+     */
     private java.util.Set setSpecs;
-
-    public List<DisseminationTerms> getDissTerms() {
-        List<DisseminationTerms> dissTerms = null;
-        File file = new File(getClass().getClassLoader().getResource("config/dissemination-terms.json").getPath());
-
-        try {
-            dissTerms = om.readValue(file,
-                    om.getTypeFactory().constructCollectionType(List.class, DisseminationTerms.class));
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return dissTerms;
-    }
 
     public List<Set> getSetSpecsConf() {
         List<Set> sets = null;
@@ -54,14 +42,11 @@ public class SetSpecMerge {
         return sets;
     }
 
-    public String getDocXml() {
-        return docXml;
-    }
-
-    public void setDocXml(String docXml) {
-        this.docXml = docXml;
-    }
-
+    /**
+     * returns a setspec set object with setspec json config entries
+     *
+     * @return {@link java.util.Set}
+     */
     public java.util.Set<String> getSetSpecs() {
         setSpecs = new HashSet<>();
 
