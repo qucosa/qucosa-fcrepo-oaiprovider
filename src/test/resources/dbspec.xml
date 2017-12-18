@@ -62,7 +62,6 @@
     <column name="setKey"         type="int(11)"                                        autoIncrement="true"/>
     <column name="setSpec"        type="varchar(255)" notNull="true"/>
     <column name="xmlPath"        type="varchar(255)" notNull="true" index="xmlPath"/>
-    <column name="setName"        type="varchar(255)" notNull="true"/>
   </table>
   
   <table name="rcMembership" type="InnoDB">
