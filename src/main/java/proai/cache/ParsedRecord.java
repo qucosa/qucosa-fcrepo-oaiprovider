@@ -16,23 +16,25 @@
 
 package proai.cache;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-import proai.Record;
-import proai.error.ServerException;
-import proai.util.StreamUtil;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import proai.Record;
+import proai.error.ServerException;
+import proai.util.StreamUtil;
 
 public class ParsedRecord extends DefaultHandler implements Record {
 
@@ -86,6 +88,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
         }
     }
 
+    @Override
     public void startElement(String uri,
                              String localName,
                              String qName,
@@ -101,6 +104,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
         }
     }
 
+    @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (!m_finishedParsing) {
             switch (qName) {
@@ -125,7 +129,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
                     String s = m_buf.toString().trim();
                     // Infer memberships based on setSpec:syntax:stuff
                     String[] h = s.split(":");
-                    if (h.length > 1) {
+                if (h.length > 2) {
                         StringBuffer b4 = new StringBuffer();
                         for (String aH : h) {
                             m_setSpecs.add(b4.toString() + aH);
@@ -141,6 +145,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
         }
     }
 
+    @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         if (!m_finishedParsing) {
             if (m_inDatestamp || m_inSetSpec) {
@@ -150,11 +155,13 @@ public class ParsedRecord extends DefaultHandler implements Record {
     }
 
     // From Record interface
+    @Override
     public String getItemID() {
         return m_itemID;
     }
 
     // From Record interface
+    @Override
     public String getPrefix() {
         return m_prefix;
     }
@@ -162,6 +169,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
     // From Record interface
     // In this case, the sourceInfo is the path to the xml inside
     // the cache, relative to rcDisk's baseDir.
+    @Override
     public String getSourceInfo() {
         return m_sourceInfo;
     }
