@@ -66,6 +66,8 @@ import proai.driver.impl.RemoteIteratorImpl;
 import proai.driver.impl.SetSpecImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
+import proai.xmlutils.Namespaces;
+import proai.xmlutils.SimpleNamespaceContext;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -168,34 +170,7 @@ public class FedoraOAIDriver
                                             XPathFactory pathFactory = XPathFactory.newInstance();
                                             XPath xPath = pathFactory.newInstance().newXPath();
 
-                                            xPath.setNamespaceContext(new NamespaceContext() {
-
-                                                @Override
-                                                public String getNamespaceURI(String prefix) {
-                                                    switch (prefix) {
-                                                    case "xMetaDiss":
-                                                        return "http://www.d-nb.de/standards/xmetadissplus/";
-                                                    case "dc":
-                                                        return "http://purl.org/dc/elements/1.1/";
-                                                    case "dcterms":
-                                                        return "http://purl.org/dc/terms/";
-                                                    case "xsi":
-                                                        return "http://www.w3.org/2001/XMLSchema-instance";
-                                                    default:
-                                                        return null;
-                                                    }
-                                                }
-
-                                                @Override
-                                                public String getPrefix(String namespaceURI) {
-                                                    return null;
-                                                }
-
-                                                @Override
-                                                public Iterator getPrefixes(String namespaceURI) {
-                                                    return null;
-                                                }
-                                            });
+                                            xPath.setNamespaceContext(new SimpleNamespaceContext(Namespaces.getPrefixUriMap()));
 
                                             Node node = (Node) xPath
                                                     .compile(termObj.getTerm().replace("$val", subjectGroup))
@@ -377,9 +352,7 @@ public class FedoraOAIDriver
                 writeRecordAbouts(aboutDissURI, out);
             }
         } else {
-            logger
-                    .info("Record was marked deleted: " + itemID + "/"
-                            + mdPrefix);
+            logger.info("Record was marked deleted: " + itemID + "/" + mdPrefix);
         }
         out.println("</record>");
     }

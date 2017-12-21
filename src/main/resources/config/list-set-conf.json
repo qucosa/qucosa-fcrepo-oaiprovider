@@ -663,5 +663,9 @@
   {
     "setSpec": "status-type:updatedVersion",
     "predicate" : "xStatusType=updatedVersion"
+  },
+  {
+    "setSpec": "openaire",
+    "predicate" : "xOpenAire"
   }
 ]
