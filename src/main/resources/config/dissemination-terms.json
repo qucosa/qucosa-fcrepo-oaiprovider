@@ -1,67 +1,67 @@
 [
-	{
-		"diss" : "xDDC",
-		"terms" : [
-			{
-	  			"name" : "xmetadissplus",
-	  			"term" : "//xMetaDiss:xMetaDiss/dc:subject[@xsi:type='dcterms:DDC' and .='$val']"
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
-		]
-	},
-	{
-		"diss" : "xSourceSwb",
-		"terms" : [
-			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
-		]
-	},
-	{
-		"diss" : "xOpenAccess",
-		"terms" : [
-			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
-		]
-	},
-	{
-		"diss" : "xDocType",
-		"terms" : [
-			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
-		]
-	},
-	{
-		"diss" : "xStatusType",
-		"terms" : [
-			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
-		]
-	}
+  {
+    "diss": "xDDC",
+    "terms": [
+      {
+        "name": "xmetadissplus",
+        "term": "//xMetaDiss:xMetaDiss/dc:subject[@xsi:type='dcterms:DDC' and .='$val']"
+      },
+      {
+        "name": "oai_dc",
+        "term": ""
+      }
+    ]
+  },
+  {
+    "diss": "xSourceSwb",
+    "terms": [
+      {
+        "name": "xmetadissplus",
+        "term": ""
+      },
+      {
+        "name": "oai_dc",
+        "term": ""
+      }
+    ]
+  },
+  {
+    "diss": "xOpenAccess",
+    "terms": [
+      {
+        "name": "xmetadissplus",
+        "term": ""
+      },
+      {
+        "name": "oai_dc",
+        "term": ""
+      }
+    ]
+  },
+  {
+    "diss": "xDocType",
+    "terms": [
+      {
+        "name": "xmetadissplus",
+        "term": ""
+      },
+      {
+        "name": "oai_dc",
+        "term": ""
+      }
+    ]
+  },
+  {
+    "diss": "xStatusType",
+    "terms": [
+      {
+        "name": "xmetadissplus",
+        "term": ""
+      },
+      {
+        "name": "oai_dc",
+        "term": ""
+      }
+    ]
+  }
 ]
