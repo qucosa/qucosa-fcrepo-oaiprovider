@@ -3,65 +3,65 @@
 		"diss" : "xDDC",
 		"terms" : [
 			{
-	  			"name" : "xmetadissplus",
-	  			"term" : "//xMetaDiss:xMetaDiss/dc:subject[@xsi:type='dcterms:DDC' and .='$val']"
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
+				"name": "xmetadissplus",
+				"term": "//xMetaDiss:xMetaDiss/dc:subject[@xsi:type='dcterms:DDC' and .='$val']"
+			},
+			{
+				"name": "oai_dc",
+				"term": "//oai_dc:dc/dc:classification[.='info:eu-repo/classification/ddc/$val']"
+			}
 		]
 	},
 	{
-		"diss" : "xSourceSwb",
+		"diss": "xOpenAccess",
 		"terms" : [
 			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
+				"name": "xmetadissplus",
+				"term": ""
+			},
+			{
+				"name": "oai_dc",
+				"term": ""
+			}
 		]
 	},
 	{
-		"diss" : "xOpenAccess",
+		"diss": "xDocType",
 		"terms" : [
 			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
+				"name": "xmetadissplus",
+				"term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini,:PublType' and .='$val']"
+			},
+			{
+				"name": "oai_dc",
+				"term": "//oai_dc:dc/dc:type[.='$val']"
+			}
 		]
 	},
 	{
-		"diss" : "xDocType",
+		"diss": "xStatusType",
 		"terms" : [
 			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
+				"name": "xmetadissplus",
+				"term": "//xMetaDiss:xMetaDiss/dini:version_driver"
+			},
+			{
+				"name": "oai_dc",
+				"term": "//oai_dc:dc/dc:type[.='$val']"
+			}
 		]
 	},
 	{
-		"diss" : "xStatusType",
+		"diss": "xOpenAire",
 		"terms" : [
 			{
-	  			"name" : "xmetadissplus",
-	  			"term" : ""
-	  		},
-	  		{
-	  			"name" : "oai_dc",
-	  			"term" : ""
-	  		}
+				"name": "xmetadissplus",
+				"term": ""
+			},
+			{
+				"name": "oai_dc",
+				"term": ""
+			}
 		]
 	}
 ]
