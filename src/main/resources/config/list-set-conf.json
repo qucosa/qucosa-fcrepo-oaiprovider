@@ -646,23 +646,23 @@
   },
   {
     "setSpec": "status-type:draftVersion",
-    "predicate" : "xStatusType=draftVersion"
+    "predicate" : "xStatusType=info:eu-repo/semantics/draft"
   },
   {
     "setSpec": "status-type:submittedVersion",
-    "predicate" : "xStatusType=submittedVersion"
+    "predicate" : "xStatusType=info:eu-repo/semantics/submittedVersion"
   },
   {
     "setSpec": "status-type:acceptedVersion",
-    "predicate" : "xStatusType=acceptedVersion"
+    "predicate" : "xStatusType=info:eu-repo/semantics/acceptedVersion"
   },
   {
     "setSpec": "status-type:publishedVersion",
-    "predicate" : "xStatusType=publishedVersion"
+    "predicate" : "xStatusType=info:eu-repo/semantics/publishedVersion"
   },
   {
     "setSpec": "status-type:updatedVersion",
-    "predicate" : "xStatusType=updatedVersion"
+    "predicate" : "xStatusType=info:eu-repo/semantics/updatedVersion"
   },
   {
     "setSpec": "openaire",

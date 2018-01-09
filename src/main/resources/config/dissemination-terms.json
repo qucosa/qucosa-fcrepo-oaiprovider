@@ -43,11 +43,11 @@
 		"terms" : [
 			{
 				"name" : "xmetadissplus",
-				"term" : ""
+				"term" : "//xMetaDiss:xMetaDiss/dini:version_driver"
 			},
 			{
 				"name" : "oai_dc",
-				"term" : ""
+				"term" : "//oai_dc:dc/dc:type[.='$val']"
 			}
 		]
 	},
