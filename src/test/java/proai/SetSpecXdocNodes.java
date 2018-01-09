@@ -1,6 +1,5 @@
 package proai;
 
-import oaiprovider.driver.FedoraOAIDriver;
 import oaiprovider.mappings.DisseminationTerms;
 import oaiprovider.mappings.DisseminationTerms.Term;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -11,7 +10,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import proai.driver.impl.DisseminationTermsImpl;
-import proai.driver.impl.SetSpecImpl;
 import proai.xmlutils.Namespaces;
 import proai.xmlutils.SimpleNamespaceContext;
 
@@ -20,12 +18,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
-import static java.io.FileDescriptor.out;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 
 public class SetSpecXdocNodes {
