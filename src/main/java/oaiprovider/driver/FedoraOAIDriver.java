@@ -16,32 +16,15 @@
 
 package oaiprovider.driver;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
+import de.qucosa.xmlutils.Namespaces;
+import de.qucosa.xmlutils.SimpleNamespaceContext;
+import oaiprovider.FedoraMetadataFormat;
+import oaiprovider.FedoraRecord;
+import oaiprovider.InvocationSpec;
+import oaiprovider.QueryFactory;
+import oaiprovider.mappings.DisseminationTerms;
+import oaiprovider.mappings.DisseminationTerms.Term;
+import oaiprovider.mappings.ListSetConfJson;
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;
 import org.slf4j.Logger;
@@ -50,14 +33,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import oaiprovider.FedoraMetadataFormat;
-import oaiprovider.FedoraRecord;
-import oaiprovider.InvocationSpec;
-import oaiprovider.QueryFactory;
-import oaiprovider.mappings.DisseminationTerms;
-import oaiprovider.mappings.DisseminationTerms.Term;
-import oaiprovider.mappings.ListSetConfJson.Set;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
@@ -66,6 +41,15 @@ import proai.driver.impl.RemoteIteratorImpl;
 import proai.driver.impl.SetSpecImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -117,10 +101,9 @@ public class FedoraOAIDriver
     ///////////////////// Methods from proai.driver.OAIDriver ////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    // info:fedora/qucosa:48666/qucosa:SDef/xMetaDissPlusDissemination
     private static void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
-            PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTermsImpl, String xml,
-            String mdPrefix) {
+                                          PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTerms, String xml,
+                                          String mdPrefix) {
         if (deleted) {
             out.println("  <header status=\"deleted\">");
         } else {
@@ -134,106 +117,95 @@ public class FedoraOAIDriver
                     + "</setSpec>");
         }
 
-        for (int i = 0; i < setSpecMerge.getSetSpecsConf().size(); i++) {
-            Set set = setSpecMerge.getSetSpecsConf().get(i);
+        Document document = null;
+        try {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xml.getBytes());
+            DocumentBuilder builder = createDocumentBuilder();
+            document = builder.parse(new InputSource(byteArrayInputStream));
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            logger.error(String.format("Failed to parse XML dissemination for %s. Cannot add dynamic sets to header.", itemID), e);
+        }
 
-            if (set.getPredicate() != null && !set.getPredicate().equals("")) {
+        if (document != null) {
+            emitDynamicSetSpecs(out, setSpecMerge, disseminationTerms, mdPrefix, document);
+        }
 
-                if (set.getPredicate().contains("=")) {
-                    String[] predicate = set.getPredicate().split("=");
-                    String subject = predicate[0];
-                    String subjectGroup = predicate[1];
-                    List<DisseminationTerms> dissTerms = disseminationTermsImpl.getDissTerms();
+        out.println("  </header>");
+    }
 
-                    for (int j = 0; j < dissTerms.size(); j++) {
-                        DisseminationTerms dissTermObj = dissTerms.get(j);
+    private static void emitDynamicSetSpecs(PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTerms, String mdPrefix, Document document) {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        xPath.setNamespaceContext(new SimpleNamespaceContext(Namespaces.getPrefixUriMap()));
 
-                        if (dissTermObj.getDiss().equals(subject)) {
+        for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
 
-                            if (dissTermObj.getTerms() != null && dissTermObj.getTerms().size() > 0) {
+            String setPredicate = set.getPredicate();
 
-                                for (int k = 0; k < dissTermObj.getTerms().size(); k++) {
-                                    Term termObj = dissTermObj.getTerms().get(k);
+            if (setPredicate != null && !setPredicate.isEmpty()) {
 
-                                    if (termObj.getName().equals(mdPrefix) && !termObj.getTerm().equals("")
-                                            && termObj.getTerm() != null) {
+                if (!setPredicate.contains("=")) {
+                    logger.warn(String.format("Malformed set predicate: '%s'." +
+                            " Expected syntax: predicate=value", setPredicate));
+                    continue;
+                }
 
-                                        try {
-                                            DocumentBuilderFactory builderFactory = DocumentBuilderFactory
-                                                    .newInstance();
-                                            builderFactory.setNamespaceAware(true);
-                                            DocumentBuilder builder = builderFactory.newDocumentBuilder();
-                                            Document document = builder.parse(new InputSource(new ByteArrayInputStream(
-                                                    xml.getBytes("utf-8"))));
-                                            XPathFactory pathFactory = XPathFactory.newInstance();
-                                            XPath xPath = pathFactory.newInstance().newXPath();
+                String predicateName = setPredicate.split("=")[0];
+                String predicateValue = setPredicate.split("=")[1];
 
-                                            xPath.setNamespaceContext(new NamespaceContext() {
+                for (DisseminationTerms dissTerm : disseminationTerms.getDissTerms()) {
+                    String dissemination = dissTerm.getDiss();
+                    if (dissemination == null || dissemination.isEmpty()) {
+                        logger.warn("Found empty dissemination name");
+                        continue;
+                    }
 
-                                                @Override
-                                                public String getNamespaceURI(String prefix) {
-                                                    switch (prefix) {
-                                                    case "xMetaDiss":
-                                                        return "http://www.d-nb.de/standards/xmetadissplus/";
-                                                    case "dc":
-                                                        return "http://purl.org/dc/elements/1.1/";
-                                                    case "dcterms":
-                                                        return "http://purl.org/dc/terms/";
-                                                    case "xsi":
-                                                        return "http://www.w3.org/2001/XMLSchema-instance";
-                                                    default:
-                                                        return null;
-                                                    }
-                                                }
+                    if (dissemination.equals(predicateName)) {
+                        List<Term> terms = dissTerm.getTerms();
 
-                                                @Override
-                                                public String getPrefix(String namespaceURI) {
-                                                    return null;
-                                                }
+                        if (terms != null && !terms.isEmpty()) {
+                            for (Term term : terms) {
 
-                                                @Override
-                                                public Iterator getPrefixes(String namespaceURI) {
-                                                    return null;
-                                                }
-                                            });
+                                String termName = term.getName();
+                                if (termName == null || termName.isEmpty()) {
+                                    logger.warn(String.format("Found empty term for dissemination `%s`", dissemination));
+                                    continue;
+                                }
 
-                                            Node node = (Node) xPath
-                                                    .compile(termObj.getTerm().replace("$val", subjectGroup))
-                                                    .evaluate(document, XPathConstants.NODE);
-
-                                            if (node != null) {
-                                                out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
-                                            }
-                                        } catch (ParserConfigurationException e1) {
-                                            e1.printStackTrace();
-                                        } catch (SAXException | IOException e1) {
-                                            e1.printStackTrace();
-                                        } catch (XPathExpressionException e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else {
-                                        /**
-                                         * @todo call dissemination terms does
-                                         *       not exists exception
-                                         */
-                                    }
+                                if (termName.equals(mdPrefix) && predicateMatch(document, xPath, predicateValue, term, termName)) {
+                                    out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
                                 }
                             }
                         }
                     }
-                } else {
-                    /**
-                     * @todo call a wrong set spec predicate notaion exception
-                     */
                 }
-            } else {
-                /**
-                 * @todo call a failed set spec conf predicate exception
-                 */
             }
         }
+    }
 
-        out.println("  </header>");
+    private static boolean predicateMatch(Document document, XPath xPath, String predicateValue, Term term, String termName) {
+        String termExpression = term.getTerm();
+        if (termExpression == null || termExpression.isEmpty()) {
+            logger.warn(String.format("Found empty expression for term `%s`", termName));
+            return false;
+        }
+
+        Node node = null;
+        try {
+            XPathExpression xPathExpression =
+                    xPath.compile(termExpression.replace("$val", predicateValue));
+            node = (Node) xPathExpression.evaluate(document, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+            logger.error(String.format("Cannot evaluate XPath expression '%s'", xPath), e);
+        }
+
+        return (node != null);
+
+    }
+
+    private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setNamespaceAware(true);
+        return builderFactory.newDocumentBuilder();
     }
 
     static String getRequired(Properties props, String key)

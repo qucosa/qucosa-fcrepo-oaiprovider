@@ -34,6 +34,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+@Ignore("faulty integration test")
 public class ResponderTestIT {
 
     // TODO Debug flag, no need for such in unit tests, remove it

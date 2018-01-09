@@ -24,11 +24,17 @@ import java.util.Map;
 
 public final class Namespaces {
 
-    public static final Namespace METS = Namespace.getNamespace("mets", "http://www.loc.gov/METS/");
-    public static final Namespace MEXT = Namespace.getNamespace("mext", "http://slub-dresden.de/mets");
-    public static final Namespace MODS = Namespace.getNamespace("mods", "http://www.loc.gov/mods/v3");
-    public static final Namespace SLUB = Namespace.getNamespace("slub", "http://slub-dresden.de/");
-    public static final Namespace XLIN = Namespace.getNamespace("xlin", "http://www.w3.org/1999/xlink");
+    private static final Namespace METS = Namespace.getNamespace("mets", "http://www.loc.gov/METS/");
+    private static final Namespace MEXT = Namespace.getNamespace("mext", "http://slub-dresden.de/mets");
+    private static final Namespace MODS = Namespace.getNamespace("mods", "http://www.loc.gov/mods/v3");
+    private static final Namespace XLIN = Namespace.getNamespace("xlin", "http://www.w3.org/1999/xlink");
+    private static final Namespace SLUB = Namespace.getNamespace("slub", "http://slub-dresden.de/");
+
+    private static final Namespace XMETADISSPLUS = Namespace.getNamespace("xMetaDiss", "http://www.d-nb.de/standards/xmetadissplus/");
+    private static final Namespace DC = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/");
+    private static final Namespace DCTERMS = Namespace.getNamespace("dcterms", "http://purl.org/dc/terms/");
+    private static final Namespace XSI = Namespace.getNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+    private static final Namespace DINI = Namespace.getNamespace("dini", "http://www.d-nb.de/standards/xmetadissplus/type/");
 
     private Namespaces() {
     }
@@ -40,6 +46,12 @@ public final class Namespaces {
             put(MODS.getPrefix(), MODS.getURI());
             put(SLUB.getPrefix(), SLUB.getURI());
             put(XLIN.getPrefix(), XLIN.getURI());
+
+            put(XMETADISSPLUS.getPrefix(), XMETADISSPLUS.getURI());
+            put(DC.getPrefix(), DC.getURI());
+            put(DCTERMS.getPrefix(), DCTERMS.getURI());
+            put(XSI.getPrefix(), XSI.getURI());
+            put(DINI.getPrefix(), DINI.getURI());
         }};
     }
 

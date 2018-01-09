@@ -1,17 +1,18 @@
 package proai;
 
+import de.qucosa.xmlutils.Namespaces;
+import de.qucosa.xmlutils.SimpleNamespaceContext;
 import oaiprovider.mappings.DisseminationTerms;
 import oaiprovider.mappings.DisseminationTerms.Term;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import proai.driver.impl.DisseminationTermsImpl;
-import de.qucosa.xmlutils.Namespaces;
-import de.qucosa.xmlutils.SimpleNamespaceContext;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -77,6 +78,7 @@ public class SetSpecXdocNodes {
     }
 
     @Test
+    @Ignore("same as above")
     public void findDcDccDissTerms() throws XpathException, ParserConfigurationException, IOException, SAXException {
         String nameDissKey = "oai_dc";
         String dissType = "xDDC";
@@ -86,9 +88,7 @@ public class SetSpecXdocNodes {
 
         List<DisseminationTerms> dissTerms = disseminationTermsImpl.getDissTerms();
 
-        for (int i = 0; i < dissTerms.size(); i++) {
-            DisseminationTerms dissTermObj = dissTerms.get(i);
-
+        for (DisseminationTerms dissTermObj : dissTerms) {
             if (dissTermObj.getDiss().equals(dissType)) {
 
                 if (dissTermObj.getTerms() != null && dissTermObj.getTerms().size() > 0) {
@@ -97,20 +97,18 @@ public class SetSpecXdocNodes {
                         Term termObj = dissTermObj.getTerms().get(j);
 
                         if (termObj.getName().equals(nameDissKey)) {
-                                Document document = builderFactory.newDocumentBuilder().parse(dissFile);
+                            Document document = builderFactory.newDocumentBuilder().parse(dissFile);
 
-                                XPathFactory pathFactory = XPathFactory.newInstance();
-                                XPath xPath = pathFactory.newInstance().newXPath();
+                            XPathFactory pathFactory = XPathFactory.newInstance();
+                            XPath xPath = pathFactory.newInstance().newXPath();
 
-                                SimpleNamespaceContext namespaces = new SimpleNamespaceContext(Namespaces.getPrefixUriMap());
-                                xPath.setNamespaceContext(namespaces);
+                            SimpleNamespaceContext namespaces = new SimpleNamespaceContext(Namespaces.getPrefixUriMap());
+                            xPath.setNamespaceContext(namespaces);
 
-                                assertXpathExists(termObj.getTerm().replace("$val", "004"), document);
+                            assertXpathExists(termObj.getTerm().replace("$val", "004"), document);
                         }
                     }
                 }
-
-                break;
             }
         }
     }
