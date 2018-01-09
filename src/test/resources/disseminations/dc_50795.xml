@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:mets="http://www.loc.gov/METS/"
+           xmlns:mods="http://www.loc.gov/mods/v3"
+           xmlns:slub="http://slub-dresden.de/"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <dc:title>Mitteilungen des URZ</dc:title>
+    <dc:identifier>urn:nbn:de:bsz:ch1-qucosa-62094</dc:identifier>
+    <dc:identifier>1868-3800</dc:identifier>
+    <dc:language>ger</dc:language>
+    <dc:description>Die "Mitteilungen des URZ" informieren die Nutzer des UniversitÃ¤tsrechenzentrums der TU Chemnitz umfassend Ã¼ber neue Dienste und Projekte, vermitteln ggf. Hintergrundwissen und dienen der Berichterstattung.</dc:description>
+    <dc:classification>info:eu-repo/classification/ddc/004</dc:classification>
+    <dc:classification>Computer; Hardware; Software; Computersicherheit; Linux; Server; Speicher</dc:classification>
+    <dc:classification>Computerpool, dezentrale PC-Systeme, Windows, Dienstespektrum URZ, Campusnetz, Netzdienste, Virtualisierung</dc:classification>
+    <dc:classification>User-Management, Voice over IP</dc:classification>
+    <dc:publisher>Technische UniversitÃ¤t Chemnitz</dc:publisher>
+    <dc:date>2010-11-01</dc:date>
+    <dc:type>periodical</dc:type>
+</oai_dc:dc>

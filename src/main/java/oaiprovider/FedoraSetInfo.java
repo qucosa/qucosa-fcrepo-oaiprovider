@@ -16,13 +16,18 @@
 
 package oaiprovider;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.PID;
 import org.fcrepo.server.utilities.StreamUtility;
+
 import proai.SetInfo;
 import proai.error.RepositoryException;
-
-import java.io.*;
 
 /**
  * SetInfo impl that includes setDescription elements for setDiss dissemination,
@@ -31,11 +36,14 @@ import java.io.*;
 public class FedoraSetInfo
         implements SetInfo {
 
-    private final FedoraClient m_fedora;
-    private final InvocationSpec m_setDiss;
-    private final String m_setName;
-    private final PID m_setPID;
-    private final String m_setSpec;
+    private FedoraClient m_fedora;
+    private InvocationSpec m_setDiss;
+    private String m_setName;
+    private PID m_setPID;
+    private String m_setSpec;
+
+    public FedoraSetInfo() {
+    };
 
     // if setDiss is null, descriptions don't exist, which is ok
     public FedoraSetInfo(FedoraClient fedora,
@@ -55,10 +63,32 @@ public class FedoraSetInfo
         }
     }
 
+    @Override
     public String getSetSpec() {
         return m_setSpec;
     }
 
+    public void setFedora(FedoraClient m_fedora) {
+        this.m_fedora = m_fedora;
+    }
+
+    public void setDiss(InvocationSpec m_setDiss) {
+        this.m_setDiss = m_setDiss;
+    }
+
+    public void setName(String m_setName) {
+        this.m_setName = m_setName;
+    }
+
+    public void setPID(PID m_setPID) {
+        this.m_setPID = m_setPID;
+    }
+
+    public void setSpec(String m_setSpec) {
+        this.m_setSpec = m_setSpec;
+    }
+
+    @Override
     public void write(PrintWriter out) throws RepositoryException {
         out.println("<set>");
         out.println("  <setSpec>" + m_setSpec + "</setSpec>");

@@ -16,22 +16,8 @@
 
 package oaiprovider.driver;
 
-import oaiprovider.FedoraMetadataFormat;
-import oaiprovider.FedoraRecord;
-import oaiprovider.InvocationSpec;
-import oaiprovider.QueryFactory;
-import org.fcrepo.client.FedoraClient;
-import org.fcrepo.common.http.HttpInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import proai.SetInfo;
-import proai.driver.OAIDriver;
-import proai.driver.RemoteIterator;
-import proai.driver.impl.RemoteIteratorImpl;
-import proai.error.BadArgumentException;
-import proai.error.RepositoryException;
-
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,9 +28,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.fcrepo.client.FedoraClient;
+import org.fcrepo.common.http.HttpInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import oaiprovider.FedoraMetadataFormat;
+import oaiprovider.FedoraRecord;
+import oaiprovider.InvocationSpec;
+import oaiprovider.QueryFactory;
+import oaiprovider.mappings.DisseminationTerms;
+import oaiprovider.mappings.DisseminationTerms.Term;
+import oaiprovider.mappings.ListSetConfJson.Set;
+import proai.SetInfo;
+import proai.driver.OAIDriver;
+import proai.driver.RemoteIterator;
+import proai.driver.impl.DisseminationTermsImpl;
+import proai.driver.impl.RemoteIteratorImpl;
+import proai.driver.impl.SetSpecImpl;
+import proai.error.BadArgumentException;
+import proai.error.RepositoryException;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -87,6 +108,8 @@ public class FedoraOAIDriver
     private QueryFactory m_queryFactory;
     private InvocationSpec m_setSpecDiss;
 
+    private SetSpecImpl setSpecMerge = new SetSpecImpl();
+
     public FedoraOAIDriver() {
     }
 
@@ -94,11 +117,10 @@ public class FedoraOAIDriver
     ///////////////////// Methods from proai.driver.OAIDriver ////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    private static void writeRecordHeader(String itemID,
-                                          boolean deleted,
-                                          String date,
-                                          List<String> setSpecs,
-                                          PrintWriter out) {
+    // info:fedora/qucosa:48666/qucosa:SDef/xMetaDissPlusDissemination
+    private static void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
+            PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTermsImpl, String xml,
+            String mdPrefix) {
         if (deleted) {
             out.println("  <header status=\"deleted\">");
         } else {
@@ -106,10 +128,111 @@ public class FedoraOAIDriver
         }
         out.println("    <identifier>" + itemID + "</identifier>");
         out.println("    <datestamp>" + date + "</datestamp>");
+
         for (String setSpec : setSpecs) {
-            out.println("    <setSpec>" + (String) setSpec
+            out.println("    <setSpec>" + setSpec
                     + "</setSpec>");
         }
+
+        for (int i = 0; i < setSpecMerge.getSetSpecsConf().size(); i++) {
+            Set set = setSpecMerge.getSetSpecsConf().get(i);
+
+            if (set.getPredicate() != null && !set.getPredicate().equals("")) {
+
+                if (set.getPredicate().contains("=")) {
+                    String[] predicate = set.getPredicate().split("=");
+                    String subject = predicate[0];
+                    String subjectGroup = predicate[1];
+                    List<DisseminationTerms> dissTerms = disseminationTermsImpl.getDissTerms();
+
+                    for (int j = 0; j < dissTerms.size(); j++) {
+                        DisseminationTerms dissTermObj = dissTerms.get(j);
+
+                        if (dissTermObj.getDiss().equals(subject)) {
+
+                            if (dissTermObj.getTerms() != null && dissTermObj.getTerms().size() > 0) {
+
+                                for (int k = 0; k < dissTermObj.getTerms().size(); k++) {
+                                    Term termObj = dissTermObj.getTerms().get(k);
+
+                                    if (termObj.getName().equals(mdPrefix) && !termObj.getTerm().equals("")
+                                            && termObj.getTerm() != null) {
+
+                                        try {
+                                            DocumentBuilderFactory builderFactory = DocumentBuilderFactory
+                                                    .newInstance();
+                                            builderFactory.setNamespaceAware(true);
+                                            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+                                            Document document = builder.parse(new InputSource(new ByteArrayInputStream(
+                                                    xml.getBytes("utf-8"))));
+                                            XPathFactory pathFactory = XPathFactory.newInstance();
+                                            XPath xPath = pathFactory.newInstance().newXPath();
+
+                                            xPath.setNamespaceContext(new NamespaceContext() {
+
+                                                @Override
+                                                public String getNamespaceURI(String prefix) {
+                                                    switch (prefix) {
+                                                    case "xMetaDiss":
+                                                        return "http://www.d-nb.de/standards/xmetadissplus/";
+                                                    case "dc":
+                                                        return "http://purl.org/dc/elements/1.1/";
+                                                    case "dcterms":
+                                                        return "http://purl.org/dc/terms/";
+                                                    case "xsi":
+                                                        return "http://www.w3.org/2001/XMLSchema-instance";
+                                                    default:
+                                                        return null;
+                                                    }
+                                                }
+
+                                                @Override
+                                                public String getPrefix(String namespaceURI) {
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                public Iterator getPrefixes(String namespaceURI) {
+                                                    return null;
+                                                }
+                                            });
+
+                                            Node node = (Node) xPath
+                                                    .compile(termObj.getTerm().replace("$val", subjectGroup))
+                                                    .evaluate(document, XPathConstants.NODE);
+
+                                            if (node != null) {
+                                                out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
+                                            }
+                                        } catch (ParserConfigurationException e1) {
+                                            e1.printStackTrace();
+                                        } catch (SAXException | IOException e1) {
+                                            e1.printStackTrace();
+                                        } catch (XPathExpressionException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        /**
+                                         * @todo call dissemination terms does
+                                         *       not exists exception
+                                         */
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    /**
+                     * @todo call a wrong set spec predicate notaion exception
+                     */
+                }
+            } else {
+                /**
+                 * @todo call a failed set spec conf predicate exception
+                 */
+            }
+        }
+
         out.println("  </header>");
     }
 
@@ -149,6 +272,7 @@ public class FedoraOAIDriver
         return val.trim();
     }
 
+    @Override
     public void init(Properties props) throws RepositoryException {
         m_metadataFormats = getMetadataFormats(props);
 
@@ -186,6 +310,7 @@ public class FedoraOAIDriver
         m_setSpecDiss = InvocationSpec.getInstance(getOptional(props, PROP_SETSPEC_DESC_DISSTYPE));
     }
 
+    @Override
     public void write(PrintWriter out) throws RepositoryException {
         try (HttpInputStream in = m_fedora.get(m_identify.toString(), true)) {
             writeStream(in, out, m_identify.toString());
@@ -196,20 +321,24 @@ public class FedoraOAIDriver
     }
 
     // TODO: date for volatile disseminations?
+    @Override
     public Date getLatestDate() throws RepositoryException {
         return m_queryFactory.latestRecordDate(m_metadataFormats.values().iterator());
     }
 
+    @Override
     public RemoteIterator<FedoraMetadataFormat> listMetadataFormats()
             throws RepositoryException {
         return new RemoteIteratorImpl<>(m_metadataFormats
                 .values().iterator());
     }
 
+    @Override
     public RemoteIterator<SetInfo> listSetInfo() throws RepositoryException {
         return m_queryFactory.listSetInfo(m_setSpecDiss);
     }
 
+    @Override
     public RemoteIterator<FedoraRecord> listRecords(Date from, Date until, String mdPrefix) throws RepositoryException {
         if (from != null && until != null && from.after(until)) {
             throw new BadArgumentException("from date cannot be later than until date.");
@@ -218,6 +347,7 @@ public class FedoraOAIDriver
         return m_queryFactory.listRecords(from, until, m_metadataFormats.get(mdPrefix));
     }
 
+    @Override
     public void writeRecordXML(String itemID,
                                String mdPrefix,
                                String sourceInfo,
@@ -236,8 +366,11 @@ public class FedoraOAIDriver
         List<String> setSpecs = new ArrayList<>();
         setSpecs.addAll(Arrays.asList(parts).subList(4, parts.length));
 
+        DisseminationTermsImpl disseminationTermsImpl = new DisseminationTermsImpl();
+
         out.println("<record>");
-        writeRecordHeader(itemID, deleted, date, setSpecs, out);
+        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge, disseminationTermsImpl, getXml(dissURI),
+                mdPrefix);
         if (!deleted) {
             writeRecordMetadata(dissURI, out);
             if (!aboutDissURI.equals("null")) {
@@ -254,42 +387,88 @@ public class FedoraOAIDriver
     //////////////////////////////////////////////////////////////////////////
     ////////////////////////////// Helper Methods ////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-
-    private void writeRecordMetadata(String dissURI, PrintWriter out)
-            throws RepositoryException {
-
+    private String getXml(String dissURI) {
         InputStream in = null;
+        String xml = null;
+
         try {
             in = m_fedora.get(dissURI, true);
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(in));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             StringBuffer buf = new StringBuffer();
             String line = reader.readLine();
+
             while (line != null) {
                 buf.append(line + "\n");
                 line = reader.readLine();
             }
-            String xml =
-                    buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
-            if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
-                // If it's a DC datastream dissemination, inject the
-                // xsi:schemaLocation attribute if needed
-                if (!xml.contains(_XSI_URI)) {
-                    xml = xml.replaceAll("<oai_dc:dc ", "<oai_dc:dc "
-                            + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
-                }
-            }
-            out.println("  <metadata>");
-            out.print(xml);
-            out.println("  </metadata>");
+
+            xml = buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
         } catch (IOException e) {
-            throw new RepositoryException("IO error reading " + dissURI, e);
-        } finally {
-            if (in != null) try {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (in != null) {
+            try {
                 in.close();
             } catch (IOException ignored) {
             }
         }
+
+        return xml;
+    }
+
+    private void writeRecordMetadata(String dissURI, PrintWriter out)
+            throws RepositoryException {
+        String docXml = getXml(dissURI);
+
+        if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
+            // If it's a DC datastream dissemination, inject the
+            // xsi:schemaLocation attribute if needed
+            if (!docXml.contains(_XSI_URI)) {
+                docXml = docXml.replaceAll("<oai_dc:dc ",
+                        "<oai_dc:dc " + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
+            }
+        }
+
+        out.println("  <metadata>");
+        out.print(docXml);
+        out.println("  </metadata>");
+
+
+
+        // InputStream in = null;
+        // try {
+        // in = m_fedora.get(dissURI, true);
+        // BufferedReader reader =
+        // new BufferedReader(new InputStreamReader(in));
+        // StringBuffer buf = new StringBuffer();
+        // String line = reader.readLine();
+        // while (line != null) {
+        // buf.append(line + "\n");
+        // line = reader.readLine();
+        // }
+        // String xml =
+        // buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
+        // if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
+        // // If it's a DC datastream dissemination, inject the
+        // // xsi:schemaLocation attribute if needed
+        // if (!xml.contains(_XSI_URI)) {
+        // xml = xml.replaceAll("<oai_dc:dc ", "<oai_dc:dc "
+        // + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
+        // }
+        // }
+        // out.println(" <metadata>");
+        // out.print(xml);
+        // out.println(" </metadata>");
+        // } catch (IOException e) {
+        // throw new RepositoryException("IO error reading " + dissURI, e);
+        // } finally {
+        // if (in != null) try {
+        // in.close();
+        // } catch (IOException ignored) {
+        // }
+        // }
     }
 
     private void writeRecordAbouts(String aboutDissURI, PrintWriter out)

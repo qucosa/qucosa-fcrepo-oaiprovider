@@ -16,19 +16,7 @@
 
 package proai.cache;
 
-import net.sf.bvalid.Validator;
-import org.apache.commons.httpclient.util.DateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import proai.MetadataFormat;
-import proai.Record;
-import proai.SetInfo;
-import proai.driver.OAIDriver;
-import proai.driver.RemoteIterator;
-import proai.error.ImmediateShutdownException;
-import proai.error.RepositoryException;
-import proai.error.ServerException;
-import proai.util.SetSpec;
+import static java.lang.String.format;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,7 +33,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.String.format;
+import org.apache.commons.httpclient.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sf.bvalid.Validator;
+import oaiprovider.FedoraSetInfo;
+import proai.MetadataFormat;
+import proai.Record;
+import proai.SetInfo;
+import proai.driver.OAIDriver;
+import proai.driver.RemoteIterator;
+import proai.driver.impl.SetSpecImpl;
+import proai.error.ImmediateShutdownException;
+import proai.error.RepositoryException;
+import proai.error.ServerException;
+import proai.util.SetSpec;
 
 public class Updater extends Thread {
 
@@ -132,9 +135,10 @@ public class Updater extends Thread {
     }
 
     private static double round(double val) {
-        return (double) Math.round(val * 100.0) / 100.0;
+        return Math.round(val * 100.0) / 100.0;
     }
 
+    @Override
     public void run() {
 
         _status = "Started";
@@ -563,7 +567,7 @@ public class Updater extends Thread {
                                     long totalDuration) {
 
         int recordsProcessed = _committer.getProcessedCount();
-        double processingRate = (double) recordsProcessed / ((double) totalDuration / 1000.0);
+        double processingRate = recordsProcessed / (totalDuration / 1000.0);
 
         int failedCount = 0;
         int attemptedCount = 0;
@@ -653,16 +657,40 @@ public class Updater extends Thread {
 
         logger.debug("Updating sets...");
 
+        SetSpecImpl setSpecMerge = new SetSpecImpl();
+
         // apply new / updated
         RemoteIterator<? extends SetInfo> riter = _driver.listSetInfo();
+        Set<SetInfo> setInfos = new HashSet<>();
+
+        try {
+
+            while (riter.hasNext()) {
+                setInfos.add(riter.next());
+            }
+        } finally {
+
+            try {
+                riter.close();
+            } catch (Exception e) {
+                logger.warn("Unable to close remote set info iterator", e);
+            }
+        }
+
+        // add sets from json config
+        for (int i = 0; i < setSpecMerge.getSetSpecsConf().size(); i++) {
+            oaiprovider.mappings.ListSetConfJson.Set setObj = setSpecMerge.getSetSpecsConf().get(i);
+            FedoraSetInfo fedoraSetInfo = new FedoraSetInfo();
+            fedoraSetInfo.setSpec(setObj.getSetSpec());
+            fedoraSetInfo.setName(setObj.getSetName());
+            setInfos.add(fedoraSetInfo);
+        }
+
         Set<String> newSpecs = new HashSet<>();
         Set<String> missingSpecs = new HashSet<>();
 
-        try {
-            while (riter.hasNext()) {
-
+        for (SetInfo setInfo : setInfos) {
                 checkImmediateShutdown();
-                SetInfo setInfo = riter.next();
                 String encounteredSetSpec = setInfo.getSetSpec();
 
                 /*
@@ -680,13 +708,6 @@ public class Updater extends Thread {
                 _db.putSetInfo(
                         conn, encounteredSetSpec, _disk.write(setInfo));
                 newSpecs.add(encounteredSetSpec);
-            }
-        } finally {
-            try {
-                riter.close();
-            } catch (Exception e) {
-                logger.debug("Unable to close remote set info iterator", e);
-            }
         }
 
         /* Add any sets that are IMPLIED to exist, but weren't defined */
