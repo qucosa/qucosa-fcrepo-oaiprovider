@@ -139,39 +139,55 @@ public class FedoraOAIDriver
 
         for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
 
+            String setName = set.getSetName();
+            if (setName == null || setName.isEmpty()) {
+                logger.warn("Found empty set name");
+                continue;
+            }
+
             String setPredicate = set.getPredicate();
+            if (setPredicate == null || setPredicate.isEmpty()) {
+                logger.warn(String.format("Found empty set predicate for '%s'.", setName));
+                continue;
+            }
 
-            if (setPredicate != null && !setPredicate.isEmpty()) {
+            String predicateName;
+            String predicateValue = null;
 
-                if (!setPredicate.contains("=")) {
-                    logger.warn(String.format("Malformed set predicate: '%s'." +
-                            " Expected syntax: predicate=value", setPredicate));
+            if (setPredicate.contains("=")) {
+                String[] split = setPredicate.split("=");
+                predicateName = split[0];
+                predicateValue = split[1];
+            } else {
+                predicateName = setPredicate;
+            }
+
+            for (DisseminationTerms dissTerm : disseminationTerms.getDissTerms()) {
+
+                String dissemination = dissTerm.getDiss();
+                if (dissemination == null || dissemination.isEmpty()) {
+                    logger.warn("Found empty dissemination name");
                     continue;
                 }
 
-                String predicateName = setPredicate.split("=")[0];
-                String predicateValue = setPredicate.split("=")[1];
+                if (dissemination.equals(predicateName)) {
+                    List<Term> terms = dissTerm.getTerms();
+                    if (terms != null) {
+                        for (Term term : terms) {
 
-                for (DisseminationTerms dissTerm : disseminationTerms.getDissTerms()) {
-                    String dissemination = dissTerm.getDiss();
-                    if (dissemination == null || dissemination.isEmpty()) {
-                        logger.warn("Found empty dissemination name");
-                        continue;
-                    }
+                            String termName = term.getName();
+                            if (termName == null || termName.isEmpty()) {
+                                logger.warn(String.format("Found empty term for dissemination `%s`", dissemination));
+                                return;
+                            }
 
-                    if (dissemination.equals(predicateName)) {
-                        List<Term> terms = dissTerm.getTerms();
-
-                        if (terms != null && !terms.isEmpty()) {
-                            for (Term term : terms) {
-
-                                String termName = term.getName();
-                                if (termName == null || termName.isEmpty()) {
-                                    logger.warn(String.format("Found empty term for dissemination `%s`", dissemination));
-                                    continue;
-                                }
-
-                                if (termName.equals(mdPrefix) && predicateMatch(document, xPath, predicateValue, term, termName)) {
+                            String termExpression = term.getTerm();
+                            if (termExpression == null || termExpression.isEmpty()) {
+                                logger.warn(String.format("Found empty expression for term `%s`", termName));
+                                return;
+                            }
+                            if (termName.equals(mdPrefix)) {
+                                if (termMatches(document, xPath, predicateValue, termExpression)) {
                                     out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
                                 }
                             }
@@ -182,24 +198,22 @@ public class FedoraOAIDriver
         }
     }
 
-    private static boolean predicateMatch(Document document, XPath xPath, String predicateValue, Term term, String termName) {
-        String termExpression = term.getTerm();
-        if (termExpression == null || termExpression.isEmpty()) {
-            logger.warn(String.format("Found empty expression for term `%s`", termName));
-            return false;
+    private static boolean termMatches(Document document, XPath xPath, String predicateValue, String termExpression) {
+        String xpathTerm;
+        if (predicateValue != null && !predicateValue.isEmpty() && termExpression.contains("$val")) {
+            xpathTerm = termExpression.replace("$val", predicateValue);
+        } else {
+            xpathTerm = termExpression;
         }
 
         Node node = null;
         try {
-            XPathExpression xPathExpression =
-                    xPath.compile(termExpression.replace("$val", predicateValue));
+            XPathExpression xPathExpression = xPath.compile(xpathTerm);
             node = (Node) xPathExpression.evaluate(document, XPathConstants.NODE);
         } catch (XPathExpressionException e) {
             logger.error(String.format("Cannot evaluate XPath expression '%s'", xPath), e);
         }
-
         return (node != null);
-
     }
 
     private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
