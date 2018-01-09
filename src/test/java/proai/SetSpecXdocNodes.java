@@ -1,45 +1,86 @@
 package proai;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
+import oaiprovider.mappings.DisseminationTerms;
+import oaiprovider.mappings.DisseminationTerms.Term;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import proai.driver.impl.DisseminationTermsImpl;
+import proai.xmlutils.Namespaces;
+import proai.xmlutils.SimpleNamespaceContext;
 
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
-import oaiprovider.mappings.DisseminationTerms;
-import oaiprovider.mappings.DisseminationTerms.Term;
-import proai.driver.impl.DisseminationTermsImpl;
-import proai.driver.impl.SetSpecImpl;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 
 public class SetSpecXdocNodes {
-    private SetSpecImpl setSpecMerge = new SetSpecImpl();
+    static {
+        XMLUnit.setXpathNamespaceContext(new org.custommonkey.xmlunit.SimpleNamespaceContext(Namespaces.getPrefixUriMap()));
+    }
+
+    private DocumentBuilderFactory builderFactory;
 
     private DisseminationTermsImpl disseminationTermsImpl = new DisseminationTermsImpl();
-
-    private File dissFile = new File(getClass().getClassLoader().getResource("disseminations/dcc:330.xml").getPath());
+    List<DisseminationTerms> dissTerms = disseminationTermsImpl.getDissTerms();
 
     private String confFile = "config/dissemination-terms.json";
 
-    private String nameDissKey = "xMetaDissPlusDissemination";
-
-    private String dissType = "xDDC";
+    @Before
+    public void setup() {
+        builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setNamespaceAware(true);
+    }
 
     @Test
-    public void findDissTerms() {
+    public void findDissTerms() throws XpathException, ParserConfigurationException, IOException, SAXException {
+        String nameDissKey = "xmetadissplus";
+        String dissType = "xDDC";
+        File dissFile = new File(getClass().getClassLoader().getResource("disseminations/dcc:330.xml").getPath());
+        File conf = new File(getClass().getClassLoader().getResource(confFile).getPath());
+        Assert.assertTrue(conf.exists());
+
+        for (DisseminationTerms dissTermObj : dissTerms) {
+            if (dissTermObj.getDiss().equals(dissType)) {
+
+                if (dissTermObj.getTerms() != null && dissTermObj.getTerms().size() > 0) {
+
+                    for (int j = 0; j < dissTermObj.getTerms().size(); j++) {
+                        Term termObj = dissTermObj.getTerms().get(j);
+
+                        if (termObj.getName().equals(nameDissKey)) {
+                                Document document = builderFactory.newDocumentBuilder().parse(dissFile);
+
+                                XPathFactory pathFactory = XPathFactory.newInstance();
+                                XPath xPath = pathFactory.newInstance().newXPath();
+
+                                SimpleNamespaceContext namespaces = new SimpleNamespaceContext(Namespaces.getPrefixUriMap());
+                                xPath.setNamespaceContext(namespaces);
+
+                                assertXpathExists(termObj.getTerm().replace("$val", "050"), document);
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+    @Test
+    public void findDcDccDissTerms() throws XpathException, ParserConfigurationException, IOException, SAXException {
+        String nameDissKey = "oai_dc";
+        String dissType = "xDDC";
+        File dissFile = new File(getClass().getClassLoader().getResource("disseminations/dc_50795.xml").getPath());
         File conf = new File(getClass().getClassLoader().getResource(confFile).getPath());
         Assert.assertTrue(conf.exists());
 
@@ -56,58 +97,15 @@ public class SetSpecXdocNodes {
                         Term termObj = dissTermObj.getTerms().get(j);
 
                         if (termObj.getName().equals(nameDissKey)) {
-                            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-                            builderFactory.setNamespaceAware(true);
-
-                            try {
-                                DocumentBuilder builder = builderFactory.newDocumentBuilder();
-                                Document document = builder.parse(dissFile);
+                                Document document = builderFactory.newDocumentBuilder().parse(dissFile);
 
                                 XPathFactory pathFactory = XPathFactory.newInstance();
                                 XPath xPath = pathFactory.newInstance().newXPath();
 
-                                xPath.setNamespaceContext(new NamespaceContext() {
+                                SimpleNamespaceContext namespaces = new SimpleNamespaceContext(Namespaces.getPrefixUriMap());
+                                xPath.setNamespaceContext(namespaces);
 
-                                    @Override
-                                    public String getNamespaceURI(String prefix) {
-                                        switch (prefix) {
-                                        case "xMetaDiss":
-                                            return "http://www.d-nb.de/standards/xmetadissplus/";
-                                        case "dc":
-                                            return "http://purl.org/dc/elements/1.1/";
-                                        case "dcterms":
-                                            return "http://purl.org/dc/terms/";
-                                        case "xsi":
-                                            return "http://www.w3.org/2001/XMLSchema-instance";
-                                        default:
-                                            return null;
-                                        }
-                                    }
-
-                                    @Override
-                                    public String getPrefix(String namespaceURI) {
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public Iterator getPrefixes(String namespaceURI) {
-                                        return null;
-                                    }
-
-                                });
-
-                                Node node = (Node) xPath.compile(termObj.getTerm().replace("$val", "050"))
-                                        .evaluate(document, XPathConstants.NODE);
-
-                                Assert.assertNotNull(node);
-                                Assert.assertEquals("050", node.getTextContent());
-                            } catch (ParserConfigurationException e1) {
-                                e1.printStackTrace();
-                            } catch (SAXException | IOException e1) {
-                                e1.printStackTrace();
-                            } catch (XPathExpressionException e) {
-                                e.printStackTrace();
-                            }
+                                assertXpathExists(termObj.getTerm().replace("$val", "004"), document);
                         }
                     }
                 }
