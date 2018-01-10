@@ -173,9 +173,10 @@ public class FedoraOAIDriver
             if (setPredicate.contains("=")) {
                 String[] split = setPredicate.split("=");
                 predicateName = split[0];
-                predicateValue = split[1];
+                predicateValue = (split.length > 1) ? split[1] : "";
             } else {
                 predicateName = setPredicate;
+                predicateValue = null;
             }
 
             oaiprovider.mappings.DissTerms.Term termNew = dissTermsData.getTerm(predicateName, mdPrefix);
@@ -188,7 +189,7 @@ public class FedoraOAIDriver
 
     private static boolean termMatches(Document document, XPath xPath, String predicateValue, String termExpression) {
         String xpathTerm;
-        if (predicateValue != null && !predicateValue.isEmpty() && termExpression.contains("$val")) {
+        if (predicateValue != null && termExpression.contains("$val")) {
             xpathTerm = termExpression.replace("$val", predicateValue);
         } else {
             xpathTerm = termExpression;
