@@ -152,13 +152,13 @@ public class FedoraOAIDriver implements OAIDriver {
 
         for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
 
-            String setName = set.getSetName();
-            if (assertNotNullNotEmpty(setName, "Found empty set name")) {
+            String setSpec = set.getSetSpec();
+            if (assertNotNullNotEmpty(setSpec, "Found empty setSpec")) {
                 continue;
             }
 
             String setPredicate = set.getPredicate();
-            if (assertNotNullNotEmpty(setPredicate, String.format("Found empty set predicate for '%s'.", setName))) {
+            if (assertNotNullNotEmpty(setPredicate, String.format("Found empty set predicate for '%s'.", setSpec))) {
                 continue;
             }
 
@@ -177,7 +177,7 @@ public class FedoraOAIDriver implements OAIDriver {
             oaiprovider.mappings.DissTerms.Term term = dissTermsData.getTerm(predicateName, mdPrefix);
 
             if (term == null) {
-                logger.warn(String.format("No term definition for %s/%s", predicateName, mdPrefix));
+                logger.warn(String.format("No term definition for %s", predicateName));
                 continue;
             }
 
