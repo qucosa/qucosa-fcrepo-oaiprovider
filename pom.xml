@@ -28,7 +28,7 @@
     <groupId>de.qucosa</groupId>
     <artifactId>qucosa-fcrepo-oaiprovider</artifactId>
     <packaging>war</packaging>
-    <version>1.2.1</version>
+    <version>1.2.1-CMR-286</version>
     <name>Qucosa OAI Provider</name>
 
     <repositories>
@@ -135,11 +135,19 @@
             <artifactId>logback-classic</artifactId>
             <version>1.1.3</version>
         </dependency>
-        
+
+        <!-- Built-in JDBC driver -->
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mckoi</groupId>
+            <artifactId>mckoisqldb</artifactId>
+            <version>1.0.5</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -149,7 +157,40 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Jackson / Json -->
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-core</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-annotations</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
 
+        <!-- XML Handling -->
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+
+        <!-- XML Testing -->
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
