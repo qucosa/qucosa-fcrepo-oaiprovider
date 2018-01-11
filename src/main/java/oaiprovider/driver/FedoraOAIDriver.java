@@ -16,46 +16,19 @@
 
 package oaiprovider.driver;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.fcrepo.client.FedoraClient;
-import org.fcrepo.common.http.HttpInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import de.qucosa.xmlutils.SimpleNamespaceContext;
 import oaiprovider.FedoraMetadataFormat;
 import oaiprovider.FedoraRecord;
 import oaiprovider.InvocationSpec;
 import oaiprovider.QueryFactory;
 import oaiprovider.mappings.ListSetConfJson;
+import org.fcrepo.client.FedoraClient;
+import org.fcrepo.common.http.HttpInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
@@ -65,27 +38,38 @@ import proai.driver.impl.SetSpecImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.*;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+
+import static javax.xml.transform.OutputKeys.METHOD;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
+
 /**
  * Implementation of the OAIDriver interface for Fedora.
  *
  * @author Edwin Shin, cwilper@cs.cornell.edu
  */
-public class FedoraOAIDriver
-        implements OAIDriver {
+public class FedoraOAIDriver implements OAIDriver {
 
-    public static final String NS = "driver.fedora.";
-    public static final String PROP_ITEMID = NS + "itemID";
-    public static final String PROP_SETSPEC = NS + "setSpec";
-    public static final String PROP_SETSPEC_NAME = NS + "setSpec.name";
-    public static final String PROP_DELETED = NS + "deleted";
-    public static final String PROP_ITEM_SETSPEC_PATH = NS + "itemSetSpecPath";
     private static final Logger logger = LoggerFactory.getLogger(FedoraOAIDriver.class);
+    private static final String NS = "driver.fedora.";
     private static final String PROP_BASEURL = NS + "baseURL";
     private static final String PROP_USER = NS + "user";
     private static final String PROP_PASS = NS + "pass";
     private static final String PROP_IDENTIFY = NS + "identify";
-    private static final String PROP_SETSPEC_DESC_DISSTYPE =
-            NS + "setSpec.desc.dissType";
+    private static final String PROP_SETSPEC_DESC_DISSTYPE = NS + "setSpec.desc.dissType";
     private static final String PROP_QUERY_FACTORY = NS + "queryFactory";
     private static final String PROP_FORMATS = NS + "md.formats";
     private static final String PROP_FORMAT_START = NS + "md.format.";
@@ -94,11 +78,12 @@ public class FedoraOAIDriver
     private static final String PROP_FORMAT_URI_END = ".uri";
     private static final String PROP_FORMAT_DISSTYPE_END = ".dissType";
     private static final String PROP_FORMAT_ABOUT_END = ".about.dissType";
-    private static final String _DC_SCHEMALOCATION =
-            "xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ "
-                    + "http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"";
-    private static final String _XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
-    private static final String _XSI_DECLARATION = "xmlns:xsi=\"" + _XSI_URI + "\"";
+
+    public static final String PROP_ITEMID = NS + "itemID";
+    public static final String PROP_SETSPEC = NS + "setSpec";
+    public static final String PROP_SETSPEC_NAME = NS + "setSpec.name";
+    public static final String PROP_DELETED = NS + "deleted";
+    public static final String PROP_ITEM_SETSPEC_PATH = NS + "itemSetSpecPath";
 
     private FedoraClient m_fedora;
     private URL m_identify;
@@ -107,68 +92,78 @@ public class FedoraOAIDriver
     private InvocationSpec m_setSpecDiss;
 
     private SetSpecImpl setSpecMerge = new SetSpecImpl();
-
     private DissTermsImpl dissTermsData = new DissTermsImpl();
 
-    public FedoraOAIDriver() {
+    private static final ThreadLocal<DocumentBuilder> threadLocalDocumentBuilder;
+    private static final ThreadLocal<Transformer> threadLocalTransformer;
+
+    static {
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+
+        threadLocalDocumentBuilder = new ThreadLocal<DocumentBuilder>() {
+            @Override
+            protected DocumentBuilder initialValue() {
+                try {
+                    return documentBuilderFactory.newDocumentBuilder();
+                } catch (ParserConfigurationException e) {
+                    throw new RuntimeException("Wrapped initialization exception", e);
+                }
+            }
+        };
+
+        threadLocalTransformer = new ThreadLocal<Transformer>() {
+            @Override
+            protected Transformer initialValue() {
+                try {
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+                    transformer.setOutputProperty(METHOD, "xml");
+                    return transformer;
+                } catch (TransformerConfigurationException e) {
+                    throw new RuntimeException("Wrapped initialization exception", e);
+                }
+            }
+        };
     }
 
     //////////////////////////////////////////////////////////////////////////
     ///////////////////// Methods from proai.driver.OAIDriver ////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    private void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
-            PrintWriter out, SetSpecImpl setSpecMerge, String xml, String mdPrefix) {
-        if (deleted) {
-            out.println("  <header status=\"deleted\">");
-        } else {
-            out.println("  <header>");
-        }
+    private void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs, PrintWriter out) {
+
+        out.println(deleted ? "  <header status=\"deleted\">" : "  <header>");
         out.println("    <identifier>" + itemID + "</identifier>");
         out.println("    <datestamp>" + date + "</datestamp>");
 
         for (String setSpec : setSpecs) {
-            out.println("    <setSpec>" + setSpec
-                    + "</setSpec>");
-        }
-
-        Document document = null;
-        try {
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xml.getBytes());
-            DocumentBuilder builder = createDocumentBuilder();
-            document = builder.parse(new InputSource(byteArrayInputStream));
-        } catch (SAXException | IOException | ParserConfigurationException e) {
-            logger.error(String.format("Failed to parse XML dissemination for %s. Cannot add dynamic sets to header.", itemID), e);
-        }
-
-        if (document != null) {
-            emitDynamicSetSpecs(out, setSpecMerge, mdPrefix, document);
+            out.println("    <setSpec>" + setSpec + "</setSpec>");
         }
 
         out.println("  </header>");
     }
 
-    private void emitDynamicSetSpecs(PrintWriter out, SetSpecImpl setSpecMerge, String mdPrefix,
-            Document document) {
+    private List<String> getDynamicSetSpecs(SetSpecImpl setSpecMerge, String mdPrefix, Document document) {
+        List<String> result = new ArrayList<>();
+
         XPath xPath = XPathFactory.newInstance().newXPath();
         xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData.getMapXmlNamespaces()));
 
         for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
 
             String setName = set.getSetName();
-            if (setName == null || setName.isEmpty()) {
-                logger.warn("Found empty set name");
+            if (assertNotNullNotEmpty(setName, "Found empty set name")) {
                 continue;
             }
 
             String setPredicate = set.getPredicate();
-            if (setPredicate == null || setPredicate.isEmpty()) {
-                logger.warn(String.format("Found empty set predicate for '%s'.", setName));
+            if (assertNotNullNotEmpty(setPredicate, String.format("Found empty set predicate for '%s'.", setName))) {
                 continue;
             }
 
             String predicateName;
-            String predicateValue = null;
+            String predicateValue;
 
             if (setPredicate.contains("=")) {
                 String[] split = setPredicate.split("=");
@@ -179,12 +174,33 @@ public class FedoraOAIDriver
                 predicateValue = null;
             }
 
-            oaiprovider.mappings.DissTerms.Term termNew = dissTermsData.getTerm(predicateName, mdPrefix);
+            oaiprovider.mappings.DissTerms.Term term = dissTermsData.getTerm(predicateName, mdPrefix);
 
-            if (termNew != null && termMatches(document, xPath, predicateValue, termNew.getTerm())) {
-                out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
+            if (term == null) {
+                logger.warn(String.format("No term definition for %s/%s", predicateName, mdPrefix));
+                continue;
+            }
+
+            String termExpression = term.getTerm();
+            if (termExpression == null || termExpression.isEmpty()) {
+                logger.warn(String.format("Found empty XPath expression for %s/%s.", predicateName, mdPrefix));
+                continue;
+            }
+
+            if (termMatches(document, xPath, predicateValue, termExpression)) {
+                result.add(set.getSetSpec());
             }
         }
+
+        return result;
+    }
+
+    private boolean assertNotNullNotEmpty(String setName, String s) {
+        if (setName == null || setName.isEmpty()) {
+            logger.warn(s);
+            return true;
+        }
+        return false;
     }
 
     private static boolean termMatches(Document document, XPath xPath, String predicateValue, String termExpression) {
@@ -203,12 +219,6 @@ public class FedoraOAIDriver
             logger.error(String.format("Cannot evaluate XPath expression '%s'", xPath), e);
         }
         return (node != null);
-    }
-
-    private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
-        return builderFactory.newDocumentBuilder();
     }
 
     static String getRequired(Properties props, String key)
@@ -338,149 +348,64 @@ public class FedoraOAIDriver
         String aboutDissURI = parts[1];
         boolean deleted = parts[2].equalsIgnoreCase("true");
         String date = parts[3];
-        List<String> setSpecs = new ArrayList<>();
-        setSpecs.addAll(Arrays.asList(parts).subList(4, parts.length));
 
         out.println("<record>");
-        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge, getXml(dissURI),
-                mdPrefix);
-        if (!deleted) {
-            writeRecordMetadata(dissURI, out);
-            if (!aboutDissURI.equals("null")) {
-                writeRecordAbouts(aboutDissURI, out);
-            }
-        } else {
-            logger
-                    .info("Record was marked deleted: " + itemID + "/"
-                            + mdPrefix);
+
+        Document disseminationDocument = getDissemination(dissURI);
+        List<String> setSpecs = new ArrayList<>(Arrays.asList(parts).subList(4, parts.length));
+        setSpecs.addAll(getDynamicSetSpecs(setSpecMerge, mdPrefix, disseminationDocument));
+
+        writeRecordHeader(itemID, deleted, date, setSpecs, out);
+        writeRecordMetadata(out, serializeXml(disseminationDocument));
+
+        if (!aboutDissURI.equals("null")) {
+            writeRecordAbouts(aboutDissURI, out);
         }
+
         out.println("</record>");
     }
 
     //////////////////////////////////////////////////////////////////////////
     ////////////////////////////// Helper Methods ////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-    private String getXml(String dissURI) {
-        InputStream in = null;
-        String xml = null;
 
-        try {
-            in = m_fedora.get(dissURI, true);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            StringBuffer buf = new StringBuffer();
-            String line = reader.readLine();
-
-            while (line != null) {
-                buf.append(line + "\n");
-                line = reader.readLine();
-            }
-
-            xml = buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
+    private Document getDissemination(String dissURI) {
+        try (InputStream in = m_fedora.get(dissURI, true)) {
+            return threadLocalDocumentBuilder.get().parse(in);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RepositoryException("Error obtaining dissemination from " + dissURI, e);
+        } catch (SAXException e) {
+            throw new RepositoryException("Error parsing dissemination XML", e);
         }
-
-        if (in != null) {
-            try {
-                in.close();
-            } catch (IOException ignored) {
-            }
-        }
-
-        return xml;
     }
 
-    private void writeRecordMetadata(String dissURI, PrintWriter out)
-            throws RepositoryException {
-        String docXml = getXml(dissURI);
-
-        if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
-            // If it's a DC datastream dissemination, inject the
-            // xsi:schemaLocation attribute if needed
-            if (!docXml.contains(_XSI_URI)) {
-                docXml = docXml.replaceAll("<oai_dc:dc ",
-                        "<oai_dc:dc " + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
-            }
+    private String serializeXml(Document document) {
+        try {
+            StringWriter stringWriter = new StringWriter();
+            threadLocalTransformer.get().transform(new DOMSource(document), new StreamResult(stringWriter));
+            return stringWriter.toString();
+        } catch (TransformerException e) {
+            throw new RepositoryException("Error serializing dissemination XML", e);
         }
+    }
 
+    private void writeRecordMetadata(PrintWriter out, String xml) {
         out.println("  <metadata>");
-        out.print(docXml);
+        out.println(xml);
         out.println("  </metadata>");
-
-
-
-        // InputStream in = null;
-        // try {
-        // in = m_fedora.get(dissURI, true);
-        // BufferedReader reader =
-        // new BufferedReader(new InputStreamReader(in));
-        // StringBuffer buf = new StringBuffer();
-        // String line = reader.readLine();
-        // while (line != null) {
-        // buf.append(line + "\n");
-        // line = reader.readLine();
-        // }
-        // String xml =
-        // buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
-        // if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
-        // // If it's a DC datastream dissemination, inject the
-        // // xsi:schemaLocation attribute if needed
-        // if (!xml.contains(_XSI_URI)) {
-        // xml = xml.replaceAll("<oai_dc:dc ", "<oai_dc:dc "
-        // + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
-        // }
-        // }
-        // out.println(" <metadata>");
-        // out.print(xml);
-        // out.println(" </metadata>");
-        // } catch (IOException e) {
-        // throw new RepositoryException("IO error reading " + dissURI, e);
-        // } finally {
-        // if (in != null) try {
-        // in.close();
-        // } catch (IOException ignored) {
-        // }
-        // }
     }
 
-    private void writeRecordAbouts(String aboutDissURI, PrintWriter out)
-            throws RepositoryException {
-        String aboutWrapperStart = "<abouts>";
+    private void writeRecordAbouts(String aboutDissURI, PrintWriter out) throws RepositoryException {
         String aboutWrapperEnd = "</abouts>";
-        InputStream in = null;
-        try {
-            in = m_fedora.get(aboutDissURI, true);
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(in));
-            StringBuffer buf = new StringBuffer();
-            String line = reader.readLine();
-            while (line != null) {
-                buf.append(line + "\n");
-                line = reader.readLine();
-            }
-            // strip xml declaration and leading whitespace
-            String xml =
-                    buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
-            int i = xml.indexOf(aboutWrapperStart);
-            if (i == -1)
-                throw new RepositoryException("Bad abouts xml: opening "
-                        + aboutWrapperStart + " not found");
-            xml = xml.substring(i + aboutWrapperStart.length());
-            i = xml.lastIndexOf(aboutWrapperEnd);
-            if (i == -1)
-                throw new RepositoryException("Bad abouts xml: closing "
-                        + aboutWrapperEnd + " not found");
-            out.print(xml.substring(0, i));
-        } catch (IOException e) {
-            throw new RepositoryException("IO error reading aboutDiss "
-                    + aboutDissURI, e);
-        } finally {
-            if (in != null) try {
-                in.close();
-            } catch (IOException ignored) {
-            }
+
+        String xml = serializeXml(getDissemination(aboutDissURI));
+
+        int i = xml.lastIndexOf(aboutWrapperEnd);
+        if (i == -1) {
+            throw new RepositoryException("Bad abouts xml: closing " + aboutWrapperEnd + " not found");
         }
+
+        out.print(xml.substring(0, i));
     }
 
     /**
