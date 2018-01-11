@@ -16,15 +16,31 @@
 
 package oaiprovider.driver;
 
-import de.qucosa.xmlutils.Namespaces;
-import de.qucosa.xmlutils.SimpleNamespaceContext;
-import oaiprovider.FedoraMetadataFormat;
-import oaiprovider.FedoraRecord;
-import oaiprovider.InvocationSpec;
-import oaiprovider.QueryFactory;
-import oaiprovider.mappings.DisseminationTerms;
-import oaiprovider.mappings.DisseminationTerms.Term;
-import oaiprovider.mappings.ListSetConfJson;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;
 import org.slf4j.Logger;
@@ -33,23 +49,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import de.qucosa.xmlutils.SimpleNamespaceContext;
+import oaiprovider.FedoraMetadataFormat;
+import oaiprovider.FedoraRecord;
+import oaiprovider.InvocationSpec;
+import oaiprovider.QueryFactory;
+import oaiprovider.mappings.ListSetConfJson;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
-import proai.driver.impl.DisseminationTermsImpl;
+import proai.driver.impl.DissTermsImpl;
 import proai.driver.impl.RemoteIteratorImpl;
 import proai.driver.impl.SetSpecImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -94,6 +108,8 @@ public class FedoraOAIDriver
 
     private SetSpecImpl setSpecMerge = new SetSpecImpl();
 
+    private DissTermsImpl dissTermsData = new DissTermsImpl();
+
     public FedoraOAIDriver() {
     }
 
@@ -101,9 +117,8 @@ public class FedoraOAIDriver
     ///////////////////// Methods from proai.driver.OAIDriver ////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    private static void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
-                                          PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTerms, String xml,
-                                          String mdPrefix) {
+    private void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
+            PrintWriter out, SetSpecImpl setSpecMerge, String xml, String mdPrefix) {
         if (deleted) {
             out.println("  <header status=\"deleted\">");
         } else {
@@ -127,15 +142,16 @@ public class FedoraOAIDriver
         }
 
         if (document != null) {
-            emitDynamicSetSpecs(out, setSpecMerge, disseminationTerms, mdPrefix, document);
+            emitDynamicSetSpecs(out, setSpecMerge, mdPrefix, document);
         }
 
         out.println("  </header>");
     }
 
-    private static void emitDynamicSetSpecs(PrintWriter out, SetSpecImpl setSpecMerge, DisseminationTermsImpl disseminationTerms, String mdPrefix, Document document) {
+    private void emitDynamicSetSpecs(PrintWriter out, SetSpecImpl setSpecMerge, String mdPrefix,
+            Document document) {
         XPath xPath = XPathFactory.newInstance().newXPath();
-        xPath.setNamespaceContext(new SimpleNamespaceContext(Namespaces.getPrefixUriMap()));
+        xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData.getMapXmlNamespaces()));
 
         for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
 
@@ -162,38 +178,10 @@ public class FedoraOAIDriver
                 predicateName = setPredicate;
             }
 
-            for (DisseminationTerms dissTerm : disseminationTerms.getDissTerms()) {
+            oaiprovider.mappings.DissTerms.Term termNew = dissTermsData.getTerm(predicateName, mdPrefix);
 
-                String dissemination = dissTerm.getDiss();
-                if (dissemination == null || dissemination.isEmpty()) {
-                    logger.warn("Found empty dissemination name");
-                    continue;
-                }
-
-                if (dissemination.equals(predicateName)) {
-                    List<Term> terms = dissTerm.getTerms();
-                    if (terms != null) {
-                        for (Term term : terms) {
-
-                            String termName = term.getName();
-                            if (termName == null || termName.isEmpty()) {
-                                logger.warn(String.format("Found empty term for dissemination `%s`", dissemination));
-                                return;
-                            }
-
-                            String termExpression = term.getTerm();
-                            if (termExpression == null || termExpression.isEmpty()) {
-                                logger.warn(String.format("Found empty expression for term `%s`", termName));
-                                return;
-                            }
-                            if (termName.equals(mdPrefix)) {
-                                if (termMatches(document, xPath, predicateValue, termExpression)) {
-                                    out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
-                                }
-                            }
-                        }
-                    }
-                }
+            if (termNew != null && termMatches(document, xPath, predicateValue, termNew.getTerm())) {
+                out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
             }
         }
     }
@@ -352,10 +340,8 @@ public class FedoraOAIDriver
         List<String> setSpecs = new ArrayList<>();
         setSpecs.addAll(Arrays.asList(parts).subList(4, parts.length));
 
-        DisseminationTermsImpl disseminationTermsImpl = new DisseminationTermsImpl();
-
         out.println("<record>");
-        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge, disseminationTermsImpl, getXml(dissURI),
+        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge, getXml(dissURI),
                 mdPrefix);
         if (!deleted) {
             writeRecordMetadata(dissURI, out);
