@@ -24,6 +24,8 @@ import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
@@ -31,11 +33,13 @@ import proai.driver.impl.RemoteIteratorImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,6 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import static javax.xml.transform.OutputKeys.METHOD;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -75,11 +82,6 @@ public class FedoraOAIDriver
     private static final String PROP_FORMAT_URI_END = ".uri";
     private static final String PROP_FORMAT_DISSTYPE_END = ".dissType";
     private static final String PROP_FORMAT_ABOUT_END = ".about.dissType";
-    private static final String _DC_SCHEMALOCATION =
-            "xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/oai_dc/ "
-                    + "http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"";
-    private static final String _XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
-    private static final String _XSI_DECLARATION = "xmlns:xsi=\"" + _XSI_URI + "\"";
 
     private FedoraClient m_fedora;
     private URL m_identify;
@@ -87,7 +89,38 @@ public class FedoraOAIDriver
     private QueryFactory m_queryFactory;
     private InvocationSpec m_setSpecDiss;
 
-    public FedoraOAIDriver() {
+
+    private static final ThreadLocal<DocumentBuilder> threadLocalDocumentBuilder;
+    private static final ThreadLocal<Transformer> threadLocalTransformer;
+
+    static {
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+
+        threadLocalDocumentBuilder = new ThreadLocal<DocumentBuilder>() {
+            @Override
+            protected DocumentBuilder initialValue() {
+                try {
+                    return documentBuilderFactory.newDocumentBuilder();
+                } catch (ParserConfigurationException e) {
+                    throw new RuntimeException("Wrapped initialization exception", e);
+                }
+            }
+        };
+
+        threadLocalTransformer = new ThreadLocal<Transformer>() {
+            @Override
+            protected Transformer initialValue() {
+                try {
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+                    transformer.setOutputProperty(METHOD, "xml");
+                    return transformer;
+                } catch (TransformerConfigurationException e) {
+                    throw new RuntimeException("Wrapped initialization exception", e);
+                }
+            }
+        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -255,40 +288,20 @@ public class FedoraOAIDriver
     ////////////////////////////// Helper Methods ////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    private void writeRecordMetadata(String dissURI, PrintWriter out)
-            throws RepositoryException {
+    private void writeRecordMetadata(String dissURI, PrintWriter out) throws RepositoryException {
 
-        InputStream in = null;
-        try {
-            in = m_fedora.get(dissURI, true);
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(in));
-            StringBuffer buf = new StringBuffer();
-            String line = reader.readLine();
-            while (line != null) {
-                buf.append(line + "\n");
-                line = reader.readLine();
-            }
-            String xml =
-                    buf.toString().replaceAll("\\s*<\\?xml.*?\\?>\\s*", "");
-            if ((dissURI.split("/").length == 3) && (dissURI.endsWith("/DC"))) {
-                // If it's a DC datastream dissemination, inject the
-                // xsi:schemaLocation attribute if needed
-                if (!xml.contains(_XSI_URI)) {
-                    xml = xml.replaceAll("<oai_dc:dc ", "<oai_dc:dc "
-                            + _XSI_DECLARATION + " " + _DC_SCHEMALOCATION + " ");
-                }
-            }
+        try (InputStream in = m_fedora.get(dissURI, true)) {
+
+            Document document = threadLocalDocumentBuilder.get().parse(in);
+
             out.println("  <metadata>");
-            out.print(xml);
+            threadLocalTransformer.get().transform(new DOMSource(document), new StreamResult(out));
             out.println("  </metadata>");
+
         } catch (IOException e) {
-            throw new RepositoryException("IO error reading " + dissURI, e);
-        } finally {
-            if (in != null) try {
-                in.close();
-            } catch (IOException ignored) {
-            }
+            throw new RepositoryException("Error obtaining dissemination from " + dissURI, e);
+        } catch (SAXException | TransformerException e) {
+            throw new RepositoryException("Error parsing dissemination XML", e);
         }
     }
 
