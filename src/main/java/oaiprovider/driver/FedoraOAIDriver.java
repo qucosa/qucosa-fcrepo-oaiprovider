@@ -55,13 +55,14 @@ import oaiprovider.FedoraMetadataFormat;
 import oaiprovider.FedoraRecord;
 import oaiprovider.InvocationSpec;
 import oaiprovider.QueryFactory;
+import oaiprovider.mappings.DissTerms.Term;
 import oaiprovider.mappings.ListSetConfJson;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
-import proai.driver.impl.DissTermsImpl;
+import proai.driver.daos.json.DissTermsDaoJson;
+import proai.driver.daos.json.SetSpecDaoJson;
 import proai.driver.impl.RemoteIteratorImpl;
-import proai.driver.impl.SetSpecImpl;
 import proai.error.BadArgumentException;
 import proai.error.RepositoryException;
 
@@ -99,6 +100,8 @@ public class FedoraOAIDriver
                     + "http://www.openarchives.org/OAI/2.0/oai_dc.xsd\"";
     private static final String _XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String _XSI_DECLARATION = "xmlns:xsi=\"" + _XSI_URI + "\"";
+    private static final String PROP_DISS_TERMS_DAO_JSON = "dissTermsData";
+    private static final String PROP_SETSPEC_DAO_JSON = "dynSetSpecs";
 
     private FedoraClient m_fedora;
     private URL m_identify;
@@ -106,9 +109,7 @@ public class FedoraOAIDriver
     private QueryFactory m_queryFactory;
     private InvocationSpec m_setSpecDiss;
 
-    private SetSpecImpl setSpecMerge = new SetSpecImpl();
-
-    private DissTermsImpl dissTermsData = new DissTermsImpl();
+    private Properties props;
 
     public FedoraOAIDriver() {
     }
@@ -118,7 +119,7 @@ public class FedoraOAIDriver
     //////////////////////////////////////////////////////////////////////////
 
     private void writeRecordHeader(String itemID, boolean deleted, String date, List<String> setSpecs,
-            PrintWriter out, SetSpecImpl setSpecMerge, String xml, String mdPrefix) {
+            PrintWriter out, String xml, String mdPrefix) {
         if (deleted) {
             out.println("  <header status=\"deleted\">");
         } else {
@@ -142,18 +143,18 @@ public class FedoraOAIDriver
         }
 
         if (document != null) {
-            emitDynamicSetSpecs(out, setSpecMerge, mdPrefix, document);
+            emitDynamicSetSpecs(out, mdPrefix, document);
         }
 
         out.println("  </header>");
     }
 
-    private void emitDynamicSetSpecs(PrintWriter out, SetSpecImpl setSpecMerge, String mdPrefix,
+    private void emitDynamicSetSpecs(PrintWriter out, String mdPrefix,
             Document document) {
         XPath xPath = XPathFactory.newInstance().newXPath();
-        xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData.getMapXmlNamespaces()));
+        xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData().getMapXmlNamespaces()));
 
-        for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
+        for (ListSetConfJson.Set set : ((SetSpecDaoJson) props.get(PROP_SETSPEC_DAO_JSON)).getSetObjects()) {
 
             String setName = set.getSetName();
             if (setName == null || setName.isEmpty()) {
@@ -179,12 +180,21 @@ public class FedoraOAIDriver
                 predicateValue = null;
             }
 
-            oaiprovider.mappings.DissTerms.Term termNew = dissTermsData.getTerm(predicateName, mdPrefix);
-
-            if (termNew != null && termMatches(document, xPath, predicateValue, termNew.getTerm())) {
+            if (term(predicateName, mdPrefix) != null
+                    && termMatches(document, xPath, predicateValue, term(predicateName, mdPrefix).getTerm())) {
                 out.println("    <setSpec>" + set.getSetSpec() + "</setSpec>");
             }
         }
+    }
+
+    private DissTermsDaoJson dissTermsData() {
+        return ((DissTermsDaoJson) props.get(PROP_DISS_TERMS_DAO_JSON));
+    }
+
+    private Term term(String predicateName, String mdPrefix) {
+        oaiprovider.mappings.DissTerms.Term term = ((DissTermsDaoJson) props.get(PROP_DISS_TERMS_DAO_JSON))
+                .getTerm(predicateName, mdPrefix);
+        return term;
     }
 
     private static boolean termMatches(Document document, XPath xPath, String predicateValue, String termExpression) {
@@ -249,21 +259,22 @@ public class FedoraOAIDriver
 
     @Override
     public void init(Properties props) throws RepositoryException {
-        m_metadataFormats = getMetadataFormats(props);
+        this.props = props;
+        m_metadataFormats = getMetadataFormats(this.props);
 
         try {
-            m_identify = new URL(getRequired(props, PROP_IDENTIFY));
+            m_identify = new URL(getRequired(this.props, PROP_IDENTIFY));
         } catch (MalformedURLException e) {
             throw new RepositoryException(String.format(
-                    "Identify property is not a valid URL: %s", props.getProperty(PROP_IDENTIFY)), e);
+                    "Identify property is not a valid URL: %s", this.props.getProperty(PROP_IDENTIFY)), e);
         }
 
-        String m_fedoraBaseURL = getRequired(props, PROP_BASEURL);
+        String m_fedoraBaseURL = getRequired(this.props, PROP_BASEURL);
         if (!m_fedoraBaseURL.endsWith("/")) {
             m_fedoraBaseURL += "/";
         }
-        String m_fedoraUser = getRequired(props, PROP_USER);
-        String m_fedoraPass = getRequired(props, PROP_PASS);
+        String m_fedoraUser = getRequired(this.props, PROP_USER);
+        String m_fedoraPass = getRequired(this.props, PROP_PASS);
 
         try {
             m_fedora = new FedoraClient(m_fedoraBaseURL, m_fedoraUser, m_fedoraPass);
@@ -271,18 +282,18 @@ public class FedoraOAIDriver
             throw new RepositoryException("Error parsing baseURL", e);
         }
 
-        String className = getRequired(props, PROP_QUERY_FACTORY);
+        String className = getRequired(this.props, PROP_QUERY_FACTORY);
         try {
             Class<?> queryFactoryClass = Class.forName(className);
             m_queryFactory = (QueryFactory) queryFactoryClass.newInstance();
 
             FedoraClient queryClient = new FedoraClient(m_fedoraBaseURL, m_fedoraUser, m_fedoraPass);
-            m_queryFactory.init(m_fedora, queryClient, props);
+            m_queryFactory.init(m_fedora, queryClient, this.props);
         } catch (Exception e) {
             throw new RepositoryException("Unable to initialize " + className, e);
         }
 
-        m_setSpecDiss = InvocationSpec.getInstance(getOptional(props, PROP_SETSPEC_DESC_DISSTYPE));
+        m_setSpecDiss = InvocationSpec.getInstance(getOptional(this.props, PROP_SETSPEC_DESC_DISSTYPE));
     }
 
     @Override
@@ -342,7 +353,7 @@ public class FedoraOAIDriver
         setSpecs.addAll(Arrays.asList(parts).subList(4, parts.length));
 
         out.println("<record>");
-        writeRecordHeader(itemID, deleted, date, setSpecs, out, setSpecMerge, getXml(dissURI),
+        writeRecordHeader(itemID, deleted, date, setSpecs, out, getXml(dissURI),
                 mdPrefix);
         if (!deleted) {
             writeRecordMetadata(dissURI, out);
@@ -355,6 +366,11 @@ public class FedoraOAIDriver
                             + mdPrefix);
         }
         out.println("</record>");
+    }
+
+    @Override
+    public Properties getProps() {
+        return props;
     }
 
     //////////////////////////////////////////////////////////////////////////

@@ -1,16 +1,14 @@
 package proai;
 
-import java.util.HashSet;
-
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import oaiprovider.mappings.DissTerms;
-import proai.driver.impl.SetSpecImpl;
+import proai.driver.daos.json.SetSpecDaoJson;
 
 public class LoadConfigsTest {
-    private SetSpecImpl setSpecMerge = new SetSpecImpl();
+    private SetSpecDaoJson setSpecMerge = new SetSpecDaoJson();
 
     private DissTerms dissTerms = new DissTerms();
 
@@ -23,7 +21,6 @@ public class LoadConfigsTest {
 
     @Test
     public void getSetSpecs() {
-        setSpecMerge.setSetSpecs(new HashSet<String>());
         setSpecMerge.getSetSpecs();
     }
 }
