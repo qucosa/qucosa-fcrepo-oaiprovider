@@ -16,27 +16,24 @@
 
 package oaiprovider.driver;
 
-import de.qucosa.xmlutils.SimpleNamespaceContext;
-import oaiprovider.FedoraMetadataFormat;
-import oaiprovider.FedoraRecord;
-import oaiprovider.InvocationSpec;
-import oaiprovider.QueryFactory;
-import oaiprovider.mappings.ListSetConfJson;
-import org.fcrepo.client.FedoraClient;
-import org.fcrepo.common.http.HttpInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-import proai.SetInfo;
-import proai.driver.OAIDriver;
-import proai.driver.RemoteIterator;
-import proai.driver.impl.DissTermsImpl;
-import proai.driver.impl.RemoteIteratorImpl;
-import proai.driver.impl.SetSpecImpl;
-import proai.error.BadArgumentException;
-import proai.error.RepositoryException;
+import static javax.xml.transform.OutputKeys.METHOD;
+import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,14 +44,34 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.*;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
-import static javax.xml.transform.OutputKeys.METHOD;
-import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
+import org.fcrepo.client.FedoraClient;
+import org.fcrepo.common.http.HttpInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import de.qucosa.xmlutils.SimpleNamespaceContext;
+import oaiprovider.FedoraMetadataFormat;
+import oaiprovider.FedoraRecord;
+import oaiprovider.InvocationSpec;
+import oaiprovider.QueryFactory;
+import oaiprovider.mappings.ListSetConfJson;
+import proai.SetInfo;
+import proai.driver.OAIDriver;
+import proai.driver.RemoteIterator;
+import proai.driver.daos.json.DissTermsDaoJson;
+import proai.driver.daos.json.SetSpecDaoJson;
+import proai.driver.impl.RemoteIteratorImpl;
+import proai.error.BadArgumentException;
+import proai.error.RepositoryException;
 
 /**
  * Implementation of the OAIDriver interface for Fedora.
@@ -85,14 +102,15 @@ public class FedoraOAIDriver implements OAIDriver {
     public static final String PROP_DELETED = NS + "deleted";
     public static final String PROP_ITEM_SETSPEC_PATH = NS + "itemSetSpecPath";
 
+    private static final String PROP_DISS_TERMS_DAO_JSON = "dissTermsData";
+    private static final String PROP_SETSPEC_DAO_JSON = "dynSetSpecs";
+
     private FedoraClient m_fedora;
     private URL m_identify;
     private Map<String, FedoraMetadataFormat> m_metadataFormats;
     private QueryFactory m_queryFactory;
     private InvocationSpec m_setSpecDiss;
-
-    private SetSpecImpl setSpecMerge = new SetSpecImpl();
-    private DissTermsImpl dissTermsData = new DissTermsImpl();
+    private Properties props;
 
     private static final ThreadLocal<DocumentBuilder> threadLocalDocumentBuilder;
     private static final ThreadLocal<Transformer> threadLocalTransformer;
@@ -144,13 +162,13 @@ public class FedoraOAIDriver implements OAIDriver {
         out.println("  </header>");
     }
 
-    private List<String> getDynamicSetSpecs(SetSpecImpl setSpecMerge, String mdPrefix, Document document) {
+    private List<String> getDynamicSetSpecs(String mdPrefix, Document document) {
         List<String> result = new ArrayList<>();
 
         XPath xPath = XPathFactory.newInstance().newXPath();
-        xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData.getMapXmlNamespaces()));
+        xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData().getMapXmlNamespaces()));
 
-        for (ListSetConfJson.Set set : setSpecMerge.getSetSpecsConf()) {
+        for (ListSetConfJson.Set set : ((SetSpecDaoJson) props.get(PROP_SETSPEC_DAO_JSON)).getSetObjects()) {
 
             String setSpec = set.getSetSpec();
             if (assertNotNullNotEmpty(setSpec, "Found empty setSpec")) {
@@ -174,7 +192,7 @@ public class FedoraOAIDriver implements OAIDriver {
                 predicateValue = null;
             }
 
-            oaiprovider.mappings.DissTerms.Term term = dissTermsData.getTerm(predicateName, mdPrefix);
+            oaiprovider.mappings.DissTerms.Term term = dissTermsData().getTerm(predicateName, mdPrefix);
 
             if (term == null) {
                 logger.warn(String.format("No term definition for %s", predicateName));
@@ -182,6 +200,7 @@ public class FedoraOAIDriver implements OAIDriver {
             }
 
             String termExpression = term.getTerm();
+
             if (termExpression == null || termExpression.isEmpty()) {
                 logger.warn(String.format("Found empty XPath expression for %s/%s.", predicateName, mdPrefix));
                 continue;
@@ -193,6 +212,10 @@ public class FedoraOAIDriver implements OAIDriver {
         }
 
         return result;
+    }
+
+    private DissTermsDaoJson dissTermsData() {
+        return ((DissTermsDaoJson) props.get(PROP_DISS_TERMS_DAO_JSON));
     }
 
     private boolean assertNotNullNotEmpty(String setName, String s) {
@@ -259,6 +282,7 @@ public class FedoraOAIDriver implements OAIDriver {
 
     @Override
     public void init(Properties props) throws RepositoryException {
+        this.props = props;
         m_metadataFormats = getMetadataFormats(props);
 
         try {
@@ -293,6 +317,11 @@ public class FedoraOAIDriver implements OAIDriver {
         }
 
         m_setSpecDiss = InvocationSpec.getInstance(getOptional(props, PROP_SETSPEC_DESC_DISSTYPE));
+    }
+
+    @Override
+    public Properties getProps() {
+        return this.props;
     }
 
     @Override
@@ -353,7 +382,7 @@ public class FedoraOAIDriver implements OAIDriver {
 
         Document disseminationDocument = getDissemination(dissURI);
         List<String> setSpecs = new ArrayList<>(Arrays.asList(parts).subList(4, parts.length));
-        setSpecs.addAll(getDynamicSetSpecs(setSpecMerge, mdPrefix, disseminationDocument));
+        setSpecs.addAll(getDynamicSetSpecs(mdPrefix, disseminationDocument));
 
         writeRecordHeader(itemID, deleted, date, setSpecs, out);
         writeRecordMetadata(out, serializeXml(disseminationDocument));

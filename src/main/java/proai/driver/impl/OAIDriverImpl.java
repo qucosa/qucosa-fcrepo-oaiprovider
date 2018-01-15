@@ -16,17 +16,25 @@
 
 package proai.driver.impl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
 import proai.MetadataFormat;
 import proai.Record;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
 import proai.error.RepositoryException;
-
-import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * An simple OAIDriver for testing/demonstration purposes.
@@ -58,6 +66,7 @@ public class OAIDriverImpl implements OAIDriver {
     private File m_identityFile;
     private File m_recordsDir;
     private File m_setsDir;
+    private Properties props;
 
     public OAIDriverImpl() {
     }
@@ -85,7 +94,9 @@ public class OAIDriverImpl implements OAIDriver {
         }
     }
 
+    @Override
     public void init(Properties props) throws RepositoryException {
+        this.props = props;
         String baseDir = props.getProperty(BASE_DIR_PROPERTY);
         if (baseDir == null) {
             throw new RepositoryException("Required property is not set: "
@@ -118,10 +129,17 @@ public class OAIDriverImpl implements OAIDriver {
         }
     }
 
+    @Override
+    public Properties getProps() {
+        return this.props;
+    }
+
+    @Override
     public void write(PrintWriter out) throws RepositoryException {
         writeFromFile(m_identityFile, out);
     }
 
+    @Override
     public Date getLatestDate() {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
         long latest = 0;
@@ -143,16 +161,19 @@ public class OAIDriverImpl implements OAIDriver {
         return new Date(latest);
     }
 
+    @Override
     public RemoteIterator<MetadataFormat> listMetadataFormats() {
         return new RemoteIteratorImpl<>(
                 getMetadataFormatCollection().iterator());
     }
 
+    @Override
     public RemoteIterator<SetInfo> listSetInfo() {
         return new RemoteIteratorImpl<>(
                 getSetInfoCollection().iterator());
     }
 
+    @Override
     public RemoteIterator<Record> listRecords(Date from,
                                               Date until,
                                               String mdPrefix) {
@@ -162,6 +183,7 @@ public class OAIDriverImpl implements OAIDriver {
     }
 
     // In this case, sourceInfo is the full path to the source file.
+    @Override
     public void writeRecordXML(String itemID,
                                String mdPrefix,
                                String sourceInfo,
@@ -251,5 +273,4 @@ public class OAIDriverImpl implements OAIDriver {
             throw new RepositoryException("Error getting metadata formats", e);
         }
     }
-
 }

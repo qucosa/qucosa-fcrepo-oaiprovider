@@ -16,15 +16,15 @@
 
 package proai.driver;
 
+import java.io.PrintWriter;
+import java.util.Date;
+import java.util.Properties;
+
 import proai.MetadataFormat;
 import proai.Record;
 import proai.SetInfo;
 import proai.Writable;
 import proai.error.RepositoryException;
-
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.Properties;
 
 /**
  * An interface to a repository.
@@ -46,6 +46,13 @@ public interface OAIDriver extends Writable {
     void init(Properties props) throws RepositoryException;
 
     /**
+     * Returns application properties
+     *
+     * @return {@link Properties}
+     */
+    Properties getProps();
+
+    /**
      * Write information about the repository to the given PrintWriter.
      * <p/>
      * <p/>
@@ -57,6 +64,7 @@ public interface OAIDriver extends Writable {
      *
      * @throws RepositoryException if there is a problem reading from the repository.
      */
+    @Override
     void write(PrintWriter out) throws RepositoryException;
 
     /**
