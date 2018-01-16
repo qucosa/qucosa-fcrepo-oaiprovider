@@ -16,28 +16,36 @@
 
 package proai.service;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import proai.error.BadArgumentException;
-import proai.error.BadVerbException;
-import proai.error.ProtocolException;
-import proai.error.ServerException;
-import proai.util.StreamUtil;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+import proai.driver.daos.json.DissTermsDaoJson;
+import proai.driver.daos.json.SetSpecDaoJson;
+import proai.error.BadArgumentException;
+import proai.error.BadVerbException;
+import proai.error.ProtocolException;
+import proai.error.ServerException;
+import proai.util.StreamUtil;
 
 public class ProviderServlet extends HttpServlet {
     static final long serialVersionUID = 1;
@@ -63,6 +71,7 @@ public class ProviderServlet extends HttpServlet {
      * This makes a best-effort attempt to properly close any resources
      * (db connections, threads, etc) that are being held.
      */
+    @Override
     public void destroy() {
         try {
             m_responder.close();
@@ -74,6 +83,7 @@ public class ProviderServlet extends HttpServlet {
     /**
      * Entry point for handling OAI requests.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) {
@@ -204,6 +214,7 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
+    @Override
     public void init() throws ServletException {
         String s = firstOf(
                 System.getProperty("proai.home"),
@@ -229,6 +240,8 @@ public class ProviderServlet extends HttpServlet {
         try {
             Properties props = new Properties();
             props.load(propertiesStream);
+            props.put("dissTermsData", new DissTermsDaoJson());
+            props.put("dynSetSpecs", new SetSpecDaoJson());
             m_responder = new Responder(props);
             setStylesheetProperty(props);
         } catch (Exception e) {
@@ -236,6 +249,7 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
+    @Override
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response) {
         doGet(request, response);

@@ -5,10 +5,10 @@ import org.junit.Test;
 
 import oaiprovider.mappings.DissTerms.Term;
 import oaiprovider.mappings.DissTerms.XmlNamspace;
-import proai.driver.impl.DissTermsImpl;
+import proai.driver.daos.json.DissTermsDaoJson;
 
 public class DissTermsTest {
-    private DissTermsImpl dissTermsData = new DissTermsImpl();
+    private DissTermsDaoJson dissTermsData = new DissTermsDaoJson();
 
     @Test
     public void xmlNamespacesTest() {

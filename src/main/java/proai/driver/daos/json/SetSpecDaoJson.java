@@ -50,7 +50,7 @@ public class SetSpecDaoJson {
         for (Set obj : getSetObjects()) {
 
             if (obj.getSetSpec().equals(setSpec)) {
-                obj = setObj;
+                setObj = obj;
                 break;
             }
         }
