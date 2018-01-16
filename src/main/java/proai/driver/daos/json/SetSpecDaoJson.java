@@ -1,9 +1,12 @@
-package proai.driver.impl;
+package proai.driver.daos.json;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -17,16 +20,13 @@ import oaiprovider.mappings.ListSetConfJson.Set;
  * @author dseelig
  *
  */
-public class SetSpecImpl {
-    private ObjectMapper om = new ObjectMapper();
+public class SetSpecDaoJson {
+    private static final Logger logger = LoggerFactory.getLogger(SetSpecDaoJson.class);
 
-    /**
-     * set with setspec entries from json setspec config file
-     */
-    private java.util.Set setSpecs;
+    private List<Set> sets = null;
 
-    public List<Set> getSetSpecsConf() {
-        List<Set> sets = null;
+    public SetSpecDaoJson() {
+        ObjectMapper om = new ObjectMapper();
         File setSpecs = new File(this.getClass().getClassLoader().getResource("config/list-set-conf.json").getPath());
 
         try {
@@ -38,27 +38,34 @@ public class SetSpecImpl {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public List<Set> getSetObjects() {
         return sets;
     }
 
-    /**
-     * returns a setspec set object with setspec json config entries
-     *
-     * @return {@link java.util.Set}
-     */
-    public java.util.Set<String> getSetSpecs() {
-        setSpecs = new HashSet<>();
+    public Set getSetObject(String setSpec) {
+        Set setObj = null;
 
-        for (int i = 0; i < getSetSpecsConf().size(); i++) {
-            Set set = getSetSpecsConf().get(i);
+        for (Set obj : getSetObjects()) {
+
+            if (obj.getSetSpec().equals(setSpec)) {
+                setObj = obj;
+                break;
+            }
+        }
+
+        return setObj;
+    }
+
+    public java.util.Set<String> getSetSpecs() {
+        java.util.Set<String> setSpecs = new HashSet<String>();
+
+        for (int i = 0; i < getSetObjects().size(); i++) {
+            Set set = getSetObjects().get(i);
             setSpecs.add(set.getSetSpec());
         }
 
         return setSpecs;
-    }
-
-    public void setSetSpecs(java.util.Set<String> setSpecs) {
-        this.setSpecs = setSpecs;
     }
 }

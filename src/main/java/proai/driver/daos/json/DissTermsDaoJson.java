@@ -1,4 +1,4 @@
-package proai.driver.impl;
+package proai.driver.daos.json;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +19,22 @@ import oaiprovider.mappings.DissTerms.DissTerm;
 import oaiprovider.mappings.DissTerms.Term;
 import oaiprovider.mappings.DissTerms.XmlNamspace;
 
-public class DissTermsImpl {
-    private static final Logger logger = LoggerFactory.getLogger(DissTermsImpl.class);
+public class DissTermsDaoJson {
+    private static final Logger logger = LoggerFactory.getLogger(DissTermsDaoJson.class);
 
-    private ObjectMapper om = new ObjectMapper();
+    DissTerms dissTerms = null;
+
+    public DissTermsDaoJson() {
+        ObjectMapper om = new ObjectMapper();
+        File file = new File(getClass().getClassLoader().getResource("config/dissemination-config.json").getPath());
+
+        try {
+            dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.debug("dissemination-conf parse failed.");
+        }
+    }
 
     public Map<String, String> getMapXmlNamespaces() {
         Map<String, String> map = new HashMap<>();
@@ -52,7 +64,7 @@ public class DissTermsImpl {
     }
 
     public Term getTerm(String diss, String name) {
-        HashSet<DissTerm> dissTerms = (HashSet<DissTerm>) dissTerms().getDissTerms();
+        HashSet<DissTerm> dissTerms = (HashSet<DissTerm>) this.dissTerms.getDissTerms();
         Term term = null;
 
         for (DissTerm dt : dissTerms) {
@@ -86,21 +98,7 @@ public class DissTermsImpl {
     }
 
     private Set<XmlNamspace> xmlNamespaces() {
-        HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms().getXmlnamespacees();
+        HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
         return xmlNamespaces;
-    }
-
-    private DissTerms dissTerms() {
-        File file = new File(getClass().getClassLoader().getResource("config/dissemination-config.json").getPath());
-        DissTerms dissTerms = null;
-
-        try {
-            dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
-            return dissTerms;
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.debug("dissemination-conf parse failed.");
-            return dissTerms;
-        }
     }
 }

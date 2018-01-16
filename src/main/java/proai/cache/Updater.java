@@ -39,12 +39,13 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.bvalid.Validator;
 import oaiprovider.FedoraSetInfo;
+import oaiprovider.mappings.ListSetConfJson;
 import proai.MetadataFormat;
 import proai.Record;
 import proai.SetInfo;
 import proai.driver.OAIDriver;
 import proai.driver.RemoteIterator;
-import proai.driver.impl.SetSpecImpl;
+import proai.driver.daos.json.SetSpecDaoJson;
 import proai.error.ImmediateShutdownException;
 import proai.error.RepositoryException;
 import proai.error.ServerException;
@@ -657,8 +658,6 @@ public class Updater extends Thread {
 
         logger.debug("Updating sets...");
 
-        SetSpecImpl setSpecMerge = new SetSpecImpl();
-
         // apply new / updated
         RemoteIterator<? extends SetInfo> riter = _driver.listSetInfo();
         Set<SetInfo> setInfos = new HashSet<>();
@@ -678,11 +677,10 @@ public class Updater extends Thread {
         }
 
         // add sets from json config
-        for (int i = 0; i < setSpecMerge.getSetSpecsConf().size(); i++) {
-            oaiprovider.mappings.ListSetConfJson.Set setObj = setSpecMerge.getSetSpecsConf().get(i);
+        for (ListSetConfJson.Set set : ((SetSpecDaoJson) _driver.getProps().get("dynSetSpecs")).getSetObjects()) {
             FedoraSetInfo fedoraSetInfo = new FedoraSetInfo();
-            fedoraSetInfo.setSpec(setObj.getSetSpec());
-            fedoraSetInfo.setName(setObj.getSetName());
+            fedoraSetInfo.setSpec(set.getSetSpec());
+            fedoraSetInfo.setName(set.getSetName());
             setInfos.add(fedoraSetInfo);
         }
 

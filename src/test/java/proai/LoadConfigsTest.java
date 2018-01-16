@@ -1,29 +1,29 @@
 package proai;
 
-import java.util.HashSet;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.hamcrest.collection.IsEmptyCollection;
+import org.junit.Assert;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import oaiprovider.mappings.DissTerms;
-import proai.driver.impl.SetSpecImpl;
+import oaiprovider.mappings.ListSetConfJson.Set;
+import proai.driver.daos.json.SetSpecDaoJson;
 
 public class LoadConfigsTest {
-    private SetSpecImpl setSpecMerge = new SetSpecImpl();
-
-    private DissTerms dissTerms = new DissTerms();
-
-    private ObjectMapper om = new ObjectMapper();
-
-    @Test
-    public void loadXpathDocNodes() {
-        dissTerms.getDissTerms();
-    }
+    private SetSpecDaoJson setSpecMerge = new SetSpecDaoJson();
 
     @Test
     public void getSetSpecs() {
-        setSpecMerge.setSetSpecs(new HashSet<String>());
-        setSpecMerge.getSetSpecs();
+        Assert.assertNotNull(setSpecMerge.getSetSpecs());
+        assertThat(setSpecMerge.getSetSpecs(), not(IsEmptyCollection.empty()));
+    }
+
+    @Test
+    public void getSetSpec() {
+        Set set = setSpecMerge.getSetObject("ddc:010");
+        Assert.assertEquals("ddc:010", set.getSetSpec());
+        Assert.assertEquals("Bibliography", set.getSetName());
+        Assert.assertEquals("xDDC=010", set.getPredicate());
     }
 }

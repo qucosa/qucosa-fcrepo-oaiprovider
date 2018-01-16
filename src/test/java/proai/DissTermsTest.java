@@ -1,18 +1,23 @@
 package proai;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
 import oaiprovider.mappings.DissTerms.Term;
 import oaiprovider.mappings.DissTerms.XmlNamspace;
-import proai.driver.impl.DissTermsImpl;
+import proai.driver.daos.json.DissTermsDaoJson;
 
 public class DissTermsTest {
-    private DissTermsImpl dissTermsData = new DissTermsImpl();
+    private DissTermsDaoJson dissTermsData = new DissTermsDaoJson();
 
     @Test
     public void xmlNamespacesTest() {
-        dissTermsData.getSetXmlNamespaces();
+        Assert.assertNotNull(dissTermsData.getSetXmlNamespaces());
+        assertThat(dissTermsData.getSetXmlNamespaces(), not(IsEmptyCollection.empty()));
     }
 
     @Test
