@@ -1,5 +1,9 @@
 package proai;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +16,8 @@ public class DissTermsTest {
 
     @Test
     public void xmlNamespacesTest() {
-        dissTermsData.getSetXmlNamespaces();
+        Assert.assertNotNull(dissTermsData.getSetXmlNamespaces());
+        assertThat(dissTermsData.getSetXmlNamespaces(), not(IsEmptyCollection.empty()));
     }
 
     @Test
