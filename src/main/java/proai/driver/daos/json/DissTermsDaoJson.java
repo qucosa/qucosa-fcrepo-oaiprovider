@@ -1,23 +1,19 @@
 package proai.driver.daos.json;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import oaiprovider.mappings.DissTerms;
 import oaiprovider.mappings.DissTerms.DissTerm;
 import oaiprovider.mappings.DissTerms.Term;
 import oaiprovider.mappings.DissTerms.XmlNamspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class DissTermsDaoJson {
     private static final Logger logger = LoggerFactory.getLogger(DissTermsDaoJson.class);
@@ -26,8 +22,8 @@ public class DissTermsDaoJson {
 
     public DissTermsDaoJson() throws IOException {
         ObjectMapper om = new ObjectMapper();
-        File file = new File(getClass().getClassLoader().getResource("config/dissemination-config.json").getPath());
-        dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
+        InputStream disseminationConfiguration = getClass().getResourceAsStream("config/dissemination-config.json");
+        dissTerms = om.readValue(disseminationConfiguration, DissTerms.class);
     }
 
     public Map<String, String> getMapXmlNamespaces() {

@@ -1,18 +1,14 @@
 package proai.driver.daos.json;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import oaiprovider.mappings.ListSetConfJson.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import oaiprovider.mappings.ListSetConfJson.Set;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Load the setspec json config, write in an set and return this set.
@@ -27,8 +23,8 @@ public class SetSpecDaoJson {
 
     public SetSpecDaoJson() throws IOException {
         ObjectMapper om = new ObjectMapper();
-        File setSpecs = new File(this.getClass().getClassLoader().getResource("config/list-set-conf.json").getPath());
-        sets = om.readValue(setSpecs, om.getTypeFactory().constructCollectionType(List.class, Set.class));
+        InputStream setSpecsConfiguration = getClass().getResourceAsStream("config/list-set-conf.json");
+        sets = om.readValue(setSpecsConfiguration, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 
     public List<Set> getSetObjects() {
