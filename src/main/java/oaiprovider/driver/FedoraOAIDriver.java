@@ -50,6 +50,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import oaiprovider.mappings.DissTerms.Term;
 import org.fcrepo.client.FedoraClient;
 import org.fcrepo.common.http.HttpInputStream;
 import org.slf4j.Logger;
@@ -171,12 +172,12 @@ public class FedoraOAIDriver implements OAIDriver {
         for (ListSetConfJson.Set set : ((SetSpecDaoJson) props.get(PROP_SETSPEC_DAO_JSON)).getSetObjects()) {
 
             String setSpec = set.getSetSpec();
-            if (assertNotNullNotEmpty(setSpec, "Found empty setSpec")) {
+            if (assertNotNullNotEmpty(setSpec)) {
                 continue;
             }
 
             String setPredicate = set.getPredicate();
-            if (assertNotNullNotEmpty(setPredicate, String.format("Found empty set predicate for '%s'.", setSpec))) {
+            if (assertNotNullNotEmpty(setPredicate)) {
                 continue;
             }
 
@@ -192,17 +193,15 @@ public class FedoraOAIDriver implements OAIDriver {
                 predicateValue = null;
             }
 
-            oaiprovider.mappings.DissTerms.Term term = dissTermsData().getTerm(predicateName, mdPrefix);
+            Term term = dissTermsData().getTerm(predicateName, mdPrefix);
 
             if (term == null) {
-                logger.warn(String.format("No term definition for %s", predicateName));
                 continue;
             }
 
             String termExpression = term.getTerm();
 
             if (termExpression == null || termExpression.isEmpty()) {
-                logger.warn(String.format("Found empty XPath expression for %s/%s.", predicateName, mdPrefix));
                 continue;
             }
 
@@ -218,12 +217,8 @@ public class FedoraOAIDriver implements OAIDriver {
         return ((DissTermsDaoJson) props.get(PROP_DISS_TERMS_DAO_JSON));
     }
 
-    private boolean assertNotNullNotEmpty(String setName, String s) {
-        if (setName == null || setName.isEmpty()) {
-            logger.warn(s);
-            return true;
-        }
-        return false;
+    private boolean assertNotNullNotEmpty(String setName) {
+        return setName == null || setName.isEmpty();
     }
 
     private static boolean termMatches(Document document, XPath xPath, String predicateValue, String termExpression) {
