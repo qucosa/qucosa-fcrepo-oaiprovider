@@ -20,9 +20,8 @@ public class DissTermsDaoJson {
 
     private DissTerms dissTerms;
 
-    public DissTermsDaoJson() throws IOException {
+    public DissTermsDaoJson(InputStream disseminationConfiguration) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        InputStream disseminationConfiguration = getClass().getResourceAsStream("config/dissemination-config.json");
         dissTerms = om.readValue(disseminationConfiguration, DissTerms.class);
     }
 

@@ -21,9 +21,8 @@ public class SetSpecDaoJson {
 
     private List<Set> sets;
 
-    public SetSpecDaoJson() throws IOException {
+    public SetSpecDaoJson(InputStream setSpecsConfiguration) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        InputStream setSpecsConfiguration = getClass().getResourceAsStream("config/list-set-conf.json");
         sets = om.readValue(setSpecsConfiguration, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 

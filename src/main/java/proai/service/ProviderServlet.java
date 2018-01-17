@@ -235,13 +235,20 @@ public class ProviderServlet extends HttpServlet {
 
         configureLogback(proaiConfigPath);
 
-        final InputStream propertiesStream = getPropertiesInputStream(proaiConfigPath);
 
         try {
+            final InputStream propertiesStream =
+                    getConfigurationResourceAsStream(proaiConfigPath, "proai.properties");
+            final InputStream disseminationConfiguration =
+                    getConfigurationResourceAsStream(proaiConfigPath,"dissemination-config.json");
+            final InputStream setSpecsConfiguration =
+                    getConfigurationResourceAsStream(proaiConfigPath, "list-set-conf.json");
+
             Properties props = new Properties();
             props.load(propertiesStream);
-            props.put("dissTermsData", new DissTermsDaoJson());
-            props.put("dynSetSpecs", new SetSpecDaoJson());
+            props.put("dissTermsData", new DissTermsDaoJson(disseminationConfiguration));
+            props.put("dynSetSpecs", new SetSpecDaoJson(setSpecsConfiguration));
+
             m_responder = new Responder(props);
             setStylesheetProperty(props);
         } catch (Exception e) {
@@ -276,24 +283,32 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
-    private InputStream getPropertiesInputStream(Path proaiConfigPath) throws ServletException {
-        InputStream propertiesStream;
-        if (proaiConfigPath != null) {
-            final Path proaiPropetiesPath = proaiConfigPath.resolve("proai.properties");
-            final File propertiesFile = proaiPropetiesPath.toFile();
-            try {
-                propertiesStream = new FileInputStream(propertiesFile);
-            } catch (IOException e) {
-                throw new ServletException(
-                        String.format("Error loading configuration from '%s': %s", proaiPropetiesPath, e.getMessage()));
-            }
-        } else {
-            propertiesStream = this.getClass().getResourceAsStream("/config/proai.default.properties");
-            if (propertiesStream == null) {
-                throw new ServletException("Error loading default configuration: proai.default.properties not found in classpath");
+    /**
+     * Find configuration file in system config folder. Load from defaults from classpath as fallback.
+     *
+     * @param name Name of the resource to load (file name)
+     * @return Ready InputStream to obtain contents of the resource
+     * @throws IOException Thrown if the resource cannot be opened
+     */
+    private InputStream getConfigurationResourceAsStream(Path configPath, String name) throws IOException {
+        // Try file system
+        if (configPath != null) {
+            File resourceFile = configPath.resolve(name).toFile();
+            if (resourceFile.exists()) {
+                logger.info("Found in configuration folder: " + resourceFile.getAbsolutePath());
+                return new FileInputStream(resourceFile);
             }
         }
-        return propertiesStream;
+
+        // Fallback to classpath
+        String classpathName = "/config/" + name;
+        InputStream resourceStream = getClass().getResourceAsStream(classpathName);
+        if (resourceStream != null) {
+            logger.info("Found on classpath: " + classpathName);
+            return resourceStream;
+        }
+
+        throw new IOException("Cannot find configuration in either config folder or classpath: " + name);
     }
 
     private static void appendAttribute(String name, String value, StringBuffer buf) {

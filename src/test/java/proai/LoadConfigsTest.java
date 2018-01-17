@@ -10,8 +10,14 @@ import org.junit.Test;
 import oaiprovider.mappings.ListSetConfJson.Set;
 import proai.driver.daos.json.SetSpecDaoJson;
 
+import java.io.IOException;
+
 public class LoadConfigsTest {
-    private SetSpecDaoJson setSpecMerge = new SetSpecDaoJson();
+    private SetSpecDaoJson setSpecMerge;
+
+    public LoadConfigsTest() throws IOException {
+        setSpecMerge = new SetSpecDaoJson(getClass().getResourceAsStream("/config/list-set-conf.json"));
+    }
 
     @Test
     public void getSetSpecs() {
