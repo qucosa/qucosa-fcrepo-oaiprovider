@@ -23,21 +23,12 @@ import oaiprovider.mappings.ListSetConfJson.Set;
 public class SetSpecDaoJson {
     private static final Logger logger = LoggerFactory.getLogger(SetSpecDaoJson.class);
 
-    private List<Set> sets = null;
+    private List<Set> sets;
 
-    public SetSpecDaoJson() {
+    public SetSpecDaoJson() throws IOException {
         ObjectMapper om = new ObjectMapper();
         File setSpecs = new File(this.getClass().getClassLoader().getResource("config/list-set-conf.json").getPath());
-
-        try {
-            sets = om.readValue(setSpecs, om.getTypeFactory().constructCollectionType(List.class, Set.class));
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sets = om.readValue(setSpecs, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 
     public List<Set> getSetObjects() {

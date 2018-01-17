@@ -22,18 +22,12 @@ import oaiprovider.mappings.DissTerms.XmlNamspace;
 public class DissTermsDaoJson {
     private static final Logger logger = LoggerFactory.getLogger(DissTermsDaoJson.class);
 
-    DissTerms dissTerms = null;
+    private DissTerms dissTerms;
 
-    public DissTermsDaoJson() {
+    public DissTermsDaoJson() throws IOException {
         ObjectMapper om = new ObjectMapper();
         File file = new File(getClass().getClassLoader().getResource("config/dissemination-config.json").getPath());
-
-        try {
-            dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.debug("dissemination-conf parse failed.");
-        }
+        dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
     }
 
     public Map<String, String> getMapXmlNamespaces() {
