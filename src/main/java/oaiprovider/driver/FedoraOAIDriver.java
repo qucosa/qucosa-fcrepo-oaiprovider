@@ -234,7 +234,7 @@ public class FedoraOAIDriver implements OAIDriver {
             XPathExpression xPathExpression = xPath.compile(xpathTerm);
             node = (Node) xPathExpression.evaluate(document, XPathConstants.NODE);
         } catch (XPathExpressionException e) {
-            logger.error(String.format("Cannot evaluate XPath expression '%s'", xPath), e);
+            logger.error(String.format("Cannot evaluate XPath expression '%s': %s", xPath, e.getMessage()));
         }
         return (node != null);
     }
