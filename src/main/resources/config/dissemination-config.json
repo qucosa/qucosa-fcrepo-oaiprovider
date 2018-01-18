@@ -39,6 +39,10 @@
     {
       "prefix": "dini",
       "url": "http://www.d-nb.de/standards/xmetadissplus/type/"
+    },
+    {
+      "prefix": "oai_dc",
+      "url": "http://www.openarchives.org/OAI/2.0/oai_dc/"
     }
   ],
   "dissTerms": [
