@@ -111,11 +111,11 @@ public class Worker extends Thread {
 
             qi.setSucceeded(true);
 
-            _LOG.info("Successfully processed record");
+            _LOG.debug("Successfully processed record " + qi.getIdentifier());
 
         } catch (Throwable th) {
 
-            _LOG.warn("Failed to process record", th);
+            _LOG.warn(String.format("Failed to process record %s: %s", qi.getIdentifier(), th.getMessage()));
 
             if (diskWriter != null) {
                 diskWriter.close();
@@ -124,6 +124,7 @@ public class Worker extends Thread {
 
             StringWriter failReason = new StringWriter();
             th.printStackTrace(new PrintWriter(failReason, true));
+
             qi.setFailReason(failReason.toString());
             qi.setFailDate(StreamUtil.nowUTCString());
             _failedCount++;

@@ -347,7 +347,7 @@ public class Updater extends Thread {
                     if (numWorkers > _maxWorkers) numWorkers = _maxWorkers;
                     if (numWorkers == 0) numWorkers = 1;
 
-                    logger.debug(format(
+                    logger.info(format(
                             "Queue has %d records.  Starting %d worker threads for processing.",
                             itemsInQueue, numWorkers));
 
