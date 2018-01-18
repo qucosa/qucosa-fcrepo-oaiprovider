@@ -16,29 +16,12 @@
 
 package proai.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proai.driver.daos.json.DissTermsDaoJson;
 import proai.driver.daos.json.SetSpecDaoJson;
 import proai.error.BadArgumentException;
@@ -46,6 +29,17 @@ import proai.error.BadVerbException;
 import proai.error.ProtocolException;
 import proai.error.ServerException;
 import proai.util.StreamUtil;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class ProviderServlet extends HttpServlet {
     static final long serialVersionUID = 1;
@@ -238,11 +232,11 @@ public class ProviderServlet extends HttpServlet {
 
         try {
             final InputStream propertiesStream =
-                    getConfigurationResourceAsStream(proaiConfigPath, "proai.properties");
+                    getConfigurationResourceAsStream(proaiConfigPath, "application properties", "proai.properties");
             final InputStream disseminationConfiguration =
-                    getConfigurationResourceAsStream(proaiConfigPath,"dissemination-config.json");
+                    getConfigurationResourceAsStream(proaiConfigPath, "dissemination terms", "dissemination-config.json");
             final InputStream setSpecsConfiguration =
-                    getConfigurationResourceAsStream(proaiConfigPath, "list-set-conf.json");
+                    getConfigurationResourceAsStream(proaiConfigPath, "list of dynamic sets", "list-set-conf.json");
 
             Properties props = new Properties();
             props.load(propertiesStream);
@@ -286,29 +280,40 @@ public class ProviderServlet extends HttpServlet {
     /**
      * Find configuration file in system config folder. Load from defaults from classpath as fallback.
      *
+     * @param configPath Path where to look for configuration files on the file system
+     * @param label Label for configuration file (e.g. "application properties")
      * @param name Name of the resource to load (file name)
      * @return Ready InputStream to obtain contents of the resource
      * @throws IOException Thrown if the resource cannot be opened
      */
-    private InputStream getConfigurationResourceAsStream(Path configPath, String name) throws IOException {
+    private InputStream getConfigurationResourceAsStream(Path configPath, String label, String name) throws IOException {
+        InputStream resourceStream = null;
+        String whereFound = "";
+
         // Try file system
         if (configPath != null) {
             File resourceFile = configPath.resolve(name).toFile();
             if (resourceFile.exists()) {
-                logger.info("Found in configuration folder: " + resourceFile.getAbsolutePath());
-                return new FileInputStream(resourceFile);
+                whereFound = "configuration folder: " + resourceFile.getAbsolutePath();
+                resourceStream = new FileInputStream(resourceFile);
             }
         }
 
         // Fallback to classpath
-        String classpathName = "/config/" + name;
-        InputStream resourceStream = getClass().getResourceAsStream(classpathName);
-        if (resourceStream != null) {
-            logger.info("Found on classpath: " + classpathName);
-            return resourceStream;
+        if (resourceStream == null) {
+            String classpathName = "/config/" + name;
+            resourceStream = getClass().getResourceAsStream(classpathName);
+            if (resourceStream != null) {
+                whereFound = "classpath: " + classpathName;
+            }
         }
 
-        throw new IOException("Cannot find configuration in either config folder or classpath: " + name);
+        if (resourceStream == null) {
+            throw new IOException("Cannot find configuration in either config folder or classpath: " + name);
+        }
+
+        logger.info(String.format("Found %s in %s ", label, whereFound));
+        return resourceStream;
     }
 
     private static void appendAttribute(String name, String value, StringBuffer buf) {
