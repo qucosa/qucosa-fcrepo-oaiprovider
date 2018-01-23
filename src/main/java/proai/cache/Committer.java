@@ -241,7 +241,7 @@ class Committer extends Thread {
             _transactionCount++;
             _processedCount += items.size();
             _totalCommitTime += System.currentTimeMillis() - commitStartTime;
-            _LOG.info("Committed " + items.size() + " QueueItems to database");
+            _LOG.debug(String.format("Committed %d QueueItems to database", items.size()));
 
             // before returning, check if our cacheCommitDate estimate was ok
             Date now = StreamUtil.nowUTC();

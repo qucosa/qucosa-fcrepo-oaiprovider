@@ -31,6 +31,7 @@ public class ListSetConfJson {
         @JsonProperty("setSpec")
         private String setSpec;
 
+        // FIXME setName is actually setDescription
         @JsonProperty("setName")
         private String setName;
 
