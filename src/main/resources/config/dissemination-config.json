@@ -90,11 +90,11 @@
       "terms": [
         {
           "name": "xmetadissplus",
-          "term": "//xMetaDiss:xMetaDiss/dini:version_driver"
+          "term": "//xMetaDiss:xMetaDiss/dini:version_driver[.='$val']"
         },
         {
           "name": "oai_dc",
-          "term": "//oai_dc:dc/dc:type[.='$val']"
+          "term": "//oai_dc:dc/dc:type[.='info:eu-repo/semantics/$val']"
         }
       ]
     },
