@@ -497,7 +497,7 @@
   {
     "setSpec": "doc-type:article",
     "setName": "Article",
-    "predicate": "xDocType=aricle"
+    "predicate": "xDocType=article"
   },
   {
     "setSpec": "doc-type:bachelorThesis",
