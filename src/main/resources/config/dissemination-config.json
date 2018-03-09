@@ -77,7 +77,7 @@
       "terms": [
         {
           "name": "xmetadissplus",
-          "term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini,:PublType' and .='$val']"
+          "term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini:PublType' and .='$val']"
         },
         {
           "name": "oai_dc",
