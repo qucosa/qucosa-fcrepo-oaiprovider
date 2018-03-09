@@ -671,6 +671,7 @@
   },
   {
     "setSpec": "openaire",
-    "predicate": "xOpenAire"
+    "setName": "OpenAire",
+    "predicate": "xOpenAire=openaire"
   }
 ]
