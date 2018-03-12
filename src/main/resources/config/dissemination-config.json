@@ -47,6 +47,19 @@
   ],
   "dissTerms": [
     {
+      "diss": "xDocType",
+      "terms": [
+        {
+          "name": "xmetadissplus",
+          "term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini:PublType' and .='$val']"
+        },
+        {
+          "name": "oai_dc",
+          "term": "//oai_dc:dc/dc:type[.='$val']"
+        }
+      ]
+    },
+    {
       "diss": "xDDC",
       "terms": [
         {
@@ -55,7 +68,7 @@
         },
         {
           "name": "oai_dc",
-          "term": "//oai_dc:dc/dc:classification[.='info:eu-repo/classification/ddc/$val']"
+          "term": "//oai_dc:dc/dc:subject[.='info:eu-repo/classification/ddc/$val']"
         }
       ]
     },
@@ -69,19 +82,6 @@
         {
           "name": "oai_dc",
           "term": "//oai_dc:dc[not(dc:rights='info:eu-repo/semantics/restrictedAccess')]"
-        }
-      ]
-    },
-    {
-      "diss": "xDocType",
-      "terms": [
-        {
-          "name": "xmetadissplus",
-          "term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini,:PublType' and .='$val']"
-        },
-        {
-          "name": "oai_dc",
-          "term": "//oai_dc:dc/dc:type[.='$val']"
         }
       ]
     },

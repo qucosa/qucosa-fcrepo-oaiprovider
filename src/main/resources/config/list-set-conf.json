@@ -1,5 +1,160 @@
 [
   {
+    "setSpec": "doc-type:annotation",
+    "setName": "Annotation",
+    "predicate": "xDocType=annotation"
+  },
+  {
+    "setSpec": "doc-type:article",
+    "setName": "Article",
+    "predicate": "xDocType=article"
+  },
+  {
+    "setSpec": "doc-type:bachelorThesis",
+    "setName": "BachelorThesis",
+    "predicate": "xDocType=bachelorThesis"
+  },
+  {
+    "setSpec": "doc-type:book",
+    "setName": "Book",
+    "predicate": "xDocType=book"
+  },
+  {
+    "setSpec": "doc-type:bookPart",
+    "setName": "BookPart",
+    "predicate": "xDocType=bookPart"
+  },
+  {
+    "setSpec": "doc-type:CarthographicMaterial",
+    "setName": "CarthographicMaterial",
+    "predicate": "xDocType=CarthographicMaterial"
+  },
+  {
+    "setSpec": "doc-type:conferenceObject",
+    "setName": "conferenceObject",
+    "predicate": "xDocType=conferenceObject"
+  },
+  {
+    "setSpec": "doc-type:contributionToPeriodical",
+    "setName": "ContributionToPeriodical",
+    "predicate": "xDocType=contributionToPeriodical"
+  },
+  {
+    "setSpec": "doc-type:CourseMaterial",
+    "setName": "CourseMaterial",
+    "predicate": "xDocType=CourseMaterial"
+  },
+  {
+    "setSpec": "doc-type:doctoralThesis",
+    "setName": "DoctoralThesis",
+    "predicate": "xDocType=doctoralThesis"
+  },
+  {
+    "setSpec": "doc-type:Image",
+    "setName": "Image",
+    "predicate": "xDocType=Image"
+  },
+  {
+    "setSpec": "doc-type:lecture",
+    "setName": "Lecture",
+    "predicate": "xDocType=lecture"
+  },
+  {
+    "setSpec": "doc-type:Manuscript",
+    "setName": "Manuscript",
+    "predicate": "xDocType=Manuscript"
+  },
+  {
+    "setSpec": "doc-type:masterThesis",
+    "setName": "MasterThesis",
+    "predicate": "xDocType=masterThesis"
+  },
+  {
+    "setSpec": "doc-type:MovingImage",
+    "setName": "MovingImage",
+    "predicate": "xDocType=MovingImage"
+  },
+  {
+    "setSpec": "doc-type:MusicalNotation",
+    "setName": "MusicalNotation",
+    "predicate": "xDocType=MusicalNotation"
+  },
+  {
+    "setSpec": "doc-type:Other",
+    "setName": "Other",
+    "predicate": "xDocType=Other"
+  },
+  {
+    "setSpec": "doc-type:patent",
+    "setName": "Patent",
+    "predicate": "xDocType=patent"
+  },
+  {
+    "setSpec": "doc-type:Periodical",
+    "setName": "Periodical",
+    "predicate": "xDocType=Periodical"
+  },
+  {
+    "setSpec": "doc-type:PeriodicalPart",
+    "setName": "PeriodicalPart",
+    "predicate": "xDocType=PeriodicalPart"
+  },
+  {
+    "setSpec": "doc-type:preprint",
+    "setName": "Preprint",
+    "predicate": "xDocType=preprint"
+  },
+  {
+    "setSpec": "doc-type:report",
+    "setName": "Report",
+    "predicate": "xDocType=report"
+  },
+  {
+    "setSpec": "doc-type:ResearchData",
+    "setName": "ResearchData",
+    "predicate": "xDocType=ResearchData"
+  },
+  {
+    "setSpec": "doc-type:review",
+    "setName": "Review",
+    "predicate": "xDocType=review"
+  },
+  {
+    "setSpec": "doc-type:Software",
+    "setName": "Software",
+    "predicate": "xDocType=Software"
+  },
+  {
+    "setSpec": "doc-type:Sound",
+    "setName": "Sound",
+    "predicate": "xDocType=Sound"
+  },
+  {
+    "setSpec": "doc-type:StillImage",
+    "setName": "StillImage",
+    "predicate": "xDocType=StillImage"
+  },
+  {
+    "setSpec": "doc-type:StudyThesis",
+    "setName": "StudyThesis",
+    "predicate": "xDocType=StudyThesis"
+  },
+  {
+    "setSpec": "doc-type:Text",
+    "setName": "Text",
+    "predicate": "xDocType=Text"
+  },
+  {
+    "setSpec": "doc-type:Website",
+    "setName": "Website",
+    "predicate": "xDocType=Website"
+  },
+  {
+    "setSpec": "doc-type:workingPaper",
+    "setName": "WorkingPaper",
+    "predicate": "xDocType=workingPaper"
+  },
+  {
     "setSpec": "has-source-swb:true",
     "setName": "All records with PPN",
     "predicate": "xSourceSwb=true"
@@ -488,161 +643,6 @@
     "setSpec": "ddc:990",
     "setName": "General history of other areas",
     "predicate": "xDDC=990"
-  },
-  {
-    "setSpec": "doc-type:annotation",
-    "setName": "Annotation",
-    "predicate": "xDocType=annotation"
-  },
-  {
-    "setSpec": "doc-type:article",
-    "setName": "Article",
-    "predicate": "xDocType=article"
-  },
-  {
-    "setSpec": "doc-type:bachelorThesis",
-    "setName": "BachelorThesis",
-    "predicate": "xDocType=bachelorThesis"
-  },
-  {
-    "setSpec": "doc-type:book",
-    "setName": "Book",
-    "predicate": "xDocType=book"
-  },
-  {
-    "setSpec": "doc-type:bookPart",
-    "setName": "BookPart",
-    "predicate": "xDocType=bookPart"
-  },
-  {
-    "setSpec": "doc-type:CarthographicMaterial",
-    "setName": "CarthographicMaterial",
-    "predicate": "xDocType=CarthographicMaterial"
-  },
-  {
-    "setSpec": "doc-type:conferenceObject",
-    "setName": "conferenceObject",
-    "predicate": "xDocType=conferenceObject"
-  },
-  {
-    "setSpec": "doc-type:contributionToPeriodical",
-    "setName": "ContributionToPeriodical",
-    "predicate": "xDocType=contributionToPeriodical"
-  },
-  {
-    "setSpec": "doc-type:CourseMaterial",
-    "setName": "CourseMaterial",
-    "predicate": "xDocType=CourseMaterial"
-  },
-  {
-    "setSpec": "doc-type:doctoralThesis",
-    "setName": "DoctoralThesis",
-    "predicate": "xDocType=doctoralThesis"
-  },
-  {
-    "setSpec": "doc-type:Image",
-    "setName": "Image",
-    "predicate": "xDocType=Image"
-  },
-  {
-    "setSpec": "doc-type:lecture",
-    "setName": "Lecture",
-    "predicate": "xDocType=lecture"
-  },
-  {
-    "setSpec": "doc-type:Manuscript",
-    "setName": "Manuscript",
-    "predicate": "xDocType=Manuscript"
-  },
-  {
-    "setSpec": "doc-type:masterThesis",
-    "setName": "MasterThesis",
-    "predicate": "xDocType=masterThesis"
-  },
-  {
-    "setSpec": "doc-type:MovingImage",
-    "setName": "MovingImage",
-    "predicate": "xDocType=MovingImage"
-  },
-  {
-    "setSpec": "doc-type:MusicalNotation",
-    "setName": "MusicalNotation",
-    "predicate": "xDocType=MusicalNotation"
-  },
-  {
-    "setSpec": "doc-type:Other",
-    "setName": "Other",
-    "predicate": "xDocType=Other"
-  },
-  {
-    "setSpec": "doc-type:patent",
-    "setName": "Patent",
-    "predicate": "xDocType=patent"
-  },
-  {
-    "setSpec": "doc-type:Periodical",
-    "setName": "Periodical",
-    "predicate": "xDocType=Periodical"
-  },
-  {
-    "setSpec": "doc-type:PeriodicalPart",
-    "setName": "PeriodicalPart",
-    "predicate": "xDocType=PeriodicalPart"
-  },
-  {
-    "setSpec": "doc-type:preprint",
-    "setName": "Preprint",
-    "predicate": "xDocType=preprint"
-  },
-  {
-    "setSpec": "doc-type:report",
-    "setName": "Report",
-    "predicate": "xDocType=report"
-  },
-  {
-    "setSpec": "doc-type:ResearchData",
-    "setName": "ResearchData",
-    "predicate": "xDocType=ResearchData"
-  },
-  {
-    "setSpec": "doc-type:review",
-    "setName": "Review",
-    "predicate": "xDocType=review"
-  },
-  {
-    "setSpec": "doc-type:Software",
-    "setName": "Software",
-    "predicate": "xDocType=Software"
-  },
-  {
-    "setSpec": "doc-type:Sound",
-    "setName": "Sound",
-    "predicate": "xDocType=Sound"
-  },
-  {
-    "setSpec": "doc-type:StillImage",
-    "setName": "StillImage",
-    "predicate": "xDocType=StillImage"
-  },
-  {
-    "setSpec": "doc-type:StudyThesis",
-    "setName": "StudyThesis",
-    "predicate": "xDocType=StudyThesis"
-  },
-  {
-    "setSpec": "doc-type:Text",
-    "setName": "Text",
-    "predicate": "xDocType=Text"
-  },
-  {
-    "setSpec": "doc-type:Website",
-    "setName": "Website",
-    "predicate": "xDocType=Website"
-  },
-  {
-    "setSpec": "doc-type:workingPaper",
-    "setName": "WorkingPaper",
-    "predicate": "xDocType=workingPaper"
   },
   {
     "setSpec": "status-type:draftVersion",

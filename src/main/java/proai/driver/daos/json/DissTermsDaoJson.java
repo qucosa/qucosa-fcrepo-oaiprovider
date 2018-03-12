@@ -52,42 +52,46 @@ public class DissTermsDaoJson {
         return xmlNamspace;
     }
 
+    /**
+     *
+     * @param diss First part of predicate in list-set-conf.json (f.e. "xDocType")
+     * @param name Metadata-prefix (terms -> name in dissemination-config.json)
+     * @return Term Term object (metadata-prefix + XPath-Expression)
+     */
     public Term getTerm(String diss, String name) {
         HashSet<DissTerm> dissTerms = (HashSet<DissTerm>) this.dissTerms.getDissTerms();
         Term term = null;
+        boolean dissExists = false;
+        boolean termExists = false;
 
         for (DissTerm dt : dissTerms) {
 
-            if (!dt.getDiss().equals(diss)) {
-                logger.debug(diss + " is does not exists in dissemination-config.");
-                continue;
-            }
+            if (dt.getDiss().equals(diss)) {
+                dissExists |= true;
 
-            if (dt.getTerms().isEmpty()) {
-                logger.debug(diss + " has no terms config.");
-                continue;
-            }
+                if (!dt.getTerms().isEmpty()) {
 
-            for (Term t : dt.getTerms()) {
+                    for (Term t : dt.getTerms()) {
 
-                if (!t.getName().equals(name)) {
-                    logger.debug("The term name " + name + " is not available in dissemination " + diss);
-                    continue;
+                        if (t.getName().equals(name)) {
+                            termExists |= true;
+                            term = t;
+                            break;
+                        }
+                    }
                 }
-
-                term = t;
             }
-
-            if (term != null) {
-                break;
-            }
+        }
+        if (!dissExists) {
+            logger.debug(diss + " does not exist in dissemination-config.");
+        } else if (!termExists) {
+            logger.debug("The term name " + name + " is not available in dissemination " + diss);
         }
 
         return term;
     }
 
     private Set<XmlNamspace> xmlNamespaces() {
-        HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
-        return xmlNamespaces;
+        return dissTerms.getXmlnamespacees();
     }
 }
