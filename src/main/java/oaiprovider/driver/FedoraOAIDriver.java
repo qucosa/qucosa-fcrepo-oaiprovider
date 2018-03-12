@@ -229,14 +229,14 @@ public class FedoraOAIDriver implements OAIDriver {
             xpathTerm = termExpression;
         }
 
-        Node node = null;
         try {
             XPathExpression xPathExpression = xPath.compile(xpathTerm);
-            node = (Node) xPathExpression.evaluate(document, XPathConstants.NODE);
+            return (boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
         } catch (XPathExpressionException e) {
             logger.error(String.format("Cannot evaluate XPath expression >>>%s<<< : %s", xpathTerm, e.getMessage()));
         }
-        return (node != null);
+
+        return false;
     }
 
     static String getRequired(Properties props, String key)
