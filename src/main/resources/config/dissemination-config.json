@@ -47,19 +47,6 @@
   ],
   "dissTerms": [
     {
-      "diss": "xDocType",
-      "terms": [
-        {
-          "name": "xmetadissplus",
-          "term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini:PublType' and .='$val']"
-        },
-        {
-          "name": "oai_dc",
-          "term": "//oai_dc:dc/dc:type[.='$val']"
-        }
-      ]
-    },
-    {
       "diss": "xDDC",
       "terms": [
         {
@@ -68,7 +55,7 @@
         },
         {
           "name": "oai_dc",
-          "term": "//oai_dc:dc/dc:subject[.='info:eu-repo/classification/ddc/$val']"
+          "term": "//oai_dc:dc/dc:classification[.='info:eu-repo/classification/ddc/$val']"
         }
       ]
     },
@@ -77,11 +64,24 @@
       "terms": [
         {
           "name": "xmetadissplus",
-          "term": "//xMetaDiss:xMetaDiss[not(dc:rights='info:eu-repo/semantics/restrictedAccess')]"
+          "term": "//xMetaDiss:xMetaDiss[dc:rights='info:eu-repo/semantics/openAccess']"
         },
         {
           "name": "oai_dc",
-          "term": "//oai_dc:dc[not(dc:rights='info:eu-repo/semantics/restrictedAccess')]"
+          "term": "//oai_dc:dc[dc:rights='info:eu-repo/semantics/openAccess']"
+        }
+      ]
+    },
+    {
+      "diss": "xDocType",
+      "terms": [
+        {
+          "name": "xmetadissplus",
+          "term": "//xMetaDiss:xMetaDiss/dc:type[@xsi:type='dini:PublType' and .='$val']"
+        },
+        {
+          "name": "oai_dc",
+          "term": "//oai_dc:dc/dc:type='$val'"
         }
       ]
     },
@@ -90,11 +90,11 @@
       "terms": [
         {
           "name": "xmetadissplus",
-          "term": "//xMetaDiss:xMetaDiss/dini:version_driver[.='$val']"
+          "term": "//xMetaDiss:xMetaDiss/dini:version_driver='$val'"
         },
         {
           "name": "oai_dc",
-          "term": "//oai_dc:dc/dc:type[.='info:eu-repo/semantics/$val']"
+          "term": "//oai_dc:dc/dc:type='info:eu-repo/semantics/$val'"
         }
       ]
     },
@@ -103,11 +103,11 @@
       "terms": [
         {
           "name": "xmetadissplus",
-          "term": ""
+          "term": "//xMetaDiss:xMetaDiss[dc:rights='info:eu-repo/semantics/openAccess' or dc:relation='info:eu-repo/grantAgreement/*']"
         },
         {
           "name": "oai_dc",
-          "term": ""
+          "term": "//oai_dc:dc[dc:rights='info:eu-repo/semantics/openAccess' or dc:relation='info:eu-repo/grantAgreement/*']"
         }
       ]
     }
