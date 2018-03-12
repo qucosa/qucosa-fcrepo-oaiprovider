@@ -64,11 +64,11 @@
       "terms": [
         {
           "name": "xmetadissplus",
-          "term": ""
+          "term": "//xMetaDiss:xMetaDiss[not(dc:rights='info:eu-repo/semantics/restrictedAccess')]"
         },
         {
           "name": "oai_dc",
-          "term": ""
+          "term": "//oai_dc:dc[not(dc:rights='info:eu-repo/semantics/restrictedAccess')]"
         }
       ]
     },
