@@ -48,7 +48,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import net.sf.saxon.xpath.XPathFactoryImpl;
 
 import oaiprovider.mappings.DissTerms.Term;
 import org.fcrepo.client.FedoraClient;
@@ -56,7 +56,6 @@ import org.fcrepo.common.http.HttpInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import de.qucosa.xmlutils.SimpleNamespaceContext;
@@ -166,7 +165,7 @@ public class FedoraOAIDriver implements OAIDriver {
     private List<String> getDynamicSetSpecs(String mdPrefix, Document document) {
         List<String> result = new ArrayList<>();
 
-        XPath xPath = XPathFactory.newInstance().newXPath();
+        XPath xPath = new XPathFactoryImpl().newXPath();
         xPath.setNamespaceContext(new SimpleNamespaceContext(dissTermsData().getMapXmlNamespaces()));
 
         for (ListSetConfJson.Set set : ((SetSpecDaoJson) props.get(PROP_SETSPEC_DAO_JSON)).getSetObjects()) {
