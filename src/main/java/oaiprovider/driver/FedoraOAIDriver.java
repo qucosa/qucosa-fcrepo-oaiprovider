@@ -183,8 +183,8 @@ public class FedoraOAIDriver implements OAIDriver {
             String predicateName;
             String predicateValue;
 
-            if (setPredicate.contains("=")) {
-                String[] split = setPredicate.split("=");
+            if (setPredicate.contains("~")) {
+                String[] split = setPredicate.split("~");
                 predicateName = split[0];
                 predicateValue = (split.length > 1) ? split[1] : "";
             } else {
