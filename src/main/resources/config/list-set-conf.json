@@ -360,6 +360,11 @@
     "predicate": "xDDC=490"
   },
   {
+    "setSpec": "ddc:491.8",
+    "setName": "Slavic languages",
+    "predicate": "xDDC=491.8"
+  },
+  {
     "setSpec": "ddc:500",
     "setName": "Natural sciences and mathematics",
     "predicate": "xDDC=500"
@@ -422,6 +427,11 @@
   {
     "setSpec": "ddc:620",
     "setName": "Engineering and allied operations",
+    "predicate": "xDDC=620"
+  },
+  {
+    "setSpec": "ddc:621.3",
+    "setName": "Electrical engineering and electronic",
     "predicate": "xDDC=620"
   },
   {
@@ -583,6 +593,11 @@
     "setSpec": "ddc:890",
     "setName": "Literatures of other languages",
     "predicate": "xDDC=890"
+  },
+  {
+    "setSpec": "ddc:891.8",
+    "setName": "Slavic literature",
+    "predicate": "xDDC=891.8"
   },
   {
     "setSpec": "ddc:900",
