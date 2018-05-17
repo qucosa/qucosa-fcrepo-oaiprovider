@@ -33,8 +33,8 @@ import java.util.Date;
  */
 public class DateRange {
 
-    String from = null;
-    String until = null;
+    String from;
+    String until;
 
     private DateRange(String fromDate, String untilDate) {
 
