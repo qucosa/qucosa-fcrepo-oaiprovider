@@ -67,14 +67,14 @@ public class DissTermsDaoJson {
         for (DissTerm dt : dissTerms) {
 
             if (dt.getDiss().equals(diss)) {
-                dissExists |= true;
+                dissExists = true;
 
                 if (!dt.getTerms().isEmpty()) {
 
                     for (Term t : dt.getTerms()) {
 
                         if (t.getName().equals(name)) {
-                            termExists |= true;
+                            termExists = true;
                             term = t;
                             break;
                         }

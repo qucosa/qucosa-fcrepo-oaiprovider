@@ -62,7 +62,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
                 m_identifiers);
         if (iter.hasNext()) return iter;
         // else figure out why and throw the right exception
-        if (!m_cache.formatExists(m_prefix)) {
+        if (m_cache.formatDoesNotExist(m_prefix)) {
             throw new CannotDisseminateFormatException();
         }
         closeSetinfoIfNotNull(m_set);
@@ -91,7 +91,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
                 m_set);
         if (iter.hasNext()) return iter;
         // else figure out why and throw the right exception
-        if (!m_cache.formatExists(m_prefix)) {
+        if (m_cache.formatDoesNotExist(m_prefix)) {
             throw new CannotDisseminateFormatException();
         }
         closeSetinfoIfNotNull(m_set);

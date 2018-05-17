@@ -58,10 +58,10 @@ public class DateRange {
         if (untilDate == null || untilDate.isEmpty()) {
             untilDate = null;
         }
-        if (!validate(fromDate))
+        if (invalid(fromDate))
             throw new DateRangeParseException("\"" + fromDate
                     + "\" is not a valid ISO8601 string.");
-        if (!validate(untilDate))
+        if (invalid(untilDate))
             throw new DateRangeParseException(untilDate
                     + " is not a valid ISO8601 string.");
         if (fromIsAfterUntil(fromDate, untilDate))
@@ -90,10 +90,10 @@ public class DateRange {
      * @param date a is08601 date
      * @return true if this class can handle the string, false if not.
      */
-    private static boolean validate(String date) {
-        if (date == null) return true;
+    private static boolean invalid(String date) {
+        if (date == null) return false;
         String pattern = "^(-?(?:[1-9][0-9]*)?[0-9]{4})(-(1[0-2]|0[1-9]))?(-(3[0-1]|0[1-9]|[1-2][0-9]))?(T(2[0-3]|[0-1][0-9])(:([0-5][0-9])(:([0-5][0-9]))?((\\.[0-9]+))?)?Z)?";
-        return date.matches(pattern);
+        return !date.matches(pattern);
     }
 
     private static boolean fromIsAfterUntil(String fromDate, String untilDate) {
@@ -273,10 +273,10 @@ public class DateRange {
         if (untilDate == null || untilDate.isEmpty()) {
             untilDate = null;
         }
-        if (!validate(fromDate))
+        if (invalid(fromDate))
             throw new DateRangeParseException(fromDate
                     + " is not a valid ISO8601 string.");
-        if (!validate(untilDate))
+        if (invalid(untilDate))
             throw new DateRangeParseException(untilDate
                     + " is not a valid ISO8601 string.");
         if (fromIsAfterUntil(fromDate, untilDate))

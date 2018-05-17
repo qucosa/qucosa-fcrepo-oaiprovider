@@ -335,8 +335,7 @@ public class ProviderServlet extends HttpServlet {
                                     ProtocolException e) { // normally null
         boolean doParams = true;
         if (verb == null) doParams = false;
-        if (e != null
-                && (e instanceof BadVerbException
+        if ((e instanceof BadVerbException
                 || e instanceof BadArgumentException)) doParams = false;
 
         StringBuffer buf = new StringBuffer();

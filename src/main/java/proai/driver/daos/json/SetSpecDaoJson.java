@@ -37,17 +37,17 @@ public class SetSpecDaoJson {
             String setSpec = set.getSetSpec();
 
             if (assertNotNullNotEmpty(setSpec, "Found empty setSpec")) {
-                result &= false;
+                result = false;
             } else {
 
                 String setName = set.getSetName();
                 if (assertNotNullNotEmpty(setName, String.format("Found empty setName for %s", setSpec))) {
-                    result &= false;
+                    result = false;
                 }
 
                 String setPredicate = set.getPredicate();
                 if (assertNotNullNotEmpty(setPredicate, String.format("Found empty set predicate for '%s'.", setSpec))) {
-                    result &= false;
+                    result = false;
                 }
 
             }

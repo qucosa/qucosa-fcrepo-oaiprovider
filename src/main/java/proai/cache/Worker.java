@@ -58,15 +58,15 @@ public class Worker extends Thread {
 
         List<QueueItem> queueItems = _updater.getNextBatch(null);
 
-        while (queueItems != null && !_updater.processingShouldStop()) {
+        while (queueItems != null && _updater.processingShouldContinue()) {
 
             Iterator<QueueItem> iter = queueItems.iterator();
-            while (iter.hasNext() && !_updater.processingShouldStop()) {
+            while (iter.hasNext() && _updater.processingShouldContinue()) {
 
                 attempt(iter.next());
             }
 
-            if (!_updater.processingShouldStop()) {
+            if (_updater.processingShouldContinue()) {
                 queueItems = _updater.getNextBatch(queueItems);
             } else {
                 _LOG.debug("About to finish prematurely because processing should stop");

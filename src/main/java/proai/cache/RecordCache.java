@@ -538,14 +538,14 @@ public class RecordCache extends Thread {
         }
     }
 
-    public boolean formatExists(String mdPrefix) throws ServerException {
+    public boolean formatDoesNotExist(String mdPrefix) throws ServerException {
         Connection conn = null;
         try {
             conn = getConnection();
             for (CachedMetadataFormat fmt : m_rcdb.getFormats(conn)) {
-                if (fmt.getPrefix().equals(mdPrefix)) return true;
+                if (fmt.getPrefix().equals(mdPrefix)) return false;
             }
-            return false;
+            return true;
         } catch (SQLException e) {
             throw new ServerException("Error getting a database connection", e);
         } finally {

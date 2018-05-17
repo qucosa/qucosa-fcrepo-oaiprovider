@@ -43,7 +43,7 @@ public class FedoraSetInfo
     private String m_setSpec;
 
     public FedoraSetInfo() {
-    };
+    }
 
     // if setDiss is null, descriptions don't exist, which is ok
     public FedoraSetInfo(FedoraClient fedora,

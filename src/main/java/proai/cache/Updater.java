@@ -243,7 +243,7 @@ public class Updater extends Thread {
 
         List<QueueItem> nextBatch = null;
 
-        if (!processingShouldStop()) {
+        if (processingShouldContinue()) {
 
             if (finishedItems != null) {
                 _committer.handoff(finishedItems);
@@ -805,8 +805,8 @@ public class Updater extends Thread {
                 totalQueuedCount, sec));
     }
 
-    protected synchronized boolean processingShouldStop() {
-        return _processingAborted || _immediateShutdownRequested;
+    protected synchronized boolean processingShouldContinue() {
+        return !_processingAborted && !_immediateShutdownRequested;
     }
 
     protected boolean anyWorkersAreRunning() {

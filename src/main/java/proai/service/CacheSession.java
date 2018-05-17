@@ -154,9 +154,7 @@ public class CacheSession<T> extends Thread
             return true;
         }
         if (_lastGeneratedPart >= 0 && _lastSentPart > -1) {
-            if (_expirationTime < System.currentTimeMillis()) {
-                return true;
-            }
+            return _expirationTime < System.currentTimeMillis();
         }
         return false;
     }

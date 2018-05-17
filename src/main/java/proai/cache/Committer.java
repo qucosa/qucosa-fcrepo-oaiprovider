@@ -179,7 +179,7 @@ class Committer extends Thread {
 
         // phase two
         List<QueueItem> lastItems = getNextTransactionItems();
-        while (!_updater.processingShouldStop() && lastItems != null) {
+        while (_updater.processingShouldContinue() && lastItems != null) {
             commit(lastItems);
             lastItems = getNextTransactionItems();
         }
