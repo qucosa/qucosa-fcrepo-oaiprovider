@@ -322,11 +322,9 @@ public class RecordCache extends Thread {
         logger.info("Initializing Record Cache...");
 
         s_pool = pool;
-        OAIDriver m_driver = driver;
-        File m_baseDir = baseDir;
 
         // this creates baseDir if it doesn't exist yet
-        m_rcDisk = new RCDisk(m_baseDir);
+        m_rcDisk = new RCDisk(baseDir);
         logger.debug("Record Cache Initialized");
 
         // init RCDatabase (creates tables if needed)
@@ -366,7 +364,7 @@ public class RecordCache extends Thread {
         }
 
         // finally, start the Updater thread
-        m_updater = new Updater(m_driver,
+        m_updater = new Updater(driver,
                 m_rcdb,
                 m_rcDisk,
                 pollSeconds,
