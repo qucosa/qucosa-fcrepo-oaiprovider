@@ -451,7 +451,7 @@ public class RecordCache extends Thread {
     }
 
     private String getFormatsXMLString(List<? extends MetadataFormat> formats) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<ListMetadataFormats>\n");
         for (MetadataFormat fmt : formats) {
             buf.append("  <metadataFormat>\n");

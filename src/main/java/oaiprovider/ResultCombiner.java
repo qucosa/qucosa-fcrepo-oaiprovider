@@ -176,7 +176,7 @@ public class ResultCombiner {
             close();
             return null;
         } else {
-            StringBuffer line = new StringBuffer();
+            StringBuilder line = new StringBuilder();
             line.append(l1 + ",");
             String itemID = l1.split(",")[1];
             line.append(hasAbout(itemID));
@@ -212,7 +212,7 @@ public class ResultCombiner {
         if (m_l2 == null) {
             return "";
         } else {
-            StringBuffer out = new StringBuffer();
+            StringBuilder out = new StringBuilder();
             while (m_l2 != null && m_l2.split(",")[0].equals(itemID)) {
                 out.append("," + m_l2.split(",")[1]);
                 m_l2 = nextLine(m_r2);

@@ -130,7 +130,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
                     // Infer memberships based on setSpec:syntax:stuff
                     String[] h = s.split(":");
                 if (h.length > 2) {
-                        StringBuffer b4 = new StringBuffer();
+                        StringBuilder b4 = new StringBuilder();
                         for (String aH : h) {
                             m_setSpecs.add(b4.toString() + aH);
                             b4.append(aH + ":");

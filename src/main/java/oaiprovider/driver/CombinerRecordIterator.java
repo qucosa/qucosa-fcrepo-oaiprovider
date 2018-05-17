@@ -158,7 +158,7 @@ public class CombinerRecordIterator
      * @return datetime string such as 2004-01-31T23:11:00Z
      */
     private String formatDatetime(String datetime) {
-        StringBuffer sb = new StringBuffer(datetime);
+        StringBuilder sb = new StringBuilder(datetime);
         // length() - 5 b/c at most we're dealing with ".SSSZ"
         int i = sb.indexOf(".", sb.length() - 5);
         if (i != -1) {

@@ -46,7 +46,7 @@ public class FedoraRecord
         m_itemID = itemID;
         m_mdPrefix = mdPrefix;
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(recordDiss);
         buf.append(" " + aboutDiss);
         buf.append(" " + deleted);

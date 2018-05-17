@@ -106,7 +106,7 @@ public class FedoraSetInfo
             in = m_setDiss.invoke(m_fedora, m_setPID);
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(in));
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             String line = reader.readLine();
             while (line != null) {
                 buf.append(line + "\n");

@@ -27,8 +27,8 @@ public class MySQLDDLConverter
     }
 
     public List<String> getDDL(TableSpec spec) {
-        StringBuffer out = new StringBuffer();
-        StringBuffer end = new StringBuffer();
+        StringBuilder out = new StringBuilder();
+        StringBuilder end = new StringBuilder();
         out.append("CREATE TABLE " + spec.getName() + " (\n");
         Iterator<ColumnSpec> csi = spec.columnSpecIterator();
         int csNum = 0;

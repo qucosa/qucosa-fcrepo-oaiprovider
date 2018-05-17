@@ -36,7 +36,7 @@ class QueueIterator {
         String[] parts = line.split(" ");
         if (parts.length > 4) {
             try {
-                StringBuffer sourceInfo = new StringBuffer();
+                StringBuilder sourceInfo = new StringBuilder();
                 for (int i = 4; i < parts.length; i++) {
                     if (i > 4) sourceInfo.append(' ');
                     sourceInfo.append(parts[i]);

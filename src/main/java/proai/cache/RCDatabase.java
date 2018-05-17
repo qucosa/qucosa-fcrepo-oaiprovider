@@ -136,7 +136,7 @@ class RCDatabase {
                 }
             }
         } catch (Exception e) {
-            StringBuffer msg = new StringBuffer();
+            StringBuilder msg = new StringBuilder();
             msg.append("Error creating table: " + tableName
                     + ".  The following command failed:\n" + command);
             String dropCmd = "(unknown)";
@@ -998,7 +998,7 @@ class RCDatabase {
                 rs.close();
             }
 
-            StringBuffer query = new StringBuffer();
+            StringBuilder query = new StringBuilder();
             if (set == null) {
                 query.append("SELECT xmlPath, modDate FROM rcRecord WHERE formatKey = " + formatKey);
             } else {
@@ -1397,7 +1397,7 @@ class RCDatabase {
                                 int[] keys,
                                 int num) throws SQLException {
 
-        StringBuffer sql = new StringBuffer();
+        StringBuilder sql = new StringBuilder();
         sql.append("DELETE FROM rcPrunable WHERE pruneKey IN (");
         for (int i = 0; i < num; i++) {
             if (i > 0) sql.append(", ");

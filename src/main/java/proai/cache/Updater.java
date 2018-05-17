@@ -103,7 +103,7 @@ class Updater extends Thread {
      */
     private static String getHMSString(long ms) {
 
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
 
         long hours = ms / (1000 * 60 * 60);
         ms -= hours * 1000 * 60 * 60;

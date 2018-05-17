@@ -55,7 +55,7 @@ public abstract class StreamUtil {
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(in, encoding));
-            StringBuffer out = new StringBuffer();
+            StringBuilder out = new StringBuilder();
             String line = reader.readLine();
             while (line != null) {
                 out.append(line + "\n");
@@ -68,7 +68,7 @@ public abstract class StreamUtil {
     }
 
     public static String xmlEncode(String in) {
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
         for (int i = 0; i < in.length(); i++) {
             char c = in.charAt(i);
             if (c == '<') {

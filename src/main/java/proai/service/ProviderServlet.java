@@ -82,7 +82,7 @@ public class ProviderServlet extends HttpServlet {
                       HttpServletResponse response) {
 
         if (logger.isDebugEnabled()) {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append("Started servicing request ( ");
             Map map = request.getParameterMap();
             for (Object o : map.keySet()) {

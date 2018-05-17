@@ -223,7 +223,7 @@ public class CacheSession<T> extends Thread
             }
             File listFile = new File(_baseDir, _sessionKey + "/" + partNum + ".txt");
             if (!listFile.exists()) {
-                StringBuffer message = new StringBuffer();
+                StringBuilder message = new StringBuilder();
                 message.append("the indicated part does not exist because ");
                 message.append(listFile.getPath());
                 message.append(" doesn't exist");
