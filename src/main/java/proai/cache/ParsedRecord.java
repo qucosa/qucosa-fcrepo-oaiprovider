@@ -92,7 +92,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
     public void startElement(String uri,
                              String localName,
                              String qName,
-                             Attributes a) throws SAXException {
+                             Attributes a) {
         if (!m_finishedParsing) {
             if (qName.equals("datestamp")) {
                 m_inDatestamp = true;
@@ -146,7 +146,7 @@ public class ParsedRecord extends DefaultHandler implements Record {
     }
 
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) {
         if (!m_finishedParsing) {
             if (m_inDatestamp || m_inSetSpec) {
                 m_buf.append(ch, start, length);

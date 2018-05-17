@@ -107,7 +107,7 @@ class TableSpecDeserializer
         return (v.equalsIgnoreCase("true")) || (v.equalsIgnoreCase("yes"));
     }
 
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName) {
         if (localName.equals("table")) {
             m_tableSpecList.add(new TableSpec(m_table_name,
                     m_columnSpecList, m_table_primaryKey, m_table_type));
