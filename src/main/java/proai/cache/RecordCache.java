@@ -469,7 +469,7 @@ public class RecordCache extends Thread {
         try {
             conn = getConnection();
             List<SetInfo> list = m_rcdb.getSetInfo(conn);
-            return new proai.driver.impl.RemoteIteratorImpl<SetInfo>(list.iterator());
+            return new proai.driver.impl.RemoteIteratorImpl<>(list.iterator());
         } catch (SQLException e) {
             throw new ServerException("Error getting a database connection", e);
         } finally {

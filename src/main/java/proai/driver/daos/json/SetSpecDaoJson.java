@@ -82,7 +82,7 @@ public class SetSpecDaoJson {
     }
 
     public java.util.Set<String> getSetSpecs() {
-        java.util.Set<String> setSpecs = new HashSet<String>();
+        java.util.Set<String> setSpecs = new HashSet<>();
 
         for (int i = 0; i < getSetObjects().size(); i++) {
             Set set = getSetObjects().get(i);
