@@ -50,14 +50,13 @@ public class ProviderServlet extends HttpServlet {
      * Every response starts with this string.
      */
     private static final String _PROC_INST = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    private static final String _STYLESHEET_REFERENCE = "<?xml-stylesheet type=\"text/xsl\" href=\"/xslt/oai2.xsl\" ?>";
     private static final String _XMLSTART = "<OAI-PMH xmlns=\"http://www.openarchives.org/OAI/2.0/\"\n"
             + "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
             + "         xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/\n"
-            + "                             http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd\">\n"
-            + "  <responseDate>";
+            + "                             http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd\">\n";
     private Responder m_responder;
-    private String stylesheetLocation = null;
-    private String xmlProcInst = _PROC_INST + _XMLSTART;
+    private boolean useStylesheet;
 
     /**
      * Close the Responder at shutdown-time.
@@ -243,8 +242,9 @@ public class ProviderServlet extends HttpServlet {
             props.put("dissTermsData", new DissTermsDaoJson(disseminationConfiguration));
             props.put("dynSetSpecs", new SetSpecDaoJson(setSpecsConfiguration));
 
+            useStylesheet = Boolean.valueOf(props.getProperty("proai.useStylesheet"));
+
             m_responder = new Responder(props);
-            setStylesheetProperty(props);
         } catch (Exception e) {
             throw new ServletException("Unable to initialize ProviderServlet", e);
         }
@@ -340,9 +340,12 @@ public class ProviderServlet extends HttpServlet {
                 || e instanceof BadArgumentException)) doParams = false;
 
         StringBuffer buf = new StringBuffer();
-        buf.append(appendProcessingInstruction()); // _XML_START replaced for stylesheet instruction
-        buf.append(StreamUtil.nowUTCString());
-        buf.append("</responseDate>\n");
+        buf.append(_PROC_INST);
+        if (useStylesheet) {
+            buf.append(_STYLESHEET_REFERENCE);
+        }
+        buf.append(_XMLSTART);
+        buf.append(String.format("  <responseDate>%s</responseDate>\n", StreamUtil.nowUTCString()));
         buf.append("  <request");
         if (doParams) {
             appendAttribute("verb", verb, buf);
@@ -355,17 +358,6 @@ public class ProviderServlet extends HttpServlet {
         }
         buf.append(">").append(url).append("</request>\n");
         return buf.toString();
-    }
-
-    /**
-     * Method adds Stylesheet Location from proai.properties to the xml-response if available
-     */
-    private void setStylesheetProperty(Properties prop) {
-        if (prop.containsKey("proai.stylesheetLocation")) {
-            stylesheetLocation = prop.getProperty("proai.stylesheetLocation");
-        } else {
-            logger.info("No Stylesheet Location given");
-        }
     }
 
     private void sendProtocolException(String responseStart,
@@ -385,18 +377,6 @@ public class ProviderServlet extends HttpServlet {
         } catch (Throwable th) {
             logger.warn("Error while sending a protocol exception (" + e.getClass().getName() + ") response", th);
         }
-    }
-
-    /**
-     * Method adds Stylesheet Instruction to the XML-Processing Instructions if available
-     */
-    private String appendProcessingInstruction() {
-        if (stylesheetLocation != null) {
-            // add Stylesheet Instruction with a relative Location to XML Head
-            xmlProcInst = _PROC_INST + "<?xml-stylesheet type=\"text/xsl\" href=\"" + stylesheetLocation + "\" ?>" + " \n" + _XMLSTART;
-            logger.debug("Added Instruction: " + xmlProcInst);
-        }
-        return xmlProcInst;
     }
 
     private static String firstOf(String... strings) {
