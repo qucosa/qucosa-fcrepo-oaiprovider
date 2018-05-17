@@ -116,7 +116,7 @@ public class InvocationSpec {
         return m_service;
     }
 
-    public String getDisseminationType(PID forWhom) {
+    private String getDisseminationType(PID forWhom) {
         String object = (forWhom == null ? "*" : forWhom.toString());
 
         String service = "*";

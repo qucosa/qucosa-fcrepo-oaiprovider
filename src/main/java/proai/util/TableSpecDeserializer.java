@@ -23,7 +23,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableSpecDeserializer
+class TableSpecDeserializer
         extends DefaultHandler {
 
     private final ArrayList<TableSpec> m_tableSpecList;
@@ -43,7 +43,7 @@ public class TableSpecDeserializer
     private String m_table_primaryKey;
     private String m_table_type;
 
-    protected TableSpecDeserializer() {
+    TableSpecDeserializer() {
         m_tableSpecList = new ArrayList<>();
         m_columnSpecList = new ArrayList<>();
     }

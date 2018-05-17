@@ -18,7 +18,7 @@ package proai.service;
 
 import proai.error.ServerException;
 
-public interface Session {
+interface Session {
 
     /**
      * Has the session expired?

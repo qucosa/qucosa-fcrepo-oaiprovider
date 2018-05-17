@@ -18,7 +18,7 @@ package proai.cache;
 
 import java.io.*;
 
-public class QueueIterator {
+class QueueIterator {
 
     private final File _tempFile;
     private QueueItem _next;

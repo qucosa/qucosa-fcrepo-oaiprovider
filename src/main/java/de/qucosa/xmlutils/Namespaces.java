@@ -22,7 +22,7 @@ import org.jdom2.Namespace;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Namespaces {
+final class Namespaces {
 
     private static final Namespace METS = Namespace.getNamespace("mets", "http://www.loc.gov/METS/");
     private static final Namespace MEXT = Namespace.getNamespace("mext", "http://slub-dresden.de/mets");

@@ -86,9 +86,9 @@ public class ResultCombiner {
      * @param r3 The results of the thrid query. If given as null, output will
      *           always indicate that no "about" information exist for the item.
      */
-    public ResultCombiner(BufferedReader r1,
-                          BufferedReader r2,
-                          BufferedReader r3) {
+    private ResultCombiner(BufferedReader r1,
+                           BufferedReader r2,
+                           BufferedReader r3) {
         m_r1 = r1;
         m_r2 = r2;
         m_r3 = r3;

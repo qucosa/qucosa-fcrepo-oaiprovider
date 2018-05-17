@@ -51,7 +51,7 @@ import proai.error.RepositoryException;
 import proai.error.ServerException;
 import proai.util.SetSpec;
 
-public class Updater extends Thread {
+class Updater extends Thread {
 
     private static final Logger logger = LoggerFactory.getLogger(Updater.class);
 
@@ -233,13 +233,13 @@ public class Updater extends Thread {
      * Handle an exception encountered by currently-running Committer while
      * committing.
      */
-    protected void handleCommitException(Throwable th) {
+    void handleCommitException(Throwable th) {
         logger.warn("Processing aborted due to commit failure", th);
         _processingAborted = true;
     }
 
     // return null if no more batches or processing should stop
-    protected List<QueueItem> getNextBatch(List<QueueItem> finishedItems) {
+    List<QueueItem> getNextBatch(List<QueueItem> finishedItems) {
 
         List<QueueItem> nextBatch = null;
 
@@ -805,11 +805,11 @@ public class Updater extends Thread {
                 totalQueuedCount, sec));
     }
 
-    protected synchronized boolean processingShouldContinue() {
+    synchronized boolean processingShouldContinue() {
         return !_processingAborted && !_immediateShutdownRequested;
     }
 
-    protected boolean anyWorkersAreRunning() {
+    boolean anyWorkersAreRunning() {
         if (_workers == null) {
             return false;
         } else {

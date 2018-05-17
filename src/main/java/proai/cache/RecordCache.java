@@ -56,20 +56,20 @@ public class RecordCache extends Thread {
     private static final String propMissing = "Required property missing: ";
 
     private static final String pfx = "proai.";
-    public static final String PROP_BASEDIR = pfx + "cacheBaseDir";
-    public static final String PROP_OAIDRIVERCLASSNAME = pfx + "driverClassName";
-    public static final String PROP_POLLSECONDS = pfx + "driverPollSeconds";
-    public static final String PROP_POLLINGENABLED = pfx + "driverPollingEnabled";
-    public static final String PROP_MAXWORKERS = pfx + "maxWorkers";
-    public static final String PROP_MAXWORKBATCHSIZE = pfx + "maxWorkBatchSize";
-    public static final String PROP_MAXFAILEDRETRIES = pfx + "maxFailedRetries";
-    public static final String PROP_MAXCOMMITQUEUESIZE = pfx + "maxCommitQueueSize";
-    public static final String PROP_MAXRECORDSPERTRANS = pfx + "maxRecordsPerTransaction";
-    public static final String PROP_SCHEMADIR = pfx + "schemaDir";
-    public static final String PROP_VALIDATEUPDATES = pfx + "validateUpdates";
+    private static final String PROP_BASEDIR = pfx + "cacheBaseDir";
+    private static final String PROP_OAIDRIVERCLASSNAME = pfx + "driverClassName";
+    private static final String PROP_POLLSECONDS = pfx + "driverPollSeconds";
+    private static final String PROP_POLLINGENABLED = pfx + "driverPollingEnabled";
+    private static final String PROP_MAXWORKERS = pfx + "maxWorkers";
+    private static final String PROP_MAXWORKBATCHSIZE = pfx + "maxWorkBatchSize";
+    private static final String PROP_MAXFAILEDRETRIES = pfx + "maxFailedRetries";
+    private static final String PROP_MAXCOMMITQUEUESIZE = pfx + "maxCommitQueueSize";
+    private static final String PROP_MAXRECORDSPERTRANS = pfx + "maxRecordsPerTransaction";
+    private static final String PROP_SCHEMADIR = pfx + "schemaDir";
+    private static final String PROP_VALIDATEUPDATES = pfx + "validateUpdates";
     private static final String dbpfx = pfx + "db.";
-    public static final String PROP_DB_DRIVERCLASSNAME = dbpfx + "driverClassName";
-    public static final String PROP_DB_MYSQL_TRICKLING = dbpfx + "mySQLResultTrickling";
+    private static final String PROP_DB_DRIVERCLASSNAME = dbpfx + "driverClassName";
+    private static final String PROP_DB_MYSQL_TRICKLING = dbpfx + "mySQLResultTrickling";
     private static final String dbconnpfx = dbpfx + "connection.";
     private static BasicDataSource s_pool;
     private RCDisk m_rcDisk;
@@ -164,21 +164,21 @@ public class RecordCache extends Thread {
                 schemaDir);
     }
 
-    public RecordCache(BasicDataSource pool,
-                       DDLConverter ddlc,
-                       boolean mySQLTrickling,
-                       boolean backslashIsEscape,
-                       boolean pollingEnabled,
-                       OAIDriver driver,
-                       int pollSeconds,
-                       File baseDir,
-                       int maxWorkers,
-                       int maxWorkBatchSize,
-                       int maxFailedRetries,
-                       int maxCommitQueueSize,
-                       int maxRecordsPerTransaction,
-                       boolean validateUpdates,
-                       File schemaDir) throws ServerException {
+    private RecordCache(BasicDataSource pool,
+                        DDLConverter ddlc,
+                        boolean mySQLTrickling,
+                        boolean backslashIsEscape,
+                        boolean pollingEnabled,
+                        OAIDriver driver,
+                        int pollSeconds,
+                        File baseDir,
+                        int maxWorkers,
+                        int maxWorkBatchSize,
+                        int maxFailedRetries,
+                        int maxCommitQueueSize,
+                        int maxRecordsPerTransaction,
+                        boolean validateUpdates,
+                        File schemaDir) throws ServerException {
         init(pool,
                 ddlc,
                 mySQLTrickling,
@@ -255,7 +255,7 @@ public class RecordCache extends Thread {
     /**
      * Get a connection from the pool.
      */
-    protected static Connection getConnection() throws SQLException {
+    static Connection getConnection() throws SQLException {
         if (s_pool == null) {
             throw new RuntimeException("RecordCache has not been constructed "
                     + "so the db connection pool does not exist!");
@@ -271,7 +271,7 @@ public class RecordCache extends Thread {
         return conn;
     }
 
-    protected static void releaseConnection(Connection conn) {
+    static void releaseConnection(Connection conn) {
         if (s_pool == null) {
             logger.warn("RecordCache has not been constructed "
                     + "so the db connesrc/test/resources/dbspec.xmlction pool does not exist!");

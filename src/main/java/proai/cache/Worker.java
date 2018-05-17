@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 
-public class Worker extends Thread {
+class Worker extends Thread {
 
     private static final Logger _LOG = LoggerFactory.getLogger(Worker.class);
 

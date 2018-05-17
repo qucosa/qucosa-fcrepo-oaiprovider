@@ -28,7 +28,7 @@ import java.util.TimeZone;
  */
 public abstract class StreamUtil {
 
-    public static final int STREAM_BUFFER_SIZE = 4096;
+    private static final int STREAM_BUFFER_SIZE = 4096;
 
     /**
      * Pipe the input stream directly to the output stream.
@@ -101,7 +101,7 @@ public abstract class StreamUtil {
         return convertLocalDateToUTCDate(new Date());
     }
 
-    public static Date convertLocalDateToUTCDate(Date localDate) {
+    private static Date convertLocalDateToUTCDate(Date localDate) {
         // figure out the time zone offset of this machine (in millisecs)
         Calendar cal = Calendar.getInstance();
         int tzOffset = cal.get(Calendar.ZONE_OFFSET);

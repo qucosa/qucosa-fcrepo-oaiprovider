@@ -46,9 +46,9 @@ import proai.util.TableSpec;
 /**
  * Java interface to the database.
  */
-public class RCDatabase {
+class RCDatabase {
 
-    public static final String RCADMIN_TABLE_IS_EMPTY = "rcAdmin table is empty";
+    private static final String RCADMIN_TABLE_IS_EMPTY = "rcAdmin table is empty";
     private static final Logger logger = LoggerFactory.getLogger(RCDatabase.class);
     private final boolean m_backslashIsEscape;
     private final boolean m_mySQLTrickling;
@@ -197,8 +197,8 @@ public class RCDatabase {
         }
     }
 
-    public void setPollingEnabled(Connection conn,
-                                  boolean pollingEnabled) throws ServerException {
+    private void setPollingEnabled(Connection conn,
+                                   boolean pollingEnabled) throws ServerException {
         Statement stmt = null;
         try {
             stmt = getStatement(conn, false);
@@ -390,7 +390,7 @@ public class RCDatabase {
      * first column of the first row of the <code>ResultSet</code>,
      * or zero if there are no results.
      */
-    public long getLongValue(Connection conn, String query) throws SQLException {
+    private long getLongValue(Connection conn, String query) throws SQLException {
         Statement stmt = null;
         ResultSet rs = null;
         try {

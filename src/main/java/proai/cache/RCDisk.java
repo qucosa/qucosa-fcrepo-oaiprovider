@@ -33,9 +33,9 @@ import java.util.UUID;
 /**
  * The file-based portion of the record cache.
  */
-public class RCDisk {
+class RCDisk {
 
-    public static final String PATH_DATE_PATTERN = "yyyy/MM/dd/HH/mm/ss.SSS.'UUID'.'xml'";
+    private static final String PATH_DATE_PATTERN = "yyyy/MM/dd/HH/mm/ss.SSS.'UUID'.'xml'";
 
     private static final Logger logger = LoggerFactory.getLogger(RCDisk.class);
 

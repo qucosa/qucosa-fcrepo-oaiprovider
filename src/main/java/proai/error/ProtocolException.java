@@ -18,12 +18,12 @@ package proai.error;
 
 public abstract class ProtocolException extends ServerException {
 
-    public ProtocolException(String message) {
+    ProtocolException(String message) {
         super(message);
     }
 
-    public ProtocolException(String message,
-                             Throwable cause) {
+    ProtocolException(String message,
+                      Throwable cause) {
         super(message, cause);
     }
 

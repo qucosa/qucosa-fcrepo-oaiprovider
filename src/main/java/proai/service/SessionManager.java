@@ -24,13 +24,13 @@ import proai.error.ServerException;
 import java.io.File;
 import java.util.*;
 
-public class SessionManager extends Thread {
+class SessionManager extends Thread {
 
-    public static final String PROP_BASEDIR = "proai.sessionBaseDir";
-    public static final String PROP_SECONDSBETWEENREQUESTS = "proai.secondsBetweenRequests";
-    public static final String ERR_RESUMPTION_SYNTAX_SLASH = "bad syntax in resumption token: must contain exactly one slash";
-    public static final String ERR_RESUMPTION_SYNTAX_INTEGER = "bad syntax in resumption token: expected an integer after the slash";
-    public static final String ERR_RESUMPTION_SESSION = "bad session id or session expired";
+    private static final String PROP_BASEDIR = "proai.sessionBaseDir";
+    private static final String PROP_SECONDSBETWEENREQUESTS = "proai.secondsBetweenRequests";
+    private static final String ERR_RESUMPTION_SYNTAX_SLASH = "bad syntax in resumption token: must contain exactly one slash";
+    private static final String ERR_RESUMPTION_SYNTAX_INTEGER = "bad syntax in resumption token: expected an integer after the slash";
+    private static final String ERR_RESUMPTION_SESSION = "bad session id or session expired";
     private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
     private final Map<String, Session> m_sessions = new HashMap<>();
     private File m_baseDir;
@@ -142,7 +142,7 @@ public class SessionManager extends Thread {
      * Add a session to the map of tracked sessions.
      * This is called by any session that has multiple responses.
      */
-    protected void addSession(String key, Session session) {
+    void addSession(String key, Session session) {
         if (m_threadNeedsToFinish) {
             session.clean();
         } else {
