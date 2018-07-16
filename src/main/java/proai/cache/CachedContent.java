@@ -58,9 +58,10 @@ public class CachedContent implements Writable {
                                 new FileInputStream(m_file), "UTF-8"));
                 String line = reader.readLine();
                 while (line != null) {
-                    out.println(line);
+                    if (!m_headerOnly || !line.contains("<record>")) {
+                        out.println(line);
+                    }
                     if (m_headerOnly && line.contains("</header>")) {
-                        out.println("</record>");
                         break;
                     }
                     line = reader.readLine();
