@@ -43,6 +43,10 @@
     {
       "prefix": "oai_dc",
       "url": "http://www.openarchives.org/OAI/2.0/oai_dc/"
+    },
+    {
+      "prefix": "ddb",
+      "url": "http://www.d-nb.de/standards/ddb/"
     }
   ],
   "dissTerms": [
@@ -108,6 +112,15 @@
         {
           "name": "oai_dc",
           "term": "//oai_dc:dc[dc:rights='info:eu-repo/semantics/openAccess' or dc:relation='info:eu-repo/grantAgreement/*']"
+        }
+      ]
+    },
+    {
+      "diss": "xSourceSwb",
+      "terms": [
+        {
+          "name": "xmetadissplus",
+          "term": "//xMetaDiss:xMetaDiss[ddb:identifier[@ddb:type='Erstkat-ID']]"
         }
       ]
     }
