@@ -16,23 +16,8 @@
 
 package proai.cache;
 
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import proai.CloseableIterator;
 import proai.MetadataFormat;
 import proai.SetInfo;
@@ -42,6 +27,21 @@ import proai.error.ServerException;
 import proai.util.DBUtil;
 import proai.util.DDLConverter;
 import proai.util.TableSpec;
+
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Java interface to the database.
@@ -285,6 +285,26 @@ class RCDatabase {
     // get a single-quoted, sql-escaped string
     private String qs(String in) {
         return DBUtil.quotedString(in, m_backslashIsEscape);
+    }
+
+    private String join(String delimiter, Object... values) {
+        StringBuilder sb = new StringBuilder();
+        Iterator it = Arrays.asList(values).iterator();
+        while (it.hasNext()) {
+            sb.append(String.valueOf(it.next()));
+            if (it.hasNext()) sb.append(delimiter);
+        }
+        return sb.toString();
+    }
+
+    // get a single-quoted, sql-escaped set of strings
+    private String qs(String... in) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < in.length; i++) {
+            sb.append(qs(in[i]));
+            if (i <= in.length - 2) sb.append(',');
+        }
+        return sb.toString();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -947,7 +967,7 @@ class RCDatabase {
                                                       Date from,
                                                       Date until,
                                                       String prefix,
-                                                      String set) throws ServerException {
+                                                      String[] sets) throws ServerException {
         // since the database is in milliseconds, but the given date is
         // in seconds, we need to check for the case where from == until, and
         // shift until by 999 before doing the query
@@ -978,10 +998,10 @@ class RCDatabase {
             int formatKey = rs.getInt(1);
             rs.close();
 
-            // DETERMINE THE SET KEY, IF SPECIFIED
-            int setKey = -1;
-            if (set != null) {
-                rs = executeQuery(stmt, "SELECT setKey FROM rcSet WHERE setSpec = " + qs(set));
+            // DETERMINE THE SET KEYS, IF SPECIFIED
+            List<Integer> setKeys = new ArrayList<>();
+            if (sets != null) {
+                rs = executeQuery(stmt, "SELECT setKey FROM rcSet WHERE setSpec in (" + qs(sets) + ")");
                 if (!rs.next()) {
                     // no such set -- return an empty iterator
                     try {
@@ -994,19 +1014,29 @@ class RCDatabase {
                     }
                     return new RemoteIteratorImpl<>(new ArrayList<String[]>().iterator());
                 }
-                setKey = rs.getInt(1);
+
+                do {
+                    setKeys.add(rs.getInt(1));
+                } while (rs.next());
+
+                if (sets.length != setKeys.size()) {
+                    // not all specified sets are registered in the database -- return an empty iterator
+                    return new RemoteIteratorImpl<>(new ArrayList<String[]>().iterator());
+                }
+
                 rs.close();
             }
 
             StringBuilder query = new StringBuilder();
-            if (set == null) {
-                query.append("SELECT xmlPath, modDate FROM rcRecord WHERE formatKey = " + formatKey);
+
+            if (setKeys.isEmpty()) {
+                query.append("SELECT xmlPath, modDate FROM rcRecord WHERE rcRecord.formatKey = " + formatKey);
             } else {
-                query.append("SELECT rcRecord.xmlPath, rcRecord.modDate FROM rcMembership, rcRecord "
-                        + "WHERE rcMembership.setKey = " + setKey + " "
-                        + "AND rcMembership.recordKey = rcRecord.recordKey "
-                        + "AND rcRecord.formatKey = " + formatKey);
+                query.append("SELECT xmlPath, modDate FROM rcRecord, rcMembership WHERE rcRecord.formatKey = " + formatKey);
+                query.append(" AND rcRecord.recordKey = rcMembership.recordKey");
+                query.append(" AND rcMembership.setKey in (" + join(",", setKeys.toArray()) + ")");
             }
+
             if (from == null) {
                 if (until != null) {
                     query.append(" AND rcRecord.modDate <= " + until.getTime());
@@ -1017,6 +1047,12 @@ class RCDatabase {
                 query.append(" AND rcRecord.modDate >= " + from.getTime());
                 query.append(" AND rcRecord.modDate <= " + until.getTime());
             }
+
+            if (!setKeys.isEmpty()) {
+                query.append(" GROUP BY xmlPath, modDate");
+                query.append(" HAVING COUNT(rcMembership.setKey) = " + setKeys.size());
+            }
+
             rs = executeQuery(stmt, query.toString());
             releaseConnectionBeforeReturning = false;
             return new StringResultIterator(conn, stmt, rs);

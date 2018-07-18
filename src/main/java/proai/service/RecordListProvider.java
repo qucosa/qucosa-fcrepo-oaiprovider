@@ -34,7 +34,7 @@ public class RecordListProvider implements ListProvider<CachedContent> {
     private final boolean m_identifiers;
     private final int m_incompleteListSize;
     private final String m_prefix;
-    private final String m_set;
+    private final String[] m_sets;
     private final Date m_until;
 
     public RecordListProvider(RecordCache cache,
@@ -43,14 +43,14 @@ public class RecordListProvider implements ListProvider<CachedContent> {
                               Date from,
                               Date until,
                               String prefix,
-                              String set) {
+                              String[] set) {
         m_cache = cache;
         m_incompleteListSize = incompleteListSize;
         m_identifiers = identifiers;
         m_from = from;
         m_until = until;
         m_prefix = prefix;
-        m_set = set;
+        m_sets = set;
     }
 
     public CloseableIterator<CachedContent> getList() throws
@@ -58,28 +58,28 @@ public class RecordListProvider implements ListProvider<CachedContent> {
         CloseableIterator<CachedContent> iter = m_cache.getRecordsContent(m_from,
                 m_until,
                 m_prefix,
-                m_set,
+                m_sets,
                 m_identifiers);
         if (iter.hasNext()) return iter;
         // else figure out why and throw the right exception
         if (m_cache.formatDoesNotExist(m_prefix)) {
             throw new CannotDisseminateFormatException();
         }
-        closeSetinfoIfNotNull(m_set);
+        if (m_sets != null) {
+            closeSetinfoIfNotNull();
+        }
         throw new NoRecordsMatchException();
     }
 
-    private void closeSetinfoIfNotNull(String mSet) {
-        if (mSet != null) {
-            CloseableIterator<SetInfo> sic = m_cache.getSetInfoContent();
-            boolean supportsSets = sic.hasNext();
-            try {
-                sic.close();
-            } catch (Exception ignored) {
-            }
-            if (!supportsSets) {
-                throw new NoSetHierarchyException();
-            }
+    private void closeSetinfoIfNotNull() {
+        CloseableIterator<SetInfo> sic = m_cache.getSetInfoContent();
+        boolean supportsSets = sic.hasNext();
+        try {
+            sic.close();
+        } catch (Exception ignored) {
+        }
+        if (!supportsSets) {
+            throw new NoSetHierarchyException();
         }
     }
 
@@ -88,13 +88,15 @@ public class RecordListProvider implements ListProvider<CachedContent> {
         CloseableIterator<String[]> iter = m_cache.getRecordsPaths(m_from,
                 m_until,
                 m_prefix,
-                m_set);
+                m_sets);
         if (iter.hasNext()) return iter;
         // else figure out why and throw the right exception
         if (m_cache.formatDoesNotExist(m_prefix)) {
             throw new CannotDisseminateFormatException();
         }
-        closeSetinfoIfNotNull(m_set);
+        if (m_sets != null) {
+            closeSetinfoIfNotNull();
+        }
         throw new NoRecordsMatchException();
     }
 

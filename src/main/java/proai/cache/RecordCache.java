@@ -20,7 +20,11 @@ import net.sf.bvalid.SchemaLanguage;
 import net.sf.bvalid.Validator;
 import net.sf.bvalid.ValidatorFactory;
 import net.sf.bvalid.ValidatorOption;
-import net.sf.bvalid.catalog.*;
+import net.sf.bvalid.catalog.DiskSchemaCatalog;
+import net.sf.bvalid.catalog.FileSchemaIndex;
+import net.sf.bvalid.catalog.MemorySchemaCatalog;
+import net.sf.bvalid.catalog.SchemaCatalog;
+import net.sf.bvalid.catalog.SchemaIndex;
 import net.sf.bvalid.locator.CachingSchemaLocator;
 import net.sf.bvalid.locator.SchemaLocator;
 import net.sf.bvalid.locator.URLSchemaLocator;
@@ -41,7 +45,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Main application interface for working with items in the cache,
@@ -493,7 +502,7 @@ public class RecordCache extends Thread {
     public CloseableIterator<CachedContent> getRecordsContent(Date from,
                                                               Date until,
                                                               String prefix,
-                                                              String set,
+                                                              String[] set,
                                                               boolean identifiers) throws ServerException {
         if (until == null) {
             // If given as null, use the current date as from date.
@@ -518,7 +527,7 @@ public class RecordCache extends Thread {
     public CloseableIterator<String[]> getRecordsPaths(Date from,
                                                        Date until,
                                                        String prefix,
-                                                       String set) throws ServerException {
+                                                       String[] set) throws ServerException {
         if (until == null) {
             // If given as null, use the current date as from date.
             // This is done so that records with dates after the request date

@@ -34,7 +34,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -73,137 +77,15 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Entry point for handling OAI requests.
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public void doGet(HttpServletRequest request,
-                      HttpServletResponse response) {
-
-        if (logger.isDebugEnabled()) {
-            StringBuilder buf = new StringBuilder();
-            buf.append("Started servicing request ( ");
-            Map map = request.getParameterMap();
-            for (Object o : map.keySet()) {
-                String parmName = (String) o;
-                String[] parmVals = (String[]) map.get(parmName);
-                buf.append(parmName + "=" + parmVals[0] + " ");
+    private static void appendAttribute(String name, String[] values, StringBuffer buf) {
+        if (values != null) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < values.length; i++) {
+                String value = values[i];
+                sb.append(value);
+                if (i <= values.length - 2) sb.append(", ");
             }
-            buf.append(") from " + request.getRemoteAddr());
-            logger.debug(buf.toString());
-        }
-
-        String url = request.getRequestURL().toString();
-
-        String verb;
-        verb = request.getParameter("verb");
-
-        String identifier = request.getParameter("identifier");
-
-        String from = request.getParameter("from");
-
-        String until = request.getParameter("until");
-
-        String metadataPrefix = request.getParameter("metadataPrefix");
-
-        String set;
-        set = request.getParameter("set");
-
-        String resumptionToken;
-        resumptionToken = request.getParameter("resumptionToken");
-
-
-        try {
-            if (verb == null) throw new BadVerbException("request did not specify a verb");
-
-            // die if any other parameters are given, too
-            // this is a bit draconian, but required by the spec nonetheless
-            Set argKeys = request.getParameterMap().keySet();
-            int argCount = argKeys.size() - 1;
-            for (Object argKey : argKeys) {
-                String n = (String) argKey;
-                if (!n.equals("verb")
-                        && !n.equals("identifier")
-                        && !n.equals("from")
-                        && !n.equals("until")
-                        && !n.equals("metadataPrefix")
-                        && !n.equals("set")
-                        && !n.equals("resumptionToken")) {
-                    throw new BadArgumentException("unknown argument: " + n);
-                }
-            }
-
-            ResponseData data;
-            switch (verb) {
-                case "GetRecord":
-                    if (argCount != 2) throw new BadArgumentException("two arguments needed, got " + argCount);
-                    data = m_responder.getRecord(identifier, metadataPrefix);
-                    break;
-                case "Identify":
-                    if (argCount != 0) throw new BadArgumentException("zero arguments needed, got " + argCount);
-                    data = m_responder.identify();
-                    break;
-                case "ListIdentifiers":
-                    if (identifier != null)
-                        throw new BadArgumentException("identifier argument is not valid for this verb");
-                    data = m_responder.listIdentifiers(from, until, metadataPrefix, set, resumptionToken);
-                    break;
-                case "ListMetadataFormats":
-                    if (argCount > 1)
-                        throw new BadArgumentException("one or zero arguments needed, got " + argCount);
-                    data = m_responder.listMetadataFormats(identifier);
-                    break;
-                case "ListRecords":
-                    if (identifier != null)
-                        throw new BadArgumentException("identifier argument is not valid for this verb");
-                    data = m_responder.listRecords(from, until, metadataPrefix, set, resumptionToken);
-                    break;
-                case "ListSets":
-                    if (argCount > 1)
-                        throw new BadArgumentException("one or zero arguments needed, got " + argCount);
-                    data = m_responder.listSets(resumptionToken);
-                    break;
-                default:
-                    throw new BadVerbException("bad verb: " + verb);
-            }
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("text/xml; charset=UTF-8");
-            PrintWriter writer = response.getWriter();
-            writer.print(getResponseStart(url, verb, identifier, from, until, metadataPrefix, set, resumptionToken, null));
-            data.write(response.getWriter());
-            writer.println("</OAI-PMH>");
-            writer.flush();
-            writer.close();
-        } catch (ProtocolException e) {
-            sendProtocolException(getResponseStart(url,
-                    verb,
-                    identifier,
-                    from,
-                    until,
-                    metadataPrefix,
-                    set,
-                    resumptionToken,
-                    e),
-                    e, response);
-        } catch (ServerException e) {
-            try {
-                logger.error("OAI Service Error", e);
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAI Service Error");
-            } catch (IOException ioe) {
-                logger.error("Could not send error to client", ioe);
-            }
-        } catch (Throwable th) {
-            try {
-                logger.error("Unexpected Error", th);
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unexpected error");
-            } catch (IOException ioe) {
-                logger.error("Could not send error to client", ioe);
-            }
-        } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Finished servicing request from " + request.getRemoteAddr());
-            }
+            appendAttribute(name, sb.toString(), buf);
         }
     }
 
@@ -324,13 +206,147 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Entry point for handling OAI requests.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void doGet(HttpServletRequest request,
+                      HttpServletResponse response) {
+
+        if (logger.isDebugEnabled()) {
+            StringBuilder buf = new StringBuilder();
+            buf.append("Started servicing request ( ");
+            Map map = request.getParameterMap();
+            for (Object o : map.keySet()) {
+                String parmName = (String) o;
+                String[] parmVals = (String[]) map.get(parmName);
+                buf.append(parmName + "=" + parmVals[0] + " ");
+            }
+            buf.append(") from " + request.getRemoteAddr());
+            logger.debug(buf.toString());
+        }
+
+        String url = request.getRequestURL().toString();
+
+        String verb;
+        verb = request.getParameter("verb");
+
+        String identifier = request.getParameter("identifier");
+
+        String from = request.getParameter("from");
+
+        String until = request.getParameter("until");
+
+        String metadataPrefix = request.getParameter("metadataPrefix");
+
+        String[] sets;
+        sets = request.getParameterValues("set");
+
+        String resumptionToken;
+        resumptionToken = request.getParameter("resumptionToken");
+
+
+        try {
+            if (verb == null) throw new BadVerbException("request did not specify a verb");
+
+            // die if any other parameters are given, too
+            // this is a bit draconian, but required by the spec nonetheless
+            Set argKeys = request.getParameterMap().keySet();
+            int argCount = argKeys.size() - 1;
+            for (Object argKey : argKeys) {
+                String n = (String) argKey;
+                if (!n.equals("verb")
+                        && !n.equals("identifier")
+                        && !n.equals("from")
+                        && !n.equals("until")
+                        && !n.equals("metadataPrefix")
+                        && !n.equals("set")
+                        && !n.equals("resumptionToken")) {
+                    throw new BadArgumentException("unknown argument: " + n);
+                }
+            }
+
+            ResponseData data;
+            switch (verb) {
+                case "GetRecord":
+                    if (argCount != 2) throw new BadArgumentException("two arguments needed, got " + argCount);
+                    data = m_responder.getRecord(identifier, metadataPrefix);
+                    break;
+                case "Identify":
+                    if (argCount != 0) throw new BadArgumentException("zero arguments needed, got " + argCount);
+                    data = m_responder.identify();
+                    break;
+                case "ListIdentifiers":
+                    if (identifier != null)
+                        throw new BadArgumentException("identifier argument is not valid for this verb");
+                    data = m_responder.listIdentifiers(from, until, metadataPrefix, sets, resumptionToken);
+                    break;
+                case "ListMetadataFormats":
+                    if (argCount > 1)
+                        throw new BadArgumentException("one or zero arguments needed, got " + argCount);
+                    data = m_responder.listMetadataFormats(identifier);
+                    break;
+                case "ListRecords":
+                    if (identifier != null)
+                        throw new BadArgumentException("identifier argument is not valid for this verb");
+                    data = m_responder.listRecords(from, until, metadataPrefix, sets, resumptionToken);
+                    break;
+                case "ListSets":
+                    if (argCount > 1)
+                        throw new BadArgumentException("one or zero arguments needed, got " + argCount);
+                    data = m_responder.listSets(resumptionToken);
+                    break;
+                default:
+                    throw new BadVerbException("bad verb: " + verb);
+            }
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("text/xml; charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            writer.print(getResponseStart(url, verb, identifier, from, until, metadataPrefix, sets, resumptionToken, null));
+            data.write(response.getWriter());
+            writer.println("</OAI-PMH>");
+            writer.flush();
+            writer.close();
+        } catch (ProtocolException e) {
+            sendProtocolException(getResponseStart(url,
+                    verb,
+                    identifier,
+                    from,
+                    until,
+                    metadataPrefix,
+                    sets,
+                    resumptionToken,
+                    e),
+                    e, response);
+        } catch (ServerException e) {
+            try {
+                logger.error("OAI Service Error", e);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "OAI Service Error");
+            } catch (IOException ioe) {
+                logger.error("Could not send error to client", ioe);
+            }
+        } catch (Throwable th) {
+            try {
+                logger.error("Unexpected Error", th);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unexpected error");
+            } catch (IOException ioe) {
+                logger.error("Could not send error to client", ioe);
+            }
+        } finally {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Finished servicing request from " + request.getRemoteAddr());
+            }
+        }
+    }
+
     private String getResponseStart(String url,
                                     String verb,
                                     String identifier,
                                     String from,
                                     String until,
                                     String metadataPrefix,
-                                    String set,
+                                    String[] sets,
                                     String resumptionToken,
                                     ProtocolException e) { // normally null
         boolean doParams = true;
@@ -352,7 +368,7 @@ public class ProviderServlet extends HttpServlet {
             appendAttribute("from", from, buf);
             appendAttribute("until", until, buf);
             appendAttribute("metadataPrefix", metadataPrefix, buf);
-            appendAttribute("set", set, buf);
+            appendAttribute("set", sets, buf);
             appendAttribute("resumptionToken", resumptionToken, buf);
         }
         buf.append(">").append(url).append("</request>\n");
