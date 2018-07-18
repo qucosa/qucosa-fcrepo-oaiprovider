@@ -195,10 +195,10 @@ public class ResponderTestIT {
         try {
             if (identifiers) {
                 which = "Identifiers";
-                data = m_responder.listIdentifiers(from, until, prefix, set, null);
+                data = m_responder.listIdentifiers(from, until, prefix, new String[]{set}, null);
             } else {
                 which = "Records";
-                data = m_responder.listRecords(from, until, prefix, set, null);
+                data = m_responder.listRecords(from, until, prefix, new String[]{set}, null);
             }
             if (m_print)
                 printResult("list" + which + "(" + from + ", " + until + ", " + prefix + ", " + set + ", null)", data);

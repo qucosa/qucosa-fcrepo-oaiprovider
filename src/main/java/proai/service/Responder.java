@@ -86,6 +86,19 @@ public class Responder implements Closeable {
         }
     }
 
+    private static String q(String[] strings) {
+        if (strings == null) {
+            return null;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (String s : strings) {
+                sb.append(q(s));
+                sb.append(" ");
+            }
+            return sb.toString().trim();
+        }
+    }
+
     /**
      * Throw a <code>BadArgumentException<code> if <code>identifier</code> is
      * <code>null</code> or empty.
@@ -210,7 +223,7 @@ public class Responder implements Closeable {
      * @param metadataPrefix  specifies that headers should be returned only if the metadata
      *                        format matching the supplied metadataPrefix is available (or
      *                        has been deleted).
-     * @param set             optional argument with a setSpec value, which specifies set
+     * @param sets             optional argument with a setSpec value, which specifies set
      *                        criteria for selective harvesting.
      * @param resumptionToken exclusive argument with a value that is the flow control token
      *                        returned by a previous ListIdentifiers request that issued an
@@ -228,7 +241,7 @@ public class Responder implements Closeable {
      * @throws ServerException                  if a low-level (non-protocol) error occurred.
      */
     public ResponseData listIdentifiers(String from, String until,
-                                        String metadataPrefix, String set, String resumptionToken)
+                                        String metadataPrefix, String[] sets, String resumptionToken)
             throws
             ServerException {
 
@@ -237,23 +250,23 @@ public class Responder implements Closeable {
         if (logger.isDebugEnabled()) {
             logger.debug(String.format(
                     "Entered listIdentifiers(%s, %s, %s, %s, %s)",
-                    q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
+                    q(from), q(until), q(metadataPrefix), q(sets), q(resumptionToken)));
         }
 
         try {
-            return listRecords(from, until, metadataPrefix, set,
+            return listRecords(from, until, metadataPrefix, sets,
                     resumptionToken, true, m_incompleteIdentifierListSize);
         } finally {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format(
                         "Exiting listIdentifiers(%s, %s, %s, %s, %s)",
-                        q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
+                        q(from), q(until), q(metadataPrefix), q(sets), q(resumptionToken)));
             }
         }
     }
 
     private ResponseData listRecords(String from, String until,
-                                     String metadataPrefix, String set, String resumptionToken,
+                                     String metadataPrefix, String[] sets, String resumptionToken,
                                      boolean identifiersOnly, int incompleteListSize)
             throws
             ServerException {
@@ -274,11 +287,11 @@ public class Responder implements Closeable {
             checkMetadataPrefix(metadataPrefix);
             ListProvider<CachedContent> provider = new RecordListProvider(
                     m_cache, incompleteListSize, identifiersOnly, fromDate,
-                    untilDate, metadataPrefix, set);
+                    untilDate, metadataPrefix, sets);
             return m_sessionManager.list(provider);
         } else {
             if (from != null || until != null || metadataPrefix != null
-                    || set != null) {
+                    || sets != null) {
                 throw new BadArgumentException("the resumptionToken argument may only be specified by itself");
             }
             return m_sessionManager.getResponseData(resumptionToken);
@@ -331,7 +344,7 @@ public class Responder implements Closeable {
      * @param metadataPrefix  specifies that records should be returned only if the metadata
      *                        format matching the supplied metadataPrefix is available (or
      *                        has been deleted).
-     * @param set             optional argument with a setSpec value, which specifies set
+     * @param sets             optional argument with a setSpec value, which specifies set
      *                        criteria for selective harvesting.
      * @param resumptionToken exclusive argument with a value that is the flow control token
      *                        returned by a previous ListIdentifiers request that issued an
@@ -349,21 +362,21 @@ public class Responder implements Closeable {
      * @throws ServerException                  if a low-level (non-protocol) error occurred.
      */
     public ResponseData listRecords(String from, String until,
-                                    String metadataPrefix, String set, String resumptionToken)
+                                    String metadataPrefix, String[] sets, String resumptionToken)
             throws
             ServerException {
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Entered listRecords(%s, %s, %s, %s, %s)",
-                    q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
+                    q(from), q(until), q(metadataPrefix), q(sets), q(resumptionToken)));
         }
         try {
-            return listRecords(from, until, metadataPrefix, set,
+            return listRecords(from, until, metadataPrefix, sets,
                     resumptionToken, false, m_incompleteRecordListSize);
         } finally {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Exiting listRecords(%s, %s, %s, %s, %s)",
-                        q(from), q(until), q(metadataPrefix), q(set), q(resumptionToken)));
+                        q(from), q(until), q(metadataPrefix), q(sets), q(resumptionToken)));
             }
         }
     }
