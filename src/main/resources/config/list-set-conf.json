@@ -160,6 +160,11 @@
     "predicate": "xSourceSwb=true"
   },
   {
+    "setSpec": "has-source-swb:false",
+    "setName": "All records without PPN",
+    "predicate": "xSourceSwb=false"
+  },
+  {
     "setSpec": "open_access",
     "setName": "Documents with open access restriction",
     "predicate": "xOpenAccess=open_access"
