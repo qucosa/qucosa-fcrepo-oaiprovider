@@ -229,9 +229,15 @@ public class FedoraOAIDriver implements OAIDriver {
             xpathTerm = termExpression;
         }
 
+        Boolean expectMatch = Boolean.TRUE;
+        if ("false".equalsIgnoreCase(predicateValue) || "true".equalsIgnoreCase(predicateValue)) {
+           expectMatch = Boolean.valueOf(predicateValue);
+        }
+
         try {
             XPathExpression xPathExpression = xPath.compile(xpathTerm);
-            return (boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
+            Boolean match = (Boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
+            return match.equals(expectMatch);
         } catch (XPathExpressionException e) {
             logger.error(String.format("Cannot evaluate XPath expression >>>%s<<< : %s", xpathTerm, e.getMessage()));
         }
