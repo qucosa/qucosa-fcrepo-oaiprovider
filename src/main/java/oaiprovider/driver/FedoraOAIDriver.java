@@ -386,9 +386,12 @@ public class FedoraOAIDriver implements OAIDriver {
         setSpecs.addAll(getDynamicSetSpecs(mdPrefix, disseminationDocument));
 
         writeRecordHeader(itemID, deleted, date, setSpecs, out);
-        writeRecordMetadata(out, serializeXml(disseminationDocument));
 
-        if (!aboutDissURI.equals("null")) {
+        if (!deleted) {
+            writeRecordMetadata(out, serializeXml(disseminationDocument));
+        }
+
+        if (!aboutDissURI.equals("null") && !deleted) {
             writeRecordAbouts(aboutDissURI, out);
         }
 
