@@ -54,7 +54,7 @@ public class ProviderServlet extends HttpServlet {
      * Every response starts with this string.
      */
     private static final String _PROC_INST = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    private static final String _STYLESHEET_REFERENCE = "<?xml-stylesheet type=\"text/xsl\" href=\"/xslt/oai2.xsl\" ?>";
+    private static final String _STYLESHEET_REFERENCE = "<?xml-stylesheet type=\"text/xsl\" href=\"%s/xslt/oai2.xsl\" ?>";
     private static final String _XMLSTART = "<OAI-PMH xmlns=\"http://www.openarchives.org/OAI/2.0/\"\n"
             + "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
             + "         xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/\n"
@@ -357,7 +357,8 @@ public class ProviderServlet extends HttpServlet {
         StringBuffer buf = new StringBuffer();
         buf.append(_PROC_INST);
         if (useStylesheet) {
-            buf.append(_STYLESHEET_REFERENCE);
+            buf.append(String.format(_STYLESHEET_REFERENCE, getServletContext().getContextPath()));
+            buf.append("\n");
         }
         buf.append(_XMLSTART);
         buf.append(String.format("  <responseDate>%s</responseDate>\n", StreamUtil.nowUTCString()));
