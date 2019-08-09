@@ -267,6 +267,11 @@ public class ProviderServlet extends HttpServlet {
                 }
             }
 
+            // lower-case if metadata prefix is xMetaDissPlus
+            if (metadataPrefix != null && metadataPrefix.equals("xMetaDissPlus")) {
+                metadataPrefix = metadataPrefix.toLowerCase();
+            }
+
             ResponseData data;
             switch (verb) {
                 case "GetRecord":

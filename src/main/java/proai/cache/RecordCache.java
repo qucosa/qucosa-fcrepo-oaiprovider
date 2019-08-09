@@ -37,6 +37,7 @@ import proai.MetadataFormat;
 import proai.SetInfo;
 import proai.Writable;
 import proai.driver.OAIDriver;
+import proai.driver.impl.MetadataFormatImpl;
 import proai.error.ServerException;
 import proai.util.DDLConverter;
 import proai.util.StreamUtil;
@@ -48,6 +49,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -449,9 +451,19 @@ public class RecordCache extends Thread {
         Connection conn = null;
         try {
             conn = getConnection();
-            List<CachedMetadataFormat> formats = m_rcdb.getFormats(conn, identifier);
+            List<? extends MetadataFormat> formats = m_rcdb.getFormats(conn, identifier);
             if (identifier != null && formats.size() == 0) return null;
-            return new CachedContent(getFormatsXMLString(formats));
+
+            // add format alias
+            List<MetadataFormat> formatsAndAliases = new LinkedList<>();
+            for (MetadataFormat f : formats) {
+                formatsAndAliases.add(f);
+                if (f.getPrefix().equals("xmetadissplus")) {
+                    formatsAndAliases.add(new MetadataFormatImpl("xMetaDissPlus", f.getNamespaceURI(), f.getSchemaLocation()));
+                }
+            }
+
+            return new CachedContent(getFormatsXMLString(formatsAndAliases));
         } catch (SQLException e) {
             throw new ServerException("Error getting a database connection", e);
         } finally {
@@ -460,6 +472,7 @@ public class RecordCache extends Thread {
     }
 
     private String getFormatsXMLString(List<? extends MetadataFormat> formats) {
+
         StringBuilder buf = new StringBuilder();
         buf.append("<ListMetadataFormats>\n");
         for (MetadataFormat fmt : formats) {
@@ -468,6 +481,7 @@ public class RecordCache extends Thread {
             buf.append("    <schema>" + fmt.getSchemaLocation() + "</schema>\n");
             buf.append("    <metadataNamespace>" + fmt.getNamespaceURI() + "</metadataNamespace>\n");
             buf.append("  </metadataFormat>\n");
+
         }
         buf.append("</ListMetadataFormats>");
         return buf.toString();
